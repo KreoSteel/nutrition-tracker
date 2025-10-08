@@ -39,3 +39,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.cursorignore
+COMPREHENSIVE_APP_PLAN.md

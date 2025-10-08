@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ingredient {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String   @unique
+  caloriesPer100g   Decimal  @db.Decimal(8, 2) @map("calories")
+  proteinPer100g    Decimal  @db.Decimal(8, 2) @map("protein")
+  carbsPer100g      Decimal  @db.Decimal(8, 2) @map("carbs")
+  fatPer100g        Decimal  @db.Decimal(8, 2) @map("fat")
+  category          String?
+  isCustom          Boolean  @default(false) @map("is_custom")
+  createdAt         DateTime @default(now()) @map("created_at")
+  
+  recipeIngredients RecipeIngredient[]
+  
+  @@map("ingredients")
+}
+
+model Recipe {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  description   String?
+  instructions  String?
+  totalGrams Decimal @db.Decimal(8, 2) @map("total_grams")
+  totalCalories Decimal  @db.Decimal(8, 2) @map("total_calories")
+  totalProtein  Decimal  @db.Decimal(8, 2) @map("total_protein")
+  totalCarbs    Decimal  @db.Decimal(8, 2) @map("total_carbs")
+  totalFat      Decimal  @db.Decimal(8, 2) @map("total_fat")
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  ingredients     RecipeIngredient[]
+  cookingHistory  CookingHistory[]
+  userPreferences UserPreferences?
+  
+  @@map("recipes")
+}
+
+model RecipeIngredient {
+  id           String   @id @default(uuid()) @db.Uuid
+  recipeId     String   @db.Uuid
+  ingredientId String   @db.Uuid
+  quantityGrams Decimal @db.Decimal(8, 2) @map("quantity_grams")
+  calories     Decimal  @db.Decimal(8, 2)
+  protein      Decimal  @db.Decimal(8, 2)
+  carbs        Decimal  @db.Decimal(8, 2)
+  fat          Decimal  @db.Decimal(8, 2)
+  
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  
+  @@unique([recipeId, ingredientId])
+  @@map("recipe_ingredients")
+}
+
+model CookingHistory {
+  id           String   @id @default(uuid()) @db.Uuid
+  recipeId     String   @db.Uuid @map("recipe_id")
+  cookedDate   DateTime @db.Date @map("cooked_date")
+  servingsCooked Int    @default(1) @map("servings_cooked")
+  rating       Int?     @db.SmallInt
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@map("cooking_history")
+}
+
+model UserPreferences {
+  id        String   @id @default(uuid()) @db.Uuid
+  recipeId  String   @unique @db.Uuid @map("recipe_id")
+  isFavorite Boolean @default(false) @map("is_favorite")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  @@map("user_preferences")
+}
