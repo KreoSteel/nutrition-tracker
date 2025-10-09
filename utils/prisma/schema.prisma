@@ -20,6 +20,8 @@ model Ingredient {
   
   recipeIngredients RecipeIngredient[]
   
+  @@index([name])
+  @@index([category])
   @@map("ingredients")
 }
 
@@ -28,58 +30,43 @@ model Recipe {
   name          String
   description   String?
   instructions  String?
-  totalGrams Decimal @db.Decimal(8, 2) @map("total_grams")
-  totalCalories Decimal  @db.Decimal(8, 2) @map("total_calories")
-  totalProtein  Decimal  @db.Decimal(8, 2) @map("total_protein")
-  totalCarbs    Decimal  @db.Decimal(8, 2) @map("total_carbs")
-  totalFat      Decimal  @db.Decimal(8, 2) @map("total_fat")
+  servings      Int      @default(1)
+  imageUrl      String?
   createdAt     DateTime @default(now()) @map("created_at")
   
   ingredients     RecipeIngredient[]
   cookingHistory  CookingHistory[]
-  userPreferences UserPreferences?
   
+  @@index([name])
   @@map("recipes")
 }
 
 model RecipeIngredient {
-  id           String   @id @default(uuid()) @db.Uuid
-  recipeId     String   @db.Uuid
-  ingredientId String   @db.Uuid
-  quantityGrams Decimal @db.Decimal(8, 2) @map("quantity_grams")
-  calories     Decimal  @db.Decimal(8, 2)
-  protein      Decimal  @db.Decimal(8, 2)
-  carbs        Decimal  @db.Decimal(8, 2)
-  fat          Decimal  @db.Decimal(8, 2)
+  id             String   @id @default(uuid()) @db.Uuid
+  recipeId       String   @db.Uuid
+  ingredientId   String   @db.Uuid
+  quantityGrams  Decimal  @db.Decimal(8, 2) @map("quantity_grams")
   
-  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
   
   @@unique([recipeId, ingredientId])
+  @@index([ingredientId])
   @@map("recipe_ingredients")
 }
 
 model CookingHistory {
-  id           String   @id @default(uuid()) @db.Uuid
-  recipeId     String   @db.Uuid @map("recipe_id")
-  cookedDate   DateTime @db.Date @map("cooked_date")
-  servingsCooked Int    @default(1) @map("servings_cooked")
-  rating       Int?     @db.SmallInt
-  notes        String?
-  createdAt    DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid()) @db.Uuid
+  recipeId   String   @db.Uuid @map("recipe_id")
+  cookedAt   DateTime @default(now()) @map("cooked_at")
+  rating     Int?     @db.SmallInt
+  favorite   Boolean? @map("favorite")
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
   
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   
+  @@index([cookedAt])
+  @@index([recipeId, cookedAt])
   @@map("cooking_history")
-}
-
-model UserPreferences {
-  id        String   @id @default(uuid()) @db.Uuid
-  recipeId  String   @unique @db.Uuid @map("recipe_id")
-  isFavorite Boolean @default(false) @map("is_favorite")
-  createdAt DateTime @default(now()) @map("created_at")
-  
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  
-  @@map("user_preferences")
 }

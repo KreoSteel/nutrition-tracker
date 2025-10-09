@@ -1,6 +1,8 @@
-import type { Metadata } from 'next';
+'use client'
+
 import { Inter, Poppins } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import Header from '@/components/layout/Header';
 import './globals.css';
 
@@ -17,21 +19,31 @@ const poppins = Poppins({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'NutriTrack - Nutrition Tracker',
-  description: 'Track your recipes, ingredients, and nutrition with NutriTrack',
-  icons: {
-    icon: '/favicon.ico',
-  },
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000, // 1 minute
+      },
+    },
+  })
+
+  // Add to global window for devtools
+  if (typeof window !== 'undefined') {
+    window.__TANSTACK_QUERY_CLIENT__ = queryClient
+  }
+  
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
+      <head>
+        <title>NutriTrack - Nutrition Tracker</title>
+        <meta name="description" content="Track your recipes, ingredients, and nutrition with NutriTrack" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body>
         <ThemeProvider
           attribute="class"
@@ -41,10 +53,19 @@ export default function RootLayout({
         >
           <Header />
           <div className="mx-auto w-full max-w-[1600px] px-6 lg:px-10 flex flex-col items-center justify-center">
-            {children}
+            <QueryClientProvider client={queryClient}>
+              {children}
+            </QueryClientProvider>
           </div>
         </ThemeProvider>
       </body>
     </html>
   );
+}
+
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__:
+      import("@tanstack/query-core").QueryClient;
+  }
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Header() {
   return (
-    <header className="border-b border-border mb-10">
+    <header className="border-b border-border 10">
       <div className="mx-auto w-full max-w-[1600px] px-6 lg:px-10 h-16 grid grid-cols-[1fr_auto_1fr] items-center">
         <div className="flex items-center gap-2 text-primary">
           <ChefHat size={30} />
