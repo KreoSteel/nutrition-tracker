@@ -2,14 +2,13 @@
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDebouncedCallback } from "use-debounce";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useIngredients } from "../hooks/useIngredients";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -17,25 +16,44 @@ import {
 import { useState, useEffect } from "react";
 
 export default function IngredientsPage() {
-  const [search, setSearch] = useState("");
-  const { data: ingredients } = useIngredients();
-  const filteredIngredients = ingredients?.filter((ingredient) => ingredient.name.toLowerCase().includes(search.toLowerCase()) || ingredient.category?.toLowerCase().includes(search.toLowerCase()))
-
   const searchParams = useSearchParams();
-  const pathname = usePathname();
+  const pathname = usePathname(); 
   const router = useRouter();
-  function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+  
+  const [inputValue, setInputValue] = useState(searchParams.get("query") || "");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
+
+
+  const { data: ingredients } = useIngredients();
+  const filteredIngredients = ingredients?.filter((ingredient) => 
+    ingredient.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    ingredient.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const debouncedSearch = useDebouncedCallback((term: string) => {
+    setSearchTerm(term);
     const params = new URLSearchParams(searchParams);
-    if (e.target.value === "") {
-      params.delete("search");
-      setSearch("");
+    if (term) {
+      params.set("query", term);
     } else {
-      params.set("search", e.target.value);
-      setSearch(e.target.value);
+      params.delete("query");
     }
     router.replace(`${pathname}?${params.toString()}`);
-  }
+  }, 300);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    debouncedSearch(value);
+  };
+
+  useEffect(() => {
+    const query = searchParams.get("query") || "";
+    setInputValue(query);
+    setSearchTerm(query);
+  }, [searchParams]);
+
+  
   return (
     <form className="w-full mt-10 flex flex-col gap-8">
       <div className="flex w-full justify-between items-center">
@@ -50,8 +68,8 @@ export default function IngredientsPage() {
         <Input
           className="bg-input-background px-4 py-2 pl-10 h-12 placeholder:text-[#8c6e5f]"
           placeholder="Search ingredients"
-          value={search}
-          onChange={handleSearch}
+          value={inputValue}
+          onChange={handleSearchChange}
         />
       </div>
       <div className="border border-border rounded-lg overflow-hidden">

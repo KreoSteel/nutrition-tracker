@@ -1,7 +1,7 @@
 'use client'
 
 import { Inter, Poppins } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import Header from '@/components/layout/Header';
 import './globals.css';
@@ -66,6 +66,6 @@ export default function RootLayout({
 declare global {
   interface Window {
     __TANSTACK_QUERY_CLIENT__:
-      import("@tanstack/query-core").QueryClient;
+      import("@tanstack/react-query").QueryClient;
   }
 }

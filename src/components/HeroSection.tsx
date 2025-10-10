@@ -37,7 +37,7 @@ export default function HeroSection() {
           <p className="text-foreground text-xl font-medium">0</p>
           </div>
         </div>
-      </div>
+      </div>\
     </section>
   );
 }
