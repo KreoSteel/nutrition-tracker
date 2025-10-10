@@ -15,7 +15,7 @@ model Ingredient {
   carbsPer100g      Decimal  @db.Decimal(8, 2) @map("carbs")
   fatPer100g        Decimal  @db.Decimal(8, 2) @map("fat")
   category          String?
-  isCustom          Boolean  @default(false) @map("is_custom")
+  isCustom          Boolean  @default(true) @map("is_custom")
   createdAt         DateTime @default(now()) @map("created_at")
   
   recipeIngredients RecipeIngredient[]

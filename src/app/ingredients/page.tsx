@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState, useEffect } from "react";
+import { IngredientForm } from "@/app/forms/IngredientForm";
 
 export default function IngredientsPage() {
   const searchParams = useSearchParams();
@@ -58,7 +59,9 @@ export default function IngredientsPage() {
     <form className="w-full mt-10 flex flex-col gap-8">
       <div className="flex w-full justify-between items-center">
         <h1 className="text-3xl">Ingredients</h1>
-        <Button>Add Ingredient</Button>
+          <IngredientForm>
+            <Button>Add Ingredient</Button>
+          </IngredientForm>
       </div>
       <div className="w-[40%] relative flex flex-col items-center">
         <Search
@@ -93,7 +96,7 @@ export default function IngredientsPage() {
                 <TableCell className="text-foreground">
                   {ingredient.name}
                 </TableCell>
-                <TableCell>{ingredient.caloriesPer100g.toString()}</TableCell>
+                <TableCell>{ingredient.caloriesPer100g.toString()}kcal</TableCell>
                 <TableCell>{ingredient.proteinPer100g.toString()}g</TableCell>
                 <TableCell>{ingredient.carbsPer100g.toString()}g</TableCell>
                 <TableCell>{ingredient.fatPer100g.toString()}g</TableCell>
