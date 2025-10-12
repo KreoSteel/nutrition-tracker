@@ -15,10 +15,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-export function IngredientForm({ children }: { children: React.ReactNode }) {
+export function IngredientCreateForm({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const { mutate: createIngredient } = useCreateIngredient();
+    const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -38,6 +40,7 @@ export function IngredientForm({ children }: { children: React.ReactNode }) {
   const onSubmit = (data: CreateIngredient) => {
     createIngredient(data, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["ingredients"] });
         toast.success(`Ingredient ${data.name} created successfully!`);
         setOpen(false);
       },

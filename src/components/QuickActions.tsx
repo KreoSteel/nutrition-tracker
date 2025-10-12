@@ -1,4 +1,5 @@
 import { Plus, PackagePlus, CheckCircle } from "lucide-react";
+import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
 
 export default function QuickActions() {
   return (
@@ -16,7 +17,8 @@ export default function QuickActions() {
             <p className="text-[13px] font-light">Build new dish</p>
           </div>
         </div>
-        <div className="group flex items-center gap-2 p-4 bg-chart-2 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-green-950/90 transition-all dark:hover:bg-emerald-600">
+        <IngredientCreateForm>
+          <button className="group flex items-center text-left gap-2 p-4 bg-chart-2 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-green-950/90 transition-all dark:hover:bg-emerald-600">
           <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all">
             <PackagePlus />
           </div>
@@ -24,7 +26,8 @@ export default function QuickActions() {
             <p className="font-medium">Add Ingredients</p>
             <p className="text-[13px] font-light">Add new ingredients</p>
           </div>
-        </div>
+        </button>
+        </IngredientCreateForm>
         <div className="group flex items-center gap-2 p-4 bg-chart-3 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-[#E89251] transition-all dark:hover:bg-[#E89251]">
           <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all">
             <CheckCircle />

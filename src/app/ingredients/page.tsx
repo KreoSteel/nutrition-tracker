@@ -1,9 +1,10 @@
 "use client";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { IngredientUpdateForm } from "../forms/IngredientUpdateForm";
 import { useIngredients } from "../hooks/useIngredients";
 import {
   Table,
@@ -13,55 +14,84 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState, useEffect } from "react";
-import { IngredientForm } from "@/app/forms/IngredientForm";
+import { useState, useEffect, useRef } from "react";
+import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
+import { IngredientResponse } from "@/schemas";
 
 export default function IngredientsPage() {
   const searchParams = useSearchParams();
-  const pathname = usePathname(); 
+  const pathname = usePathname();
   const router = useRouter();
-  
+  const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchParams.get("query") || "");
+  const [selectedIngredient, setSelectedIngredient] =
+    useState<IngredientResponse | null>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
-
-
-  const { data: ingredients } = useIngredients();
-  const filteredIngredients = ingredients?.filter((ingredient) => 
-    ingredient.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    ingredient.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useIngredients(searchTerm);
+  const filteredIngredients = data?.pages.flatMap((page: any) => page.data);
+  const observerRef = useRef<HTMLDivElement>(null);
 
   const debouncedSearch = useDebouncedCallback((term: string) => {
+    if (term.length < 2 && term.length > 0) return; // Don't search for 1 character
+    if (!term.trim()) {
+      setSearchTerm("");
+      const params = new URLSearchParams(searchParams);
+      params.delete("query");
+      router.replace(`${pathname}?${params.toString()}`);
+      return;
+    }
+    
     setSearchTerm(term);
     const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set("query", term);
-    } else {
-      params.delete("query");
-    }
+    params.set("query", term);
     router.replace(`${pathname}?${params.toString()}`);
   }, 300);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-    debouncedSearch(value);
+    setInputValue(e.target.value);
+    debouncedSearch(e.target.value);
   };
 
   useEffect(() => {
     const query = searchParams.get("query") || "";
-    setInputValue(query);
     setSearchTerm(query);
+    setInputValue(query);
   }, [searchParams]);
 
-  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   return (
-    <form className="w-full mt-10 flex flex-col gap-8">
+    <div className="w-full mt-10 flex flex-col gap-8">
       <div className="flex w-full justify-between items-center">
         <h1 className="text-3xl">Ingredients</h1>
-          <IngredientForm>
-            <Button>Add Ingredient</Button>
-          </IngredientForm>
+        <IngredientCreateForm>
+          <Button>Add Ingredient</Button>
+        </IngredientCreateForm>
       </div>
       <div className="w-[40%] relative flex flex-col items-center">
         <Search
@@ -75,20 +105,77 @@ export default function IngredientsPage() {
           onChange={handleSearchChange}
         />
       </div>
+
       <div className="border border-border rounded-lg overflow-hidden">
         <Table className="p-20">
           <TableHeader>
             <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 text-xl">
-              <TableHead className="font-semibold">Name</TableHead>
-              <TableHead className="font-semibold">Calories</TableHead>
-              <TableHead className="font-semibold">Protein</TableHead>
-              <TableHead className="font-semibold">Carbs</TableHead>
-              <TableHead className="font-semibold">Fat</TableHead>
-              <TableHead className="font-semibold">Category</TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-2">
+                  <span>Name</span>
+                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-2">
+                  <span>Calories</span>
+                  <ChevronDown size={16} />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-2">
+                  <span>Protein</span>
+                  <ChevronDown size={16} />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-2">
+                  <span>Carbs</span>
+                  <ChevronDown size={16} />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-2">
+                  <span>Fat</span>
+                  <ChevronDown size={16} />
+                </div>
+              </TableHead>
+              <TableHead className="font-semibold">
+                <div className="flex items-center gap-2">
+                  <span>Category</span>
+                  <ChevronDown size={16} />
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredIngredients?.map((ingredient) => (
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  Loading ingredients...
+                </TableCell>
+              </TableRow>
+            )}
+            {isError && (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-red-500"
+                >
+                  Failed to load ingredients. Please try again.
+                </TableCell>
+              </TableRow>
+            )}
+
+            {!isLoading && !isError && filteredIngredients?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  No ingredients found.
+                </TableCell>
+              </TableRow>
+            )}
+
+            {filteredIngredients?.map((ingredient: IngredientResponse) => (
               <TableRow
                 key={ingredient.id}
                 className="text-[15px] text-muted-foreground"
@@ -96,16 +183,52 @@ export default function IngredientsPage() {
                 <TableCell className="text-foreground">
                   {ingredient.name}
                 </TableCell>
-                <TableCell>{ingredient.caloriesPer100g.toString()}kcal</TableCell>
+                <TableCell>
+                  {ingredient.caloriesPer100g.toString()}kcal
+                </TableCell>
                 <TableCell>{ingredient.proteinPer100g.toString()}g</TableCell>
                 <TableCell>{ingredient.carbsPer100g.toString()}g</TableCell>
                 <TableCell>{ingredient.fatPer100g.toString()}g</TableCell>
                 <TableCell>{ingredient.category}</TableCell>
+                <TableCell>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setSelectedIngredient(ingredient);
+                      setIsOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        <div ref={observerRef} className="h-4" />
+
+        {isFetchingNextPage && (
+          <div className="text-center py-4 text-muted-foreground">
+            Loading more ingredients...
+          </div>
+        )}
+
+        {!hasNextPage &&
+          filteredIngredients?.length &&
+          filteredIngredients.length > 0 && (
+            <div className="text-center py-4 text-muted-foreground">
+              No more ingredients to load
+            </div>
+          )}
       </div>
-    </form>
+      {selectedIngredient && (
+        <IngredientUpdateForm
+          key={selectedIngredient.id}
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          ingredient={selectedIngredient}
+        />
+      )}
+    </div>
   );
 }
