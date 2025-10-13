@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { IngredientUpdateForm } from "../forms/IngredientUpdateForm";
+import { SortableHeader } from "@/components/layout/SortableHeader";
 import { useIngredients } from "../hooks/useIngredients";
 import {
   Table,
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { useState, useEffect, useRef } from "react";
 import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
-import { IngredientResponse } from "@/schemas";
+import { IngredientQuery, IngredientResponse } from "../../../utils/schemas";
 
 export default function IngredientsPage() {
   const searchParams = useSearchParams();
@@ -24,9 +25,30 @@ export default function IngredientsPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchParams.get("query") || "");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
+  const [filters, setFilters] = useState({} as Partial<IngredientQuery>);
   const [selectedIngredient, setSelectedIngredient] =
     useState<IngredientResponse | null>(null);
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
+
+  type SortableField = "name" | "caloriesPer100g" | "proteinPer100g" | "carbsPer100g" | "fatPer100g" | "category" | "createdAt";
+
+  const [sortState, setSortState] = useState<{
+    field: SortableField;
+    order: "asc" | "desc";
+  } | undefined>(undefined);
+
+  const handleSort = (field: SortableField) => {
+    setSortState((prev) => {
+      if (!prev || prev.field !== field) {
+        return { field, order: "asc" };
+      } else if (prev.order === "asc") {
+        return { field, order: "desc" };
+      } else {
+        return { field, order: "asc" };
+      }
+    });
+  }
+
   const {
     data,
     fetchNextPage,
@@ -34,12 +56,16 @@ export default function IngredientsPage() {
     isFetchingNextPage,
     isLoading,
     isError,
-  } = useIngredients(searchTerm);
+  } = useIngredients({
+    search: searchTerm,
+    sortBy: sortState?.field,
+    sortOrder: sortState?.order,
+  });
   const filteredIngredients = data?.pages.flatMap((page: any) => page.data);
   const observerRef = useRef<HTMLDivElement>(null);
 
   const debouncedSearch = useDebouncedCallback((term: string) => {
-    if (term.length < 2 && term.length > 0) return; // Don't search for 1 character
+    if (term.length < 2 && term.length > 0) return;
     if (!term.trim()) {
       setSearchTerm("");
       const params = new URLSearchParams(searchParams);
@@ -47,7 +73,7 @@ export default function IngredientsPage() {
       router.replace(`${pathname}?${params.toString()}`);
       return;
     }
-    
+
     setSearchTerm(term);
     const params = new URLSearchParams(searchParams);
     params.set("query", term);
@@ -110,42 +136,24 @@ export default function IngredientsPage() {
         <Table className="p-20">
           <TableHeader>
             <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 text-xl">
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-2">
-                  <span>Name</span>
-                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-2">
-                  <span>Calories</span>
-                  <ChevronDown size={16} />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-2">
-                  <span>Protein</span>
-                  <ChevronDown size={16} />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-2">
-                  <span>Carbs</span>
-                  <ChevronDown size={16} />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-2">
-                  <span>Fat</span>
-                  <ChevronDown size={16} />
-                </div>
-              </TableHead>
-              <TableHead className="font-semibold">
-                <div className="flex items-center gap-2">
-                  <span>Category</span>
-                  <ChevronDown size={16} />
-                </div>
-              </TableHead>
+              <SortableHeader field="name" sortState={sortState} onSort={handleSort}>
+                Name
+              </SortableHeader>
+              <SortableHeader field="caloriesPer100g" sortState={sortState} onSort={handleSort}>
+                Calories
+              </SortableHeader>
+              <SortableHeader field="proteinPer100g" sortState={sortState} onSort={handleSort}>
+                Protein
+              </SortableHeader>
+              <SortableHeader field="carbsPer100g" sortState={sortState} onSort={handleSort}>
+                Carbs
+              </SortableHeader>
+              <SortableHeader field="fatPer100g" sortState={sortState} onSort={handleSort}>
+                Fat
+              </SortableHeader>
+              <SortableHeader field="category" sortState={sortState} onSort={handleSort}>
+                Category
+              </SortableHeader>
             </TableRow>
           </TableHeader>
           <TableBody>

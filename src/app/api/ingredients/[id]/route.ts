@@ -1,6 +1,6 @@
 import { prisma } from "../../../../../utils/prisma/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { GetIngredientSchema, UpdateIngredientSchema } from "@/schemas";
+import { GetIngredientSchema, UpdateIngredientSchema } from "../../../../../utils/schemas";
 import { ZodError } from "zod";
 
 export async function GET({ params }: { params: Promise<{ id: string }> }) {

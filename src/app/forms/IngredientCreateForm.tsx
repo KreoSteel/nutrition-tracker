@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { CreateIngredient, CreateIngredientSchema } from "@/schemas/ingredient";
+import { CreateIngredient, CreateIngredientSchema } from "../../../utils/schemas/ingredient";
 import { useCreateIngredient } from "@/app/hooks/useIngredients";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {

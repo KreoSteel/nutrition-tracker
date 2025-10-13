@@ -3,7 +3,7 @@ import {
   UpdateIngredient,
   UpdateIngredientSchema,
   IngredientResponse,
-} from "@/schemas";
+} from "../../../utils/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateIngredient } from "@/app/hooks/useIngredients";
 import { toast } from "sonner";

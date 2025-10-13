@@ -1,36 +1,40 @@
 import { http } from "@/lib/http";
 import {
   CreateIngredient,
+  IngredientQuery,
+  IngredientQuerySchema,
   IngredientResponse,
   IngredientResponseSchema,
   PaginatedIngredientsResponse,
   PaginatedIngredientsResponseSchema,
   UpdateIngredient,
-} from "@/schemas";
+} from "../../../utils/schemas";
 import { ZodError } from "zod";
 
-interface GetIngredientsParams {
-  cursor?: string | null;
-  limit?: number;
-  search?: string;
-}
-
 export const getIngredients = async (
-  params: GetIngredientsParams = {}
+  params: Partial<IngredientQuery> = {}
 ): Promise<PaginatedIngredientsResponse> => {
   try {
-    const queryParams = new URLSearchParams();
-    if (params.cursor) queryParams.append("cursor", params.cursor);
-    if (params.limit) queryParams.append("limit", params.limit.toString());
-    if (params.search) queryParams.append("search", params.search);
+    const validatedParams = IngredientQuerySchema.partial().parse(params)
+    const queryParams = new URLSearchParams()
 
-    const response = await http.get(`/ingredients?${queryParams.toString()}`);
-    return PaginatedIngredientsResponseSchema.parse(response.data);
+    Object.entries(validatedParams).forEach(([key, value]) =>{
+      if (value !== undefined && value !== null && value !== "") {
+        queryParams.append(key, value.toString())
+      }
+    })
+    
+    const response = await http.get(`/ingredients?${queryParams.toString()}`)
+    return PaginatedIngredientsResponseSchema.parse(response.data)
   } catch (error) {
-    console.error("Failed to fetch ingredients:", error);
+    if (error instanceof ZodError) {
+      throw new Error("Invalid ingredient query: " + error.message);
+    }
     throw new Error("Failed to fetch ingredients");
   }
-};
+}
+
+
 
 export const createIngredient = async (
   ingredient: CreateIngredient

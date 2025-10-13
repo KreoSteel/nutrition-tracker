@@ -3,18 +3,18 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getIngredients, createIngredient, updateIngredient } from "@/app/services/ingredients"
 import { toast } from "sonner"
-import { UpdateIngredient } from "@/schemas"
+import { UpdateIngredient, IngredientQuery } from "../../../utils/schemas"
 
 
-export const useIngredients = (search?: string) => {
+export const useIngredients = (filters: Partial<IngredientQuery> = {}) => {
     return useInfiniteQuery({
-        queryKey: ["ingredients", search],
+        queryKey: ["ingredients", filters],
         queryFn: ({ pageParam }) => getIngredients({
-            cursor: pageParam as string | null,
+            cursor: pageParam as string | undefined,
             limit: 50,
-            search: search,
+            ...filters,
         }),
-        initialPageParam: null as string | null,
+        initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => {
             return lastPage.nextCursor ?? undefined
         }

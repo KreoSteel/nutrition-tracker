@@ -1,17 +1,19 @@
 import { prisma } from "../../../../utils/prisma/prisma";
-import { CreateIngredientSchema } from "@/schemas";
+import {
+  CreateIngredientSchema,
+  IngredientQuerySchema,
+} from "../../../../utils/schemas";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const cursor = searchParams.get("cursor");
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
-    const search = searchParams.get("search");
+    const queryParams = IngredientQuerySchema.parse(
+      Object.fromEntries(searchParams.entries())
+    );
 
-    const validLimit = Math.min(Math.max(limit, 1), 100);
-
+    const search = queryParams.search?.trim();
     const where = search
       ? {
           OR: [
@@ -22,24 +24,83 @@ export async function GET(req: Request) {
       : {};
 
     const ingredients = await prisma.ingredient.findMany({
-      where,
-      take: validLimit + 1,
-      ...(cursor
+      where: {
+        ...where,
+        ...(queryParams.minCalories !== undefined ||
+        queryParams.maxCalories !== undefined
+          ? {
+              caloriesPer100g: {
+                ...(queryParams.minCalories !== undefined && {
+                  gte: queryParams.minCalories,
+                }),
+                ...(queryParams.maxCalories !== undefined && {
+                  lte: queryParams.maxCalories,
+                }),
+              },
+            }
+          : {}),
+        ...(queryParams.minProtein !== undefined ||
+        queryParams.maxProtein !== undefined
+          ? {
+              proteinPer100g: {
+                ...(queryParams.minProtein !== undefined && {
+                  gte: queryParams.minProtein,
+                }),
+                ...(queryParams.maxProtein !== undefined && {
+                  lte: queryParams.maxProtein,
+                }),
+              },
+            }
+          : {}),
+        ...(queryParams.minCarbs !== undefined ||
+        queryParams.maxCarbs !== undefined
+          ? {
+              carbsPer100g: {
+                ...(queryParams.minCarbs !== undefined && {
+                  gte: queryParams.minCarbs,
+                }),
+                ...(queryParams.maxCarbs !== undefined && {
+                  lte: queryParams.maxCarbs,
+                }),
+              },
+            }
+          : {}),
+        ...(queryParams.minFat !== undefined || queryParams.maxFat !== undefined
+          ? {
+              fatPer100g: {
+                ...(queryParams.minFat !== undefined && {
+                  gte: queryParams.minFat,
+                }),
+                ...(queryParams.maxFat !== undefined && {
+                  lte: queryParams.maxFat,
+                }),
+              },
+            }
+          : {}),
+      },
+      take: (queryParams.limit ?? 20) + 1,
+      ...(queryParams.cursor && queryParams.cursor !== ""
         ? {
             cursor: {
-              id: cursor,
+              id: queryParams.cursor,
             },
             skip: 1,
           }
         : {}),
-      orderBy: {
-        name: "asc",
-      },
+      orderBy:
+        queryParams.sortBy && queryParams.sortOrder
+          ? {
+              [queryParams.sortBy]: queryParams.sortOrder,
+            }
+          : {
+              [queryParams.sortBy ?? "name"]: queryParams.sortOrder ?? "asc",
+            },
     });
 
-    const hasMore = ingredients.length > validLimit
-    const data = hasMore ? ingredients.slice(0, validLimit) : ingredients
-    const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].id : null
+    const hasMore = ingredients.length > (queryParams.limit ?? 20);
+    const data = hasMore ? ingredients.slice(0, queryParams.limit) : ingredients;
+    const nextCursor =
+      hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
     return NextResponse.json({
       data,
@@ -47,11 +108,10 @@ export async function GET(req: Request) {
       hasMore,
     });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Failed to fetch ingredients" },
-      { status: 500 }
-    );
+    if (error instanceof ZodError) {
+      return NextResponse.json({ error: "Invalid query parameters", details: error.issues }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Failed to fetch ingredients" }, { status: 500 });
   }
 }
 
@@ -73,7 +133,7 @@ export async function POST(req: Request) {
     return NextResponse.json(ingredient);
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: "Invalid ingredient data", details: error.issues }, { status: 400 });
     }
     return NextResponse.json(
       { error: "Failed to create ingredient" },
