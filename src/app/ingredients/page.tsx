@@ -7,6 +7,7 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { IngredientUpdateForm } from "../forms/IngredientUpdateForm";
 import { SortableHeader } from "@/components/layout/SortableHeader";
 import { useIngredients } from "../hooks/useIngredients";
+import { NutritionFilters } from "@/components/ui/NutritionFilters";
 import {
   Table,
   TableBody,
@@ -27,15 +28,33 @@ export default function IngredientsPage() {
   const [inputValue, setInputValue] = useState(searchParams.get("query") || "");
   const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
   const [filters, setFilters] = useState({} as Partial<IngredientQuery>);
+  const [caloriesMin, setCaloriesMin] = useState(0);
+  const [caloriesMax, setCaloriesMax] = useState(900);
+  const [proteinMin, setProteinMin] = useState(0);
+  const [proteinMax, setProteinMax] = useState(100);
+  const [carbsMin, setCarbsMin] = useState(0);
+  const [carbsMax, setCarbsMax] = useState(100);
+  const [fatMin, setFatMin] = useState(0);
+  const [fatMax, setFatMax] = useState(100);
   const [selectedIngredient, setSelectedIngredient] =
     useState<IngredientResponse | null>(null);
 
-  type SortableField = "name" | "caloriesPer100g" | "proteinPer100g" | "carbsPer100g" | "fatPer100g" | "category" | "createdAt";
+  type SortableField =
+    | "name"
+    | "caloriesPer100g"
+    | "proteinPer100g"
+    | "carbsPer100g"
+    | "fatPer100g"
+    | "category"
+    | "createdAt";
 
-  const [sortState, setSortState] = useState<{
-    field: SortableField;
-    order: "asc" | "desc";
-  } | undefined>(undefined);
+  const [sortState, setSortState] = useState<
+    | {
+        field: SortableField;
+        order: "asc" | "desc";
+      }
+    | undefined
+  >(undefined);
 
   const handleSort = (field: SortableField) => {
     setSortState((prev) => {
@@ -47,7 +66,7 @@ export default function IngredientsPage() {
         return { field, order: "asc" };
       }
     });
-  }
+  };
 
   const {
     data,
@@ -60,6 +79,14 @@ export default function IngredientsPage() {
     search: searchTerm,
     sortBy: sortState?.field,
     sortOrder: sortState?.order,
+    minCalories: caloriesMin !== 0 ? caloriesMin : undefined,
+    maxCalories: caloriesMax !== 900 ? caloriesMax : undefined,
+    minProtein: proteinMin !== 0 ? proteinMin : undefined,
+    maxProtein: proteinMax !== 100 ? proteinMax : undefined,
+    minCarbs: carbsMin !== 0 ? carbsMin : undefined,
+    maxCarbs: carbsMax !== 100 ? carbsMax : undefined,
+    minFat: fatMin !== 0 ? fatMin : undefined,
+    maxFat: fatMax !== 100 ? fatMax : undefined,
   });
   const filteredIngredients = data?.pages.flatMap((page: any) => page.data);
   const observerRef = useRef<HTMLDivElement>(null);
@@ -119,39 +146,91 @@ export default function IngredientsPage() {
           <Button>Add Ingredient</Button>
         </IngredientCreateForm>
       </div>
-      <div className="w-[40%] relative flex flex-col items-center">
-        <Search
-          size={22}
-          className="text-[#8c6e5f] absolute left-3 top-1/2 -translate-y-1/2"
+      <div className="w-full flex flex-col gap-4">
+        <NutritionFilters
+          fatMin={fatMin}
+          fatMax={fatMax}
+          onChangeFat={(min, max) => {
+            setFatMin(min);
+            setFatMax(max);
+          }}
+          carbsMin={carbsMin}
+          carbsMax={carbsMax}
+          onChangeCarbs={(min, max) => {
+            setCarbsMin(min);
+            setCarbsMax(max);
+          }}
+          proteinMin={proteinMin}
+          proteinMax={proteinMax}
+          onChangeProtein={(min, max) => {
+            setProteinMin(min);
+            setProteinMax(max);
+          }}
+          caloriesMin={caloriesMin}
+          caloriesMax={caloriesMax}
+          onChangeCalories={(min, max) => {
+            setCaloriesMin(min);
+            setCaloriesMax(max);
+          }}
         />
-        <Input
-          className="bg-input-background px-4 py-2 pl-10 h-12 placeholder:text-[#8c6e5f]"
-          placeholder="Search ingredients"
-          value={inputValue}
-          onChange={handleSearchChange}
-        />
+        <div className="w-[40%] relative">
+          <Search
+            size={22}
+            className="text-[#8c6e5f] absolute left-3 top-1/2 -translate-y-1/2"
+          />
+          <Input
+            className="bg-input-background px-4 py-2 pl-10 h-12 placeholder:text-[#8c6e5f]"
+            placeholder="Search ingredients"
+            value={inputValue}
+            onChange={handleSearchChange}
+          />
+        </div>
       </div>
 
       <div className="border border-border rounded-lg overflow-hidden">
         <Table className="p-20">
           <TableHeader>
             <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 text-xl">
-              <SortableHeader field="name" sortState={sortState} onSort={handleSort}>
+              <SortableHeader
+                field="name"
+                sortState={sortState}
+                onSort={handleSort}
+              >
                 Name
               </SortableHeader>
-              <SortableHeader field="caloriesPer100g" sortState={sortState} onSort={handleSort}>
+              <SortableHeader
+                field="caloriesPer100g"
+                sortState={sortState}
+                onSort={handleSort}
+              >
                 Calories
               </SortableHeader>
-              <SortableHeader field="proteinPer100g" sortState={sortState} onSort={handleSort}>
+              <SortableHeader
+                field="proteinPer100g"
+                sortState={sortState}
+                onSort={handleSort}
+              >
                 Protein
               </SortableHeader>
-              <SortableHeader field="carbsPer100g" sortState={sortState} onSort={handleSort}>
+              <SortableHeader
+                field="carbsPer100g"
+                sortState={sortState}
+                onSort={handleSort}
+              >
                 Carbs
               </SortableHeader>
-              <SortableHeader field="fatPer100g" sortState={sortState} onSort={handleSort}>
+              <SortableHeader
+                field="fatPer100g"
+                sortState={sortState}
+                onSort={handleSort}
+              >
                 Fat
               </SortableHeader>
-              <SortableHeader field="category" sortState={sortState} onSort={handleSort}>
+              <SortableHeader
+                field="category"
+                sortState={sortState}
+                onSort={handleSort}
+              >
                 Category
               </SortableHeader>
             </TableRow>
