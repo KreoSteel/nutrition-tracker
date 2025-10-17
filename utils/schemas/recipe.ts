@@ -18,11 +18,11 @@ export const RecipeSchema = z.object({
 });
 
 export const RecipeIngredientInputSchema = z.object({
-  ingredientId: z.string().uuid("Invalid ingredient ID"),
+  ingredientId: z.string().min(1, "Ingredient is required"),
   quantityGrams: z.coerce
     .number()
     .positive("Quantity must be positive")
-    .max(100000, "Quantity seems unreasonably large"),
+    .max(1000, "Quantity must be less than 1000g"),
 });
 
 export const CreateRecipeSchema = RecipeSchema.extend({
