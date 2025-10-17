@@ -1,7 +1,7 @@
 "use client"
 
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { getIngredients, createIngredient, updateIngredient } from "@/app/services/ingredients"
+import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
+import { getIngredients, createIngredient, updateIngredient, deleteIngredient } from "@/app/services/ingredients"
 import { toast } from "sonner"
 import { UpdateIngredient, IngredientQuery } from "../../../utils/schemas"
 
@@ -20,6 +20,14 @@ export const useIngredients = (filters: Partial<IngredientQuery> = {}) => {
         }
     })
 }
+
+export const useAllIngredients = () => {
+    return useQuery({
+        queryKey: ["ingredients", "all"],
+        queryFn: () => getIngredients({ limit: 10000 })
+    })
+}
+
 
 export const useCreateIngredient = () => {
     const queryClient = useQueryClient()
@@ -45,6 +53,21 @@ export const useUpdateIngredient = () => {
         },
         onError: () => {
             toast.error("Failed to update ingredient")
+        }
+    })
+}
+
+
+export const useDeleteIngredient = () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationKey: ["deleteIngredient"],
+        mutationFn: deleteIngredient,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["ingredients"] })
+        },
+        onError: () => {
+            toast.error("Failed to delete ingredient")
         }
     })
 }

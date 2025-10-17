@@ -1,9 +1,7 @@
 "use client";
-import { ChevronDown, Search } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useDebouncedCallback } from "use-debounce";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { IngredientUpdateForm } from "../forms/IngredientUpdateForm";
 import { SortableHeader } from "@/components/layout/SortableHeader";
 import { useIngredients } from "../hooks/useIngredients";
@@ -12,33 +10,37 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { useState, useEffect, useRef } from "react";
 import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
-import { IngredientQuery, IngredientResponse } from "../../../utils/schemas";
+import { IngredientResponse } from "../../../utils/schemas";
+import IngredientDelete from "../forms/IngredientDelete";
 
 export default function IngredientsPage() {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchParams.get("query") || "");
   const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
-  const [filters, setFilters] = useState({} as Partial<IngredientQuery>);
-  const [caloriesMin, setCaloriesMin] = useState(0);
-  const [caloriesMax, setCaloriesMax] = useState(900);
-  const [proteinMin, setProteinMin] = useState(0);
-  const [proteinMax, setProteinMax] = useState(100);
-  const [carbsMin, setCarbsMin] = useState(0);
-  const [carbsMax, setCarbsMax] = useState(100);
-  const [fatMin, setFatMin] = useState(0);
-  const [fatMax, setFatMax] = useState(100);
+
+  const [filters, setFilters] = useState({
+    calories: { min: 0, max: 900 },
+    protein: { min: 0, max: 100 },
+    carbs: { min: 0, max: 100 },
+    fat: { min: 0, max: 100 },
+  });
+
   const [selectedIngredient, setSelectedIngredient] =
     useState<IngredientResponse | null>(null);
 
+  const updateFilter = (
+    nutrient: "protein" | "carbs" | "fat" | "calories",
+    min: number,
+    max: number
+  ) => {
+    setFilters((prev) => ({ ...prev, [nutrient]: { min, max } }));
+  };
   type SortableField =
     | "name"
     | "caloriesPer100g"
@@ -79,44 +81,19 @@ export default function IngredientsPage() {
     search: searchTerm,
     sortBy: sortState?.field,
     sortOrder: sortState?.order,
-    minCalories: caloriesMin !== 0 ? caloriesMin : undefined,
-    maxCalories: caloriesMax !== 900 ? caloriesMax : undefined,
-    minProtein: proteinMin !== 0 ? proteinMin : undefined,
-    maxProtein: proteinMax !== 100 ? proteinMax : undefined,
-    minCarbs: carbsMin !== 0 ? carbsMin : undefined,
-    maxCarbs: carbsMax !== 100 ? carbsMax : undefined,
-    minFat: fatMin !== 0 ? fatMin : undefined,
-    maxFat: fatMax !== 100 ? fatMax : undefined,
+    minCalories: filters.calories.min !== 0 ? filters.calories.min : undefined,
+    maxCalories:
+      filters.calories.max !== 900 ? filters.calories.max : undefined,
+    minProtein: filters.protein.min !== 0 ? filters.protein.min : undefined,
+    maxProtein: filters.protein.max !== 100 ? filters.protein.max : undefined,
+    minCarbs: filters.carbs.min !== 0 ? filters.carbs.min : undefined,
+    maxCarbs: filters.carbs.max !== 100 ? filters.carbs.max : undefined,
+    minFat: filters.fat.min !== 0 ? filters.fat.min : undefined,
+    maxFat: filters.fat.max !== 100 ? filters.fat.max : undefined,
   });
-  const filteredIngredients = data?.pages.flatMap((page: any) => page.data);
+  const filteredIngredients = data?.pages.flatMap((page) => page.data);
+  const totalIngredients = data?.pages[0].totalIngredients;
   const observerRef = useRef<HTMLDivElement>(null);
-
-  const debouncedSearch = useDebouncedCallback((term: string) => {
-    if (term.length < 2 && term.length > 0) return;
-    if (!term.trim()) {
-      setSearchTerm("");
-      const params = new URLSearchParams(searchParams);
-      params.delete("query");
-      router.replace(`${pathname}?${params.toString()}`);
-      return;
-    }
-
-    setSearchTerm(term);
-    const params = new URLSearchParams(searchParams);
-    params.set("query", term);
-    router.replace(`${pathname}?${params.toString()}`);
-  }, 300);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    debouncedSearch(e.target.value);
-  };
-
-  useEffect(() => {
-    const query = searchParams.get("query") || "";
-    setSearchTerm(query);
-    setInputValue(query);
-  }, [searchParams]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -127,64 +104,50 @@ export default function IngredientsPage() {
       },
       { threshold: 0.1 }
     );
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
+    const currentObserver = observerRef.current;
+    if (currentObserver) {
+      observer.observe(currentObserver);
     }
 
     return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current);
+      if (currentObserver) {
+        observer.unobserve(currentObserver);
       }
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <div className="w-full mt-10 flex flex-col gap-8">
-      <div className="flex w-full justify-between items-center">
-        <h1 className="text-3xl">Ingredients</h1>
+      <div className="flex flex-col md:flex-row w-full justify-between items-center">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl">Ingredients</h1>
+          <h3 className="text-muted-foreground text-sm">
+            Total Ingredients: {totalIngredients}
+          </h3>
+        </div>
         <IngredientCreateForm>
           <Button>Add Ingredient</Button>
         </IngredientCreateForm>
       </div>
       <div className="w-full flex flex-col gap-4">
         <NutritionFilters
-          fatMin={fatMin}
-          fatMax={fatMax}
-          onChangeFat={(min, max) => {
-            setFatMin(min);
-            setFatMax(max);
-          }}
-          carbsMin={carbsMin}
-          carbsMax={carbsMax}
-          onChangeCarbs={(min, max) => {
-            setCarbsMin(min);
-            setCarbsMax(max);
-          }}
-          proteinMin={proteinMin}
-          proteinMax={proteinMax}
-          onChangeProtein={(min, max) => {
-            setProteinMin(min);
-            setProteinMax(max);
-          }}
-          caloriesMin={caloriesMin}
-          caloriesMax={caloriesMax}
-          onChangeCalories={(min, max) => {
-            setCaloriesMin(min);
-            setCaloriesMax(max);
-          }}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          fatMin={filters.fat.min}
+          fatMax={filters.fat.max}
+          onChangeFat={(min, max) => updateFilter("fat", min, max)}
+          carbsMin={filters.carbs.min}
+          carbsMax={filters.carbs.max}
+          onChangeCarbs={(min, max) => updateFilter("carbs", min, max)}
+          proteinMin={filters.protein.min}
+          proteinMax={filters.protein.max}
+          onChangeProtein={(min, max) => updateFilter("protein", min, max)}
+          caloriesMin={filters.calories.min}
+          caloriesMax={filters.calories.max}
+          onChangeCalories={(min, max) => updateFilter("calories", min, max)}
         />
-        <div className="w-[40%] relative">
-          <Search
-            size={22}
-            className="text-[#8c6e5f] absolute left-3 top-1/2 -translate-y-1/2"
-          />
-          <Input
-            className="bg-input-background px-4 py-2 pl-10 h-12 placeholder:text-[#8c6e5f]"
-            placeholder="Search ingredients"
-            value={inputValue}
-            onChange={handleSearchChange}
-          />
-        </div>
       </div>
 
       <div className="border border-border rounded-lg overflow-hidden">
@@ -267,8 +230,10 @@ export default function IngredientsPage() {
                 key={ingredient.id}
                 className="text-[15px] text-muted-foreground"
               >
-                <TableCell className="text-foreground">
-                  {ingredient.name}
+                <TableCell className="text-foreground max-w-xl">
+                  <div className="line-clamp-2" title={ingredient.name}>
+                    {ingredient.name}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {ingredient.caloriesPer100g.toString()}kcal
@@ -278,15 +243,24 @@ export default function IngredientsPage() {
                 <TableCell>{ingredient.fatPer100g.toString()}g</TableCell>
                 <TableCell>{ingredient.category}</TableCell>
                 <TableCell>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setSelectedIngredient(ingredient);
-                      setIsOpen(true);
-                    }}
-                  >
-                    Edit
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        setSelectedIngredient(ingredient);
+                        setIsOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <IngredientDelete ingredient={ingredient}>
+                      <Button type="button" size="icon" variant="ghost">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </IngredientDelete>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

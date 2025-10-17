@@ -64,12 +64,12 @@ export function IngredientCreateForm({ children }: { children: React.ReactNode }
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="name">Name</Label>
-            <Input type="text" id="name" {...register("name")} />
+            <Input type="text" id="name" {...register("name")} placeholder="Enter ingredient name" />
             {errors.name && <p className="text-red-500">{errors.name.message}</p>}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="category">Category</Label>
-            <Input id="category" {...register("category")} />
+            <Input id="category" {...register("category")} placeholder="Enter ingredient category (optional)" />
             {errors.category && <p className="text-red-500">{errors.category.message}</p>}
           </div>
           <div className="flex flex-col gap-2">
@@ -112,7 +112,10 @@ export function IngredientCreateForm({ children }: { children: React.ReactNode }
             />
             {errors.fatPer100g && <p className="text-red-500">{errors.fatPer100g.message}</p>}
           </div>
-          <Button type="submit">Save Ingredient</Button>
+          <div className="flex justify-start gap-2 mt-4">
+            <Button type="submit">Save Ingredient</Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

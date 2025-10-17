@@ -30,7 +30,7 @@ export const UpdateIngredientSchema = IngredientSchema.partial();
 export const IngredientResponseSchema = IngredientSchema.extend({
   id: z.string().optional(),
   isCustom: z.boolean(),
-  createdAt: z.string().transform((str) => new Date(str)),
+  createdAt: z.string().transform((str) => new Date(str).toISOString()),
 });
 
 export const IngredientResponseArraySchema = z.array(IngredientResponseSchema);
@@ -39,12 +39,13 @@ export const PaginatedIngredientsResponseSchema = z.object({
   data: z.array(IngredientResponseSchema),
   nextCursor: z.string().nullable(),
   hasMore: z.boolean(),
+  totalIngredients: z.number(),
 });
 
 export const IngredientQuerySchema = z
   .object({
     cursor: z.string().optional(),
-    limit: z.coerce.number().min(1).max(100).optional(),
+    limit: z.coerce.number().min(1).max(10000).optional(),
     search: z.string().optional(),
     minCalories: z.coerce.number().min(0).max(10000).optional(),
     maxCalories: z.coerce.number().min(0).max(10000).optional(),

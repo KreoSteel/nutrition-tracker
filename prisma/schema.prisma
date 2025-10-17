@@ -31,13 +31,20 @@ model Recipe {
   description   String?
   instructions  String?
   servings      Int      @default(1)
-  imageUrl      String?
+  imageUrl      String?  @map("image_url")
+  cookingTime      String?  @map("cooking_time")
+  
+  rating        Int?     @db.SmallInt
+  isFavorite    Boolean  @default(false) @map("is_favorite")
+  
   createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
   
   ingredients     RecipeIngredient[]
   cookingHistory  CookingHistory[]
   
   @@index([name])
+  @@index([isFavorite])
   @@map("recipes")
 }
 
@@ -59,13 +66,9 @@ model CookingHistory {
   id         String   @id @default(uuid()) @db.Uuid
   recipeId   String   @db.Uuid @map("recipe_id")
   cookedAt   DateTime @default(now()) @map("cooked_at")
-  rating     Int?     @db.SmallInt
-  favorite   Boolean? @map("favorite")
   notes      String?
   createdAt  DateTime @default(now()) @map("created_at")
-  
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  
   @@index([cookedAt])
   @@index([recipeId, cookedAt])
   @@map("cooking_history")

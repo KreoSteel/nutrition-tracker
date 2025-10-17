@@ -26,7 +26,7 @@ async function validateData(): Promise<ValidationResult> {
     console.log("Starting comprehensive data validation...");
 
     // Fetch all ingredients from database
-    const ingredients = await prisma.ingredient.findMany();
+    const ingredients = await (prisma as any).ingredient.findMany();
 
     const result: ValidationResult = {
       totalIngredients: ingredients.length,

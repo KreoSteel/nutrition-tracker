@@ -8,7 +8,7 @@ export default function QuickActions() {
         <h2 className="text-2xl font-medium">Quick Actions</h2>
       </span>
       <div className="flex justify-between w-full px-6 pb-4 pt-6 gap-4">
-        <div className="group flex items-center gap-2 p-4 bg-primary text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-orange-600/90 transition-all dark:hover:bg-gray-300">
+        <div className="group flex items-center gap-2 p-4 shadow-md bg-primary text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-orange-600/90 transition-all dark:hover:bg-gray-300">
           <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all dark:bg-gray-200">
             <Plus />
           </div>
@@ -18,17 +18,17 @@ export default function QuickActions() {
           </div>
         </div>
         <IngredientCreateForm>
-          <button className="group flex items-center text-left gap-2 p-4 bg-chart-2 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-green-950/90 transition-all dark:hover:bg-emerald-600">
-          <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all">
-            <PackagePlus />
-          </div>
-          <div className="flex flex-col w-full">
-            <p className="font-medium">Add Ingredients</p>
-            <p className="text-[13px] font-light">Add new ingredients</p>
-          </div>
-        </button>
+          <button className="group flex items-center text-left gap-2 p-4 shadow-md bg-chart-2 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-green-950/90 transition-all dark:hover:bg-emerald-600">
+            <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all">
+              <PackagePlus />
+            </div>
+            <div className="flex flex-col w-full">
+              <p className="font-medium">Add Ingredients</p>
+              <p className="text-[13px] font-light">Add new ingredients</p>
+            </div>
+          </button>
         </IngredientCreateForm>
-        <div className="group flex items-center gap-2 p-4 bg-chart-3 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-[#E89251] transition-all dark:hover:bg-[#E89251]">
+        <div className="group flex items-center gap-2 p-4 shadow-md bg-chart-3 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-[#E89251] transition-all dark:hover:bg-[#E89251]">
           <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all">
             <CheckCircle />
           </div>

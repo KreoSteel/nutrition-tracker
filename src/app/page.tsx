@@ -4,7 +4,6 @@ import HeroSection from "@/components/HeroSection";
 import QuickActions from "@/components/QuickActions";
 import RecentRecipes from "@/components/RecentRecipes";
 import WeekNutrition from "@/components/WeekNutrition";
-import { useIngredients } from "./hooks/useIngredients";
 
 export default function Dashboard() {
   return (

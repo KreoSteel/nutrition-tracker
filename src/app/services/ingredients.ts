@@ -81,10 +81,10 @@ export const updateIngredient = async (
 
 export const deleteIngredient = async (
   id: string
-): Promise<IngredientResponse> => {
+ ): Promise<void> => {
   try {
-    const response = await http.delete(`/ingredients/${id}`);
-    return IngredientResponseSchema.parse(response.data);
+    await http.delete(`/ingredients/${id}`);
+    return;
   } catch (error) {
     if (error instanceof ZodError) {
       throw new Error("Invalid ingredient data: " + error.message);

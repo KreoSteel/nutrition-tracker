@@ -2,27 +2,18 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { TableHead } from "../ui/table";
 import clsx from "clsx";
 
-type SortableField =
-  | "name"
-  | "caloriesPer100g"
-  | "proteinPer100g"
-  | "carbsPer100g"
-  | "fatPer100g"
-  | "category"
-  | "createdAt";
-
-export function SortableHeader({
+export function SortableHeader<T extends string>({
   children,
   className = "",
   field,
   sortState,
   onSort,
 }: {
-  field: SortableField;
+  field: T;
   children: React.ReactNode;
   className?: string;
-  sortState: { field: SortableField | undefined; order: "asc" | "desc" } | undefined;
-  onSort: (field: SortableField) => void;
+  sortState: { field: T; order: "asc" | "desc" } | undefined;
+  onSort: (field: T) => void;
 }) {
   const isActive = sortState?.field === field;
   const order = isActive ? sortState?.order : "asc";

@@ -101,7 +101,10 @@ export function IngredientUpdateForm({
                     <Input type="number" id="fatPer100g" {...register("fatPer100g")} />
                     {errors.fatPer100g && <p className="text-red-500">{errors.fatPer100g.message}</p>}
                 </div>
+                <div className="flex justify-end gap-2 relative">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                 <Button type="submit">Save Ingredient</Button>
+                </div>
             </form>
         </DialogContent>
     </Dialog>

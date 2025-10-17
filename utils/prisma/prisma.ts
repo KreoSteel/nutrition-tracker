@@ -1,11 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 import { withOptimize } from "@prisma/extension-optimize";
 
+type PrismaInstanceType = ReturnType<typeof PrismaClient.prototype.$extends>;
+
 const globalForPrisma = globalThis as unknown as {
-  prisma: any | undefined
+  prisma: PrismaInstanceType | undefined
 }
 
-let prismaInstance: any;
+let prismaInstance: PrismaInstanceType;
 
 if (!globalForPrisma.prisma) {
   const client = new PrismaClient();
