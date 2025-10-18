@@ -4,9 +4,10 @@ import { NutritionFilters } from "@/components/ui/NutritionFilters";
 import { useState } from "react";
 import RecipesTables from "@/components/recipes/RecipesTables";
 import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
+import { useRecipes } from "../hooks/useRecipes";
 
 export default function RecipesPage() {
-
+  const { data: recipesData, isLoading, isError } = useRecipes();
   const [searchTerm, setSearchTerm] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({
@@ -31,7 +32,7 @@ export default function RecipesPage() {
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl">Recipes</h1>
           <h3 className="text-muted-foreground text-lg font-light">
-            Total Recipes: 0
+            Total Recipes: {recipesData?.length || 0}
           </h3>
         </div>
         <RecipeCreateForm>

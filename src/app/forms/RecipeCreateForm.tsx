@@ -33,10 +33,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ChevronsUpDownIcon, PlusIcon, Trash2 } from "lucide-react";
+import { IngredientCreateForm } from "./IngredientCreateForm";
 
 export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showNutrition, setShowNutrition] = useState(false);
   const [openIngredientIndex, setOpenIngredientIndex] = useState<number | null>(null);
   const [searchIngredient, setSearchIngredient] = useState("");
   const { mutate: createRecipe } = useCreateRecipe();
@@ -53,6 +53,9 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
     (page) => page.data
   );
   const queryClient = useQueryClient();
+  
+  // Store selected ingredients to persist their names even when not in current search results
+  const [selectedIngredients, setSelectedIngredients] = useState<Record<string, { id: string; name: string }>>({});
 
   const {
     register,
@@ -294,7 +297,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                     errors.ingredients?.[index] ? "border-red-200 bg-red-50/30" : ""
                   }`}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label
                       htmlFor={`ingredients.${index}.ingredientId`}
                       className="text-sm font-medium text-foreground"
@@ -303,37 +306,45 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                     </Label>
                     <Popover
                       open={openIngredientIndex === index}
-                      onOpenChange={(open) => setOpenIngredientIndex(open ? index : null)}
+                      onOpenChange={(open) => {
+                        setOpenIngredientIndex(open ? index : null);
+                        if (!open) {
+                          setSearchIngredient("");
+                        }
+                      }}
                     >
                       <PopoverTrigger asChild>
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
                           role="combobox"
                           aria-expanded={openIngredientIndex === index}
-                          className={`w-full justify-between truncate h-10 ${
+                          className={`flex items-center justify-between w-full h-10 px-3 py-2 text-sm border rounded-md bg-background shadow-md hover:bg-accent hover:text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer ${
                             errors.ingredients?.[index]?.ingredientId
                               ? "border-red-500 focus:border-red-500"
-                              : ""
+                              : "border-input"
                           }`}
                         >
-                          <span className="truncate">
-                            {watchedIngredients[index]?.ingredientId ? (
-                              ingredientsData?.pages
-                                .flatMap((page) => page.data)
-                                .find(
-                                  (ingredient) =>
-                                    ingredient.id ===
-                                    watchedIngredients[index]?.ingredientId
-                                )?.name
-                            ) : (
-                              <span className="text-muted-foreground">
-                                Select ingredient...
-                              </span>
-                            )}
-                          </span>
-                          <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
+                            <span className="truncate text-left pr-2 flex-1" style={{ minWidth: 0 }}>
+                              {watchedIngredients[index]?.ingredientId ? (
+                                selectedIngredients[
+                                  watchedIngredients[index]?.ingredientId
+                                ]?.name ||
+                                ingredientsData?.pages
+                                  .flatMap((page) => page.data)
+                                  .find(
+                                    (ingredient) =>
+                                      ingredient.id ===
+                                      watchedIngredients[index]?.ingredientId
+                                  )?.name ||
+                                "Select ingredient..."
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  Select ingredient...
+                                </span>
+                              )}
+                            </span>
+                            <ChevronsUpDownIcon className="h-4 w-4 shrink-0 opacity-50 ml-2" />
+                        </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96 p-0">
                         <div>
@@ -357,15 +368,22 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                                     `ingredients.${index}.ingredientId`,
                                     ingredient.id ?? ""
                                   );
+                                  // Store selected ingredient
+                                  setSelectedIngredients((prev) => ({
+                                    ...prev,
+                                    [ingredient.id!]: {
+                                      id: ingredient.id!,
+                                      name: ingredient.name,
+                                    },
+                                  }));
                                   setOpenIngredientIndex(null);
-                                  setSearchIngredient("");
                                 }}
                               >
-                                <div className="flex flex-col gap-1.5">
-                                  <span className="font-medium">
+                                <div className="flex flex-col gap-1.5 min-w-0">
+                                  <span className="font-medium truncate" title={ingredient.name}>
                                     {ingredient.name}
                                   </span>
-                                  <div className="text-xs text-muted-foreground">
+                                  <div className="text-xs text-muted-foreground truncate">
                                     {ingredient.caloriesPer100g} cal •{" "}
                                     {ingredient.proteinPer100g}g protein •{" "}
                                     {ingredient.carbsPer100g}g carbs •{" "}
@@ -378,22 +396,33 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                               </div>
                             ))}
                           </div>
-                          {hasNextPage && (
-                            <div className="p-2 border-t">
+                          <div className="p-2 border-t flex gap-2">
+                            <IngredientCreateForm>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="flex-1"
+                              >
+                                <PlusIcon className="h-4 w-4 mr-2" />
+                                <span className="text-sm font-medium">Create New</span>
+                              </Button>
+                            </IngredientCreateForm>
+                            {hasNextPage && (
                               <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
                                 onClick={() => fetchNextPage()}
                                 disabled={isFetchingNextPage}
-                                className="w-full"
+                                className="flex-1"
                               >
                                 {isFetchingNextPage
                                   ? "Loading..."
                                   : "Load More"}
                               </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </PopoverContent>
                     </Popover>

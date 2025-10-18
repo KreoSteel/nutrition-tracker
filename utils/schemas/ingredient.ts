@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const GetIngredientSchema = z.object({
+  id: z.string(),
+});
+
 export const IngredientSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Name is required"),
@@ -20,10 +24,6 @@ export const IngredientSchema = z.object({
 });
 
 export const CreateIngredientSchema = IngredientSchema;
-
-export const GetIngredientSchema = z.object({
-  id: z.string(),
-});
 
 export const UpdateIngredientSchema = IngredientSchema.partial();
 

@@ -5,7 +5,15 @@ import { ZodError } from "zod";
 
 export async function GET(req: NextRequest) {
     try {
-        const recipes = await (prisma as any).recipe.findMany();
+        const recipes = await (prisma as any).recipe.findMany({
+            include: {
+                ingredients: {
+                    include: {
+                        ingredient: true
+                    }
+                }
+            }
+        });
         return NextResponse.json(recipes);
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch recipes" }, { status: 500 });
@@ -31,6 +39,13 @@ export async function POST(req: NextRequest) {
                         quantityGrams: ingredient.quantityGrams,
                     })),
                 },
+            },
+            include: {
+                ingredients: {
+                    include: {
+                        ingredient: true
+                    }
+                }
             }
         })
         return NextResponse.json(recipe);

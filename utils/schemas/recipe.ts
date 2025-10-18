@@ -1,18 +1,23 @@
 import { z } from "zod";
 
+export const GetRecipeSchema = z.object({
+  id: z.string(),
+});
+
 export const RecipeSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Name must be at least 3 characters"),
-  description: z.string().optional(),
-  instructions: z.string().optional(),
+  description: z.string().nullable().optional(),
+  instructions: z.string().nullable().optional(),
   servings: z.coerce.number().int().min(1, "Servings must be at least 1"),
-  imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  cookingTime: z.string().optional(),
+  imageUrl: z.union([z.string().url("Must be a valid URL"), z.literal(""), z.null()]).optional(),
+  cookingTime: z.string().nullable().optional(),
   rating: z.coerce
     .number()
     .int()
     .min(1)
     .max(100, "Rating must be between 1-100")
+    .nullable()
     .optional(),
   isFavorite: z.boolean().optional(),
 });
@@ -37,16 +42,19 @@ export const UpdateRecipeSchema = RecipeSchema.partial().extend({
 
 export const RecipeIngredientResponseSchema = z.object({
   id: z.string(),
+  recipeId: z.string(),
   ingredientId: z.string(),
-  quantityGrams: z.number(),
+  quantityGrams: z.coerce.number(),
   ingredient: z.object({
     id: z.string(),
     name: z.string(),
-    caloriesPer100g: z.number(),
-    proteinPer100g: z.number(),
-    carbsPer100g: z.number(),
-    fatPer100g: z.number(),
+    caloriesPer100g: z.coerce.number(),
+    proteinPer100g: z.coerce.number(),
+    carbsPer100g: z.coerce.number(),
+    fatPer100g: z.coerce.number(),
     category: z.string().nullable(),
+    isCustom: z.boolean().optional(),
+    createdAt: z.string().optional(),
   }),
 });
 
@@ -74,3 +82,4 @@ export const RecipeQuerySchema = z.object({
 export type RecipeResponse = z.infer<typeof RecipeResponseSchema>;
 export type CreateRecipe = z.infer<typeof CreateRecipeSchema>;
 export type RecipeQuery = z.infer<typeof RecipeQuerySchema>;
+export type UpdateRecipe = z.infer<typeof UpdateRecipeSchema>;

@@ -60,7 +60,7 @@ export function NutritionFilters({
     onChangeFat(0, 100);
     setSearchTerm("");
     setInputValue("");
-    router.replace("/ingredients");
+    router.replace(pathname);
   }
 
   const debouncedSearch = useDebouncedCallback((term: string) => {

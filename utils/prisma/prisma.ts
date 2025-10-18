@@ -1,17 +1,22 @@
 import { PrismaClient } from '@prisma/client'
-import { withOptimize } from "@prisma/extension-optimize";
-
-type PrismaInstanceType = ReturnType<typeof PrismaClient.prototype.$extends>;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaInstanceType | undefined
+  prisma: PrismaClient | undefined
 }
 
-let prismaInstance: PrismaInstanceType;
+let prismaInstance: PrismaClient;
 
 if (!globalForPrisma.prisma) {
-  const client = new PrismaClient();
-  prismaInstance = client.$extends(withOptimize({ apiKey: process.env.OPTIMIZE_API_KEY! }));
+  prismaInstance = new PrismaClient({
+    log: ['error', 'warn'],
+    // Add connection configuration
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
+  
   if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prismaInstance;
   }

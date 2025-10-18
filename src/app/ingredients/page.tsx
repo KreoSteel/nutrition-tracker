@@ -236,11 +236,25 @@ export default function IngredientsPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  {ingredient.caloriesPer100g.toString()}kcal
+                  <span className="text-orange-600 dark:text-orange-400">
+                    {ingredient.caloriesPer100g.toString()}kcal
+                  </span>
                 </TableCell>
-                <TableCell>{ingredient.proteinPer100g.toString()}g</TableCell>
-                <TableCell>{ingredient.carbsPer100g.toString()}g</TableCell>
-                <TableCell>{ingredient.fatPer100g.toString()}g</TableCell>
+                <TableCell>
+                  <span className="text-blue-600 dark:text-blue-400">
+                    {ingredient.proteinPer100g.toString()}g
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-green-600 dark:text-green-400">
+                    {ingredient.carbsPer100g.toString()}g
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-red-600 dark:text-red-400">
+                    {ingredient.fatPer100g.toString()}g
+                  </span>
+                </TableCell>
                 <TableCell>{ingredient.category}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">

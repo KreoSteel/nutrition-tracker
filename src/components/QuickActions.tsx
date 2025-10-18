@@ -1,5 +1,6 @@
 import { Plus, PackagePlus, CheckCircle } from "lucide-react";
 import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
+import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
 
 export default function QuickActions() {
   return (
@@ -8,7 +9,8 @@ export default function QuickActions() {
         <h2 className="text-2xl font-medium">Quick Actions</h2>
       </span>
       <div className="flex justify-between w-full px-6 pb-4 pt-6 gap-4">
-        <div className="group flex items-center gap-2 p-4 shadow-md bg-primary text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-orange-600/90 transition-all dark:hover:bg-gray-300">
+        <RecipeCreateForm>
+          <button className="group text-left flex items-center gap-2 p-4 shadow-md bg-primary text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-orange-600/90 transition-all dark:hover:bg-gray-300">
           <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all dark:bg-gray-200">
             <Plus />
           </div>
@@ -16,7 +18,8 @@ export default function QuickActions() {
             <p className="font-medium">Create Recipe</p>
             <p className="text-[13px] font-light">Build new dish</p>
           </div>
-        </div>
+        </button>
+        </RecipeCreateForm>
         <IngredientCreateForm>
           <button className="group flex items-center text-left gap-2 p-4 shadow-md bg-chart-2 text-primary-foreground rounded-lg w-full cursor-pointer hover:bg-green-950/90 transition-all dark:hover:bg-emerald-600">
             <div className="bg-white/20 text-primary-foreground rounded-lg p-2 group-hover:scale-105 transition-all">

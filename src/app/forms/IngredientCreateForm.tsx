@@ -37,7 +37,9 @@ export function IngredientCreateForm({ children }: { children: React.ReactNode }
     },
   });
 
-  const onSubmit = (data: CreateIngredient) => {
+  const onSubmit = (data: CreateIngredient, e?: React.BaseSyntheticEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     createIngredient(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["ingredients"] });
@@ -61,7 +63,14 @@ export function IngredientCreateForm({ children }: { children: React.ReactNode }
         <DialogDescription>
           Add a new ingredient to your database.
         </DialogDescription>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSubmit(onSubmit)(e);
+          }} 
+          className="flex flex-col gap-4"
+        >
           <div className="flex flex-col gap-2">
             <Label htmlFor="name">Name</Label>
             <Input type="text" id="name" {...register("name")} placeholder="Enter ingredient name" />

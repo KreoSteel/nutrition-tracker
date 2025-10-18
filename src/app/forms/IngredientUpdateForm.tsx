@@ -45,7 +45,9 @@ export function IngredientUpdateForm({
     reset(ingredient);
   }, [ingredient, reset]);
 
-  const onSubmit = (data: UpdateIngredient) => {
+  const onSubmit = (data: UpdateIngredient, e?: React.BaseSyntheticEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     updateIngredient(
       { id: ingredient.id!, ingredient: data },
       {
@@ -70,7 +72,14 @@ export function IngredientUpdateForm({
             <DialogDescription>
                 Edit the ingredient details.
             </DialogDescription>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSubmit(onSubmit)(e);
+              }} 
+              className="flex flex-col gap-4"
+            >
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="name">Name</Label>
                     <Input type="text" id="name" {...register("name")} />

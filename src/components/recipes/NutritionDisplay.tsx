@@ -14,25 +14,25 @@ export default function NutritionDisplay({ nutrition, servings = 1, showPerServi
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
         <div className="text-center">
           <div className="text-2xl font-bold text-orange-600">
-            {displayedNutrition.calories}
+            {Number(displayedNutrition.calories).toFixed(2)}
           </div>
           <div className="text-sm text-muted-foreground">Calories</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-blue-600">
-            {displayedNutrition.protein}g
+            {Number(displayedNutrition.protein).toFixed(2)}g
           </div>
           <div className="text-sm text-muted-foreground">Protein</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
-            {displayedNutrition.carbs}g
+            {Number(displayedNutrition.carbs).toFixed(2)}g
           </div>
           <div className="text-sm text-muted-foreground">Carbs</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
-            {displayedNutrition.fat}g
+            {Number(displayedNutrition.fat).toFixed(2)}g
           </div>
           <div className="text-sm text-muted-foreground">Fat</div>
         </div>
