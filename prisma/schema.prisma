@@ -31,7 +31,6 @@ model Recipe {
   description   String?
   instructions  String?
   servings      Int      @default(1)
-  imageUrl      String?  @map("image_url")
   cookingTime      String?  @map("cooking_time")
   
   rating        Int?     @db.SmallInt

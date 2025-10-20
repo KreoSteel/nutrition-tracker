@@ -93,7 +93,6 @@ export function NutritionFilters({
   return (
     <div className="flex flex-col gap-4 bg-muted p-4 rounded-lg">
       <div className="flex flex-wrap gap-2 items-center">
-        {/* Protein Filter */}
         <Popover open={isProteinOpen} onOpenChange={setIsProteinOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -174,7 +173,6 @@ export function NutritionFilters({
           </PopoverContent>
         </Popover>
 
-        {/* Calories Filter */}
         <Popover open={isCaloriesOpen} onOpenChange={setIsCaloriesOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -251,7 +249,6 @@ export function NutritionFilters({
           </PopoverContent>
         </Popover>
 
-        {/* Carbs Filter */}
         <Popover open={isCarbsOpen} onOpenChange={setIsCarbsOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -329,7 +326,6 @@ export function NutritionFilters({
           </PopoverContent>
         </Popover>
 
-        {/* Fat Filter */}
         <Popover open={isFatOpen} onOpenChange={setIsFatOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -419,7 +415,6 @@ export function NutritionFilters({
         </Button>
       </div>
 
-      {/* Search Input */}
       <div className="w-full relative shadow-sm rounded-lg">
         <Search
           size={22}
@@ -427,7 +422,7 @@ export function NutritionFilters({
         />
         <Input
           className="bg-input-background px-4 py-2 pl-10 h-12 placeholder:text-[#8c6e5f]"
-          placeholder="Search ingredients"
+          placeholder={`Search ${pathname.split("/").pop()}`}
           value={inputValue}
           onChange={handleSearchChange}
         />

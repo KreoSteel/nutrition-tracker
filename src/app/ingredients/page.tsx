@@ -10,6 +10,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -150,10 +151,10 @@ export default function IngredientsPage() {
         />
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <Table className="p-20">
+      <div className="border border-border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-gray-950">
+        <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 text-xl">
+            <TableRow className="bg-gray-50/80 dark:bg-gray-900/50 hover:bg-gray-50/80 dark:hover:bg-gray-900/50 border-b-2 border-gray-200 dark:border-gray-800 h-16">
               <SortableHeader
                 field="name"
                 sortState={sortState}
@@ -196,13 +197,14 @@ export default function IngredientsPage() {
               >
                 Category
               </SortableHeader>
+              <TableHead className="text-right font-semibold text-lg">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
-                  Loading ingredients...
+                <TableCell colSpan={6} className="text-center py-12">
+                  <span className="text-base text-muted-foreground">Loading ingredients...</span>
                 </TableCell>
               </TableRow>
             )}
@@ -210,17 +212,17 @@ export default function IngredientsPage() {
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="text-center py-8 text-red-500"
+                  className="text-center py-12"
                 >
-                  Failed to load ingredients. Please try again.
+                  <span className="text-base font-medium text-red-600 dark:text-red-400">Failed to load ingredients. Please try again.</span>
                 </TableCell>
               </TableRow>
             )}
 
             {!isLoading && !isError && filteredIngredients?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
-                  No ingredients found.
+                <TableCell colSpan={6} className="text-center py-12">
+                  <span className="text-base text-muted-foreground">No ingredients found.</span>
                 </TableCell>
               </TableRow>
             )}
@@ -228,36 +230,38 @@ export default function IngredientsPage() {
             {filteredIngredients?.map((ingredient: IngredientResponse) => (
               <TableRow
                 key={ingredient.id}
-                className="text-[15px] text-muted-foreground"
+                className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors"
               >
-                <TableCell className="text-foreground max-w-xl">
-                  <div className="line-clamp-2" title={ingredient.name}>
+                <TableCell className="py-8">
+                  <div className="line-clamp-2 text-lg font-semibold text-foreground max-w-xl" title={ingredient.name}>
                     {ingredient.name}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <span className="text-orange-600 dark:text-orange-400">
+                <TableCell className="py-8">
+                  <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-base">
                     {ingredient.caloriesPer100g.toString()}kcal
                   </span>
                 </TableCell>
-                <TableCell>
-                  <span className="text-blue-600 dark:text-blue-400">
+                <TableCell className="py-8">
+                  <span className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 font-semibold text-base">
                     {ingredient.proteinPer100g.toString()}g
                   </span>
                 </TableCell>
-                <TableCell>
-                  <span className="text-green-600 dark:text-green-400">
+                <TableCell className="py-8">
+                  <span className="inline-flex items-center px-4 py-2 rounded-lg bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-semibold text-base">
                     {ingredient.carbsPer100g.toString()}g
                   </span>
                 </TableCell>
-                <TableCell>
-                  <span className="text-red-600 dark:text-red-400">
+                <TableCell className="py-8">
+                  <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-base">
                     {ingredient.fatPer100g.toString()}g
                   </span>
                 </TableCell>
-                <TableCell>{ingredient.category}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
+                <TableCell className="py-8">
+                  <span className="text-base font-medium text-muted-foreground">{ingredient.category}</span>
+                </TableCell>
+                <TableCell className="py-8">
+                  <div className="flex items-center justify-end gap-2">
                     <Button
                       type="button"
                       size="icon"
@@ -266,12 +270,18 @@ export default function IngredientsPage() {
                         setSelectedIngredient(ingredient);
                         setIsOpen(true);
                       }}
+                      className="h-12 w-12 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-5 w-5" />
                     </Button>
                     <IngredientDelete ingredient={ingredient}>
-                      <Button type="button" size="icon" variant="ghost">
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                      <Button 
+                        type="button" 
+                        size="icon" 
+                        variant="ghost"
+                        className="h-12 w-12 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
                       </Button>
                     </IngredientDelete>
                   </div>
@@ -283,7 +293,7 @@ export default function IngredientsPage() {
         <div ref={observerRef} className="h-4" />
 
         {isFetchingNextPage && (
-          <div className="text-center py-4 text-muted-foreground">
+          <div className="text-center py-6 text-base text-muted-foreground">
             Loading more ingredients...
           </div>
         )}
@@ -291,7 +301,7 @@ export default function IngredientsPage() {
         {!hasNextPage &&
           filteredIngredients?.length &&
           filteredIngredients.length > 0 && (
-            <div className="text-center py-4 text-muted-foreground">
+            <div className="text-center py-6 text-base text-muted-foreground">
               No more ingredients to load
             </div>
           )}

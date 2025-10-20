@@ -10,7 +10,6 @@ export const RecipeSchema = z.object({
   description: z.string().nullable().optional(),
   instructions: z.string().nullable().optional(),
   servings: z.coerce.number().int().min(1, "Servings must be at least 1"),
-  imageUrl: z.union([z.string().url("Must be a valid URL"), z.literal(""), z.null()]).optional(),
   cookingTime: z.string().nullable().optional(),
   rating: z.coerce
     .number()
@@ -66,14 +65,20 @@ export const RecipeResponseSchema = RecipeSchema.extend({
 });
 
 export const RecipeQuerySchema = z.object({
-  cursor: z.string().optional(),
-  limit: z.coerce.number().min(1).max(100).optional(),
   search: z.string().optional(),
+  minCalories: z.coerce.number().min(1).max(1000).optional(),
+  maxCalories: z.coerce.number().min(1).max(1000).optional(),
+  minProtein: z.coerce.number().min(1).max(100).optional(),
+  maxProtein: z.coerce.number().min(1).max(100).optional(),
+  minCarbs: z.coerce.number().min(1).max(100).optional(),
+  maxCarbs: z.coerce.number().min(1).max(100).optional(),
+  minFat: z.coerce.number().min(1).max(100).optional(),
+  maxFat: z.coerce.number().min(1).max(100).optional(),
   minRating: z.coerce.number().min(1).max(100).optional(),
   maxRating: z.coerce.number().min(1).max(100).optional(),
   isFavorite: z.coerce.boolean().optional(),
   sortBy: z
-    .enum(["name", "rating", "createdAt", "updatedAt", "servings"])
+    .enum(["name", "rating", "calories", "protein", "carbs", "fat", "createdAt", "updatedAt", "servings"])
     .optional(),
   sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
 });

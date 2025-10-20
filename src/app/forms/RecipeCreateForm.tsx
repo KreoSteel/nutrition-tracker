@@ -69,9 +69,9 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
     defaultValues: {
       name: "",
       description: "",
+      instructions: "",
       rating: undefined,
       servings: 1,
-      imageUrl: "",
       cookingTime: "",
       ingredients: [],
     },
@@ -144,7 +144,6 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Basic Information Section */}
           <div className="space-y-4">
             <div className="border-b pb-2">
               <h3 className="text-lg font-semibold">Basic Information</h3>
@@ -200,9 +199,28 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                 </p>
               )}
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="instructions" className="text-sm font-medium">
+                Instructions
+              </Label>
+              <Textarea
+                rows={6}
+                id="instructions"
+                {...register("instructions")}
+                placeholder="Step-by-step cooking instructions. Each step on a new line."
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Tip: Write each step on a separate line for better formatting
+              </p>
+              {errors.instructions && (
+                <p className="text-sm text-red-500">
+                  {errors.instructions.message}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Recipe Details Section */}
           <div className="space-y-4">
             <div className="border-b pb-2">
               <h3 className="text-lg font-semibold">Recipe Details</h3>
@@ -245,25 +263,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                 )}
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="text-sm font-medium">
-                Image URL
-              </Label>
-              <Input
-                type="url"
-                id="imageUrl"
-                {...register("imageUrl")}
-                placeholder="https://example.com/recipe-image.jpg"
-                className="w-full"
-              />
-              {errors.imageUrl && (
-                <p className="text-sm text-red-500">
-                  {errors.imageUrl.message}
-                </p>
-              )}
-            </div>
           </div>
-          {/* Ingredients Section */}
           <div className="space-y-4">
             <div className="border-b pb-2">
               <div className="flex items-center justify-between">
@@ -502,7 +502,6 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          {/* Submit Section */}
           <div className="flex justify-end pt-4 border-t gap-2">
             <Button
               type="button"

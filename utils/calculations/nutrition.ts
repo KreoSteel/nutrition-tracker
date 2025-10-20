@@ -60,3 +60,25 @@ export function calculateNutritionPerServing(totalNutrition: NutritionalData, se
         fat: Math.round((totalNutrition.fat / servings) * 10) / 10,
     }
 }
+
+// Helper function to calculate nutrition from RecipeResponse
+export function calculateRecipeNutritionData(recipe: any): NutritionalData {
+    if (!recipe.ingredients || recipe.ingredients.length === 0) {
+        return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    }
+
+    const recipeIngredients: RecipeIngredient[] = recipe.ingredients.map(
+        (ingredient: any) => ({
+            ingredientId: ingredient.ingredientId,
+            quantityGrams: ingredient.quantityGrams,
+            nutritionalData: {
+                calories: ingredient.ingredient.caloriesPer100g,
+                protein: ingredient.ingredient.proteinPer100g,
+                carbs: ingredient.ingredient.carbsPer100g,
+                fat: ingredient.ingredient.fatPer100g,
+            },
+        })
+    );
+
+    return calculateRecipeNutrition(recipeIngredients);
+}

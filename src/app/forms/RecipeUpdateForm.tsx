@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, PlusIcon, Trash2 } from "lucide-react";
+import { PlusIcon, Trash2 } from "lucide-react";
 import {
    Popover,
    PopoverContent,
@@ -34,29 +34,37 @@ import {
 import { IngredientCreateForm } from "./IngredientCreateForm";
 
 interface RecipeUpdateFormProps {
+   children: React.ReactNode;
    isOpen: boolean;
    onOpenChange: (open: boolean) => void;
    recipe: RecipeResponse;
+   onSuccessDetailsCard?: () => void;
 }
 
 export default function RecipeUpdateForm({
+   children,
    isOpen,
    onOpenChange,
    recipe,
+   onSuccessDetailsCard,
 }: RecipeUpdateFormProps) {
-   const [openIngredientIndex, setOpenIngredientIndex] = useState<number | null>(null);
+   const [openIngredientIndex, setOpenIngredientIndex] = useState<
+      number | null
+   >(null);
    const [searchIngredient, setSearchIngredient] = useState("");
    const [debouncedSearch, setDebouncedSearch] = useState("");
-   const [selectedIngredients, setSelectedIngredients] = useState<Record<string, { id: string; name: string }>>({});
-   
+   const [selectedIngredients, setSelectedIngredients] = useState<
+      Record<string, { id: string; name: string }>
+   >({});
+
    useEffect(() => {
       const timer = setTimeout(() => {
          setDebouncedSearch(searchIngredient);
       }, 300);
-      
+
       return () => clearTimeout(timer);
    }, [searchIngredient]);
-   
+
    const { mutate: updateRecipe } = useUpdateRecipe();
    const {
       data: ingredientsData,
@@ -94,22 +102,21 @@ export default function RecipeUpdateForm({
    const calculateCurrentNutrition = () => {
       if (watchedIngredients?.length === 0) return null;
 
-      // Create a map of ingredient nutritional data from recipe + current search results
       const ingredientDataMap: Record<string, any> = {};
-      
-      // First, add all ingredients from the recipe (already loaded)
+
       recipe.ingredients?.forEach((recipeIng) => {
          if (recipeIng.ingredient) {
             ingredientDataMap[recipeIng.ingredientId] = recipeIng.ingredient;
          }
       });
-      
-      // Then, add any from current search results (for newly added ingredients)
-      ingredientsData?.pages.flatMap((page) => page.data).forEach((ing) => {
-         if (ing.id) {
-            ingredientDataMap[ing.id] = ing;
-         }
-      });
+
+      ingredientsData?.pages
+         .flatMap((page) => page.data)
+         .forEach((ing) => {
+            if (ing.id) {
+               ingredientDataMap[ing.id] = ing;
+            }
+         });
 
       const ingredientsWithNutrition = watchedIngredients
          ?.filter(
@@ -145,10 +152,11 @@ export default function RecipeUpdateForm({
    useEffect(() => {
       reset(recipe);
    }, [recipe, reset]);
-   
+
    useEffect(() => {
       if (isOpen && recipe.ingredients) {
-         const initialSelected: Record<string, { id: string; name: string }> = {};
+         const initialSelected: Record<string, { id: string; name: string }> =
+            {};
          recipe.ingredients.forEach((recipeIng) => {
             if (recipeIng.ingredient) {
                initialSelected[recipeIng.ingredientId] = {
@@ -170,6 +178,7 @@ export default function RecipeUpdateForm({
             onSuccess: () => {
                toast.success(`Recipe ${data.name} updated successfully!`);
                onOpenChange(false);
+               onSuccessDetailsCard?.();
             },
             onError: () => {
                toast.error(`Failed to update recipe ${data.name}`);
@@ -182,9 +191,7 @@ export default function RecipeUpdateForm({
    return (
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
          <DialogTrigger asChild>
-            <Button variant="ghost">
-               <Pencil className="size-4" />
-            </Button>
+            {children}
          </DialogTrigger>
          <DialogContent className="max-w-5xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -192,7 +199,6 @@ export default function RecipeUpdateForm({
                <DialogDescription>Update the recipe details.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-               {/* Basic Information Section */}
                <div className="space-y-4">
                   <div className="border-b pb-2">
                      <h3 className="text-lg font-semibold">
@@ -256,9 +262,30 @@ export default function RecipeUpdateForm({
                         </p>
                      )}
                   </div>
+                  <div className="space-y-2">
+                     <Label
+                        htmlFor="instructions"
+                        className="text-sm font-medium">
+                        Instructions
+                     </Label>
+                     <Textarea
+                        rows={6}
+                        id="instructions"
+                        {...register("instructions")}
+                        placeholder="Step-by-step cooking instructions. Each step on a new line."
+                        className="w-full resize-y"
+                     />
+                     <p className="text-xs text-muted-foreground">
+                        Tip: Write each step on a separate line for better formatting
+                     </p>
+                     {errors.instructions && (
+                        <p className="text-sm text-red-500">
+                           {errors.instructions.message}
+                        </p>
+                     )}
+                  </div>
                </div>
 
-               {/* Recipe Details Section */}
                <div className="space-y-4">
                   <div className="border-b pb-2">
                      <h3 className="text-lg font-semibold">Recipe Details</h3>
@@ -303,25 +330,7 @@ export default function RecipeUpdateForm({
                         )}
                      </div>
                   </div>
-                  <div className="space-y-2">
-                     <Label htmlFor="imageUrl" className="text-sm font-medium">
-                        Image URL
-                     </Label>
-                     <Input
-                        type="url"
-                        id="imageUrl"
-                        {...register("imageUrl")}
-                        placeholder="https://example.com/recipe-image.jpg"
-                        className="w-full"
-                     />
-                     {errors.imageUrl && (
-                        <p className="text-sm text-red-500">
-                           {errors.imageUrl.message}
-                        </p>
-                     )}
-                  </div>
                </div>
-               {/* Ingredients Section */}
                <div className="space-y-4">
                   <div className="border-b pb-2">
                      <div className="flex items-center justify-between">
@@ -379,28 +388,31 @@ export default function RecipeUpdateForm({
                                              ? "border-red-500 focus:border-red-500"
                                              : "border-input"
                                        }`}>
-                                          <span className="truncate text-left pr-2 flex-1" style={{ minWidth: 0 }}>
-                                             {watchedIngredients?.[index]
-                                                ?.ingredientId ? (
-                                                selectedIngredients[
-                                                   watchedIngredients[index]?.ingredientId
-                                                ]?.name ||
-                                                ingredientsData?.pages
-                                                   .flatMap((page) => page.data)
-                                                   .find(
-                                                      (ingredient) =>
-                                                         ingredient.id ===
-                                                         watchedIngredients[index]
-                                                            ?.ingredientId
-                                                   )?.name ||
-                                                "Select ingredient..."
-                                             ) : (
-                                                <span className="text-muted-foreground">
-                                                   Select ingredient...
-                                                </span>
-                                             )}
-                                          </span>
-                                          <ChevronsUpDownIcon className="h-4 w-4 shrink-0 opacity-50 ml-2" />
+                                       <span
+                                          className="truncate text-left pr-2 flex-1"
+                                          style={{ minWidth: 0 }}>
+                                          {watchedIngredients?.[index]
+                                             ?.ingredientId ? (
+                                             selectedIngredients[
+                                                watchedIngredients[index]
+                                                   ?.ingredientId
+                                             ]?.name ||
+                                             ingredientsData?.pages
+                                                .flatMap((page) => page.data)
+                                                .find(
+                                                   (ingredient) =>
+                                                      ingredient.id ===
+                                                      watchedIngredients[index]
+                                                         ?.ingredientId
+                                                )?.name ||
+                                             "Select ingredient..."
+                                          ) : (
+                                             <span className="text-muted-foreground">
+                                                Select ingredient...
+                                             </span>
+                                          )}
+                                       </span>
+                                       <ChevronsUpDownIcon className="h-4 w-4 shrink-0 opacity-50 ml-2" />
                                     </button>
                                  </PopoverTrigger>
                                  <PopoverContent className="w-96 p-0">
@@ -428,19 +440,25 @@ export default function RecipeUpdateForm({
                                                          `ingredients.${index}.ingredientId`,
                                                          ingredient.id ?? ""
                                                       );
-                                                      setSelectedIngredients((prev) => ({
-                                                         ...prev,
-                                                         [ingredient.id!]: {
-                                                            id: ingredient.id!,
-                                                            name: ingredient.name,
-                                                         },
-                                                      }));
+                                                      setSelectedIngredients(
+                                                         (prev) => ({
+                                                            ...prev,
+                                                            [ingredient.id!]: {
+                                                               id: ingredient.id!,
+                                                               name: ingredient.name,
+                                                            },
+                                                         })
+                                                      );
                                                       setOpenIngredientIndex(
                                                          null
                                                       );
                                                    }}>
                                                    <div className="flex flex-col gap-1.5 min-w-0">
-                                                      <span className="font-medium truncate" title={ingredient.name}>
+                                                      <span
+                                                         className="font-medium truncate"
+                                                         title={
+                                                            ingredient.name
+                                                         }>
                                                          {ingredient.name}
                                                       </span>
                                                       <div className="text-xs text-muted-foreground truncate">
@@ -481,7 +499,9 @@ export default function RecipeUpdateForm({
                                                 size="sm"
                                                 className="flex-1">
                                                 <PlusIcon className="h-4 w-4 mr-2" />
-                                                <span className="text-sm font-medium">Create New</span>
+                                                <span className="text-sm font-medium">
+                                                   Create New
+                                                </span>
                                              </Button>
                                           </IngredientCreateForm>
                                           {hasNextPage && (
@@ -594,7 +614,6 @@ export default function RecipeUpdateForm({
                      </div>
                   )}
 
-               {/* Submit Section */}
                <div className="flex justify-end pt-4 border-t gap-2">
                   <Button
                      type="button"

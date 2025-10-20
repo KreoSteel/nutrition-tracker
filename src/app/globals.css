@@ -23,7 +23,7 @@
   --destructive-foreground: #ffffff;
   --success: #10B981;
   --warning: #F59E0B;
-  --border: rgba(0, 0, 0, 0.1);
+  --border: rgba(0, 0, 0, 0.15);
   --input: transparent;
   --input-background: #f3f3f5;
   --switch-background: #cbced4;

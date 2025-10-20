@@ -1,17 +1,16 @@
 import { http } from "@/lib/http";
 import {
   CreateRecipe,
-  CreateRecipeSchema,
   UpdateRecipe,
-  UpdateRecipeSchema,
   RecipeResponse,
   RecipeResponseSchema,
+  RecipeQuery,
 } from "../../../utils/schemas/recipe";
 import { ZodError } from "zod";
 
-export const getRecipes = async (): Promise<RecipeResponse[]> => {
+export const getRecipes = async (filters: Partial<RecipeQuery> = {}): Promise<RecipeResponse[]> => {
   try {
-    const response = await http.get("/recipes");
+    const response = await http.get("/recipes", { params: filters });
     return RecipeResponseSchema.array().parse(response.data);
   } catch (error) {
     if (error instanceof ZodError) {

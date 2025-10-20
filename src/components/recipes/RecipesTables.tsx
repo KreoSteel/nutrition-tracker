@@ -9,27 +9,22 @@ import {
    TableHeader,
    TableRow,
 } from "../ui/table";
-import {
-   calculateRecipeNutrition,
-   RecipeIngredient,
-} from "../../../utils/calculations/nutrition";
+import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import { RecipeResponse } from "../../../utils/schemas/recipe";
 import { useRecipes, useToggleFavorite } from "@/app/hooks/useRecipes";
-import { Loader2, Pencil, Star } from "lucide-react";
+import { Heart, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
+import RecipeDelete from "@/app/forms/RecipeDelete";
+import RecipeDetailsCard from "../cards/RecipeDetailsCard";
 type SortableField =
    | "name"
-   | "servings"
    | "calories"
    | "carbs"
    | "protein"
    | "fat"
-   | "rating"
-   | "isFavorite";
+   | "rating";
 
 export default function RecipesTables() {
-   const { data: recipes, isLoading, isError } = useRecipes();
-   const { mutate: toggleFavorite } = useToggleFavorite();
    const [sortState, setSortState] = useState<
       | {
            field: SortableField;
@@ -37,7 +32,18 @@ export default function RecipesTables() {
         }
       | undefined
    >(undefined);
-   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+   const {
+      data: recipes,
+      isLoading,
+      isError,
+   } = useRecipes({
+      sortBy: sortState?.field,
+      sortOrder: sortState?.order,
+   });
+   const { mutate: toggleFavorite } = useToggleFavorite();
+   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(
+      null
+   );
 
    const handleSort = (field: SortableField) => {
       setSortState((prev) => {
@@ -51,55 +57,59 @@ export default function RecipesTables() {
       });
    };
 
+
    const handleToggleFavorite = (id: string, currentFavorite: boolean) => {
       toggleFavorite({ id, isFavorite: !currentFavorite });
    };
 
-   const calculateRecipeNutritionData = (recipe: RecipeResponse) => {
-      if (!recipe.ingredients || recipe.ingredients.length === 0)
-         return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-
-      const recipeIngredients: RecipeIngredient[] = recipe.ingredients.map(
-         (ingredient) => ({
-            ingredientId: ingredient.ingredientId,
-            quantityGrams: ingredient.quantityGrams,
-            nutritionalData: {
-               calories: ingredient.ingredient.caloriesPer100g,
-               protein: ingredient.ingredient.proteinPer100g,
-               carbs: ingredient.ingredient.carbsPer100g,
-               fat: ingredient.ingredient.fatPer100g,
-            },
-         })
-      );
-
-      return calculateRecipeNutrition(recipeIngredients);
-   };
-
    if (isLoading) {
       return (
-         <div className="text-center py-8">
-            <Loader2 className="w-10 h-10 animate-spin" />
+         <div className="flex justify-center items-center h-80 border border-border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
+            <div className="flex flex-col items-center gap-4">
+               <Loader2 className="w-12 h-12 animate-spin text-primary" />
+               <p className="text-base text-muted-foreground">
+                  Loading recipes...
+               </p>
+            </div>
          </div>
       );
    }
 
    if (isError) {
       return (
-         <div className="text-center py-8 text-red-500">
-            Error loading recipes
+         <div className="flex justify-center items-center h-80 border border-border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
+            <div className="text-center">
+               <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+                  Error loading recipes
+               </p>
+               <p className="text-base text-muted-foreground mt-2">
+                  Please try again later
+               </p>
+            </div>
          </div>
       );
    }
 
    if (!recipes || recipes.length === 0) {
-      return <div className="text-center py-8">No recipes found</div>;
+      return (
+         <div className="flex justify-center items-center h-80 border border-border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
+            <div className="text-center">
+               <p className="text-lg font-semibold text-muted-foreground">
+                  No recipes found
+               </p>
+               <p className="text-base text-muted-foreground mt-2">
+                  Create your first recipe to get started
+               </p>
+            </div>
+         </div>
+      );
    }
 
    return (
-      <div className="border border-border rounded-lg overflow-hidden">
-         <Table className="p-20">
+      <div className="border border-border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-gray-950">
+         <Table>
             <TableHeader>
-               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 text-xl">
+               <TableRow className="bg-gray-50/80 dark:bg-gray-900/50 hover:bg-gray-50/80 dark:hover:bg-gray-900/50 border-b-2 border-gray-200 dark:border-gray-800 h-16">
                   <SortableHeader
                      field="name"
                      sortState={sortState}
@@ -136,7 +146,12 @@ export default function RecipesTables() {
                      onSort={handleSort}>
                      Rating
                   </SortableHeader>
-                  <TableHead className="font-semibold">Favorite</TableHead>
+                  <TableHead className="text-lg font-semibold text-center">
+                     Favorite
+                  </TableHead>
+                  <TableHead className="text-lg font-semibold text-right">
+                     Actions
+                  </TableHead>
                </TableRow>
             </TableHeader>
             <TableBody>
@@ -146,45 +161,48 @@ export default function RecipesTables() {
                   return (
                      <TableRow
                         key={recipe.id}
-                        className="text-lg text-muted-foreground font-medium">
-                        <TableCell className="text-foreground max-w-xl">
-                           <div className="flex flex-col">
-                              <span className="text-lg font-medium">
+                        className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors">
+                        <TableCell className="py-8 max-w-xs">
+                           <div className="flex flex-col gap-1.5">
+                              <span className="text-lg font-semibold text-foreground">
                                  {recipe.name}
                               </span>
                               {recipe.description && (
-                                 <span className="text-sm text-muted-foreground">
+                                 <span className="text-sm text-muted-foreground truncate">
                                     {recipe.description}
                                  </span>
                               )}
                            </div>
                         </TableCell>
-                        <TableCell>
-                           <span className="text-orange-600 dark:text-orange-400">
-                              {Number(recipeNutritionData.calories).toFixed(2)}kcal
+                        <TableCell className="py-8">
+                           <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-base">
+                              {Number(recipeNutritionData.calories).toFixed(1)}
+                              kcal
                            </span>
                         </TableCell>
-                        <TableCell>
-                           <span className="text-blue-600 dark:text-blue-400">
-                              {Number(recipeNutritionData.protein).toFixed(2)}g
+                        <TableCell className="py-8">
+                           <span className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 font-semibold text-base">
+                              {Number(recipeNutritionData.protein).toFixed(1)}g
                            </span>
                         </TableCell>
-                        <TableCell>
-                           <span className="text-green-600 dark:text-green-400">
-                              {Number(recipeNutritionData.carbs).toFixed(2)}g
+                        <TableCell className="py-8">
+                           <span className="inline-flex items-center px-4 py-2 rounded-lg bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-semibold text-base">
+                              {Number(recipeNutritionData.carbs).toFixed(1)}g
                            </span>
                         </TableCell>
-                        <TableCell>
-                           <span className="text-red-600 dark:text-red-400">
-                              {Number(recipeNutritionData.fat).toFixed(2)}g
+                        <TableCell className="py-8">
+                           <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-base">
+                              {Number(recipeNutritionData.fat).toFixed(1)}g
                            </span>
                         </TableCell>
-                        <TableCell>
-                           {recipe.rating ? `${recipe.rating}/100` : "—"}
+                        <TableCell className="py-8">
+                           <span className="text-lg font-medium text-muted-foreground">
+                              {recipe.rating ? `${recipe.rating}/100` : "—"}
+                           </span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center py-8">
                            <Button
-                              variant="none"
+                              variant="ghost"
                               size="icon"
                               onClick={() =>
                                  handleToggleFavorite(
@@ -192,24 +210,45 @@ export default function RecipesTables() {
                                     recipe.isFavorite || false
                                  )
                               }
-                              className="h-fit w-fit aspect-square hover:bg-accent/">
-                              <Star
-                                 className={`size-8 ${
+                              className="h-12 w-12 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
+                              <Heart
+                                 className={`size-6 transition-all ${
                                     recipe.isFavorite
-                                       ? "fill-current text-yellow-400"
-                                       : "text-gray-300"
+                                       ? "fill-current text-red-500 scale-110"
+                                       : "text-gray-400 hover:text-red-400"
                                  }`}
                               />
                            </Button>
                         </TableCell>
-                        <TableCell>
-                           <RecipeUpdateForm
-                              recipe={recipe}
-                              isOpen={selectedRecipeId === recipe.id}
-                              onOpenChange={(open) => {
-                                 setSelectedRecipeId(open ? recipe.id : null);
-                              }}
-                           />
+                        <TableCell className="py-8">
+                           <div className="flex items-center justify-end gap-2">
+                              <RecipeUpdateForm
+                                 children={
+                                    <Button
+                                       variant="ghost"
+                                       size="icon"
+                                       className="h-12 w-12 hover:bg-orange-50 dark:hover:bg-orange-950/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                                       <Pencil className="w-5 h-5" />
+                                    </Button>
+                                 }
+                                 recipe={recipe}
+                                 isOpen={selectedRecipeId === recipe.id}
+                                 onOpenChange={(open) => {
+                                    setSelectedRecipeId(
+                                       open ? recipe.id : null
+                                    );
+                                 }}
+                              />
+                              <RecipeDelete recipe={recipe}>
+                                 <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-12 w-12 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                                    <Trash2 className="w-5 h-5" />
+                                 </Button>
+                              </RecipeDelete>
+                              <RecipeDetailsCard recipe={recipe} />
+                           </div>
                         </TableCell>
                      </TableRow>
                   );

@@ -16,7 +16,7 @@ import { toast } from "sonner";
 export const useRecipes = (filters: Partial<RecipeQuery> = {}) => {
    return useQuery({
       queryKey: ["recipes", filters],
-      queryFn: getRecipes,
+      queryFn: () => getRecipes(filters),
    });
 };
 

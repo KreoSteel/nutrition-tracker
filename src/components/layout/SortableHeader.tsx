@@ -20,16 +20,22 @@ export function SortableHeader<T extends string>({
 
   return (
     <TableHead className={clsx(className, "font-semibold cursor-pointer")}>
-      <div className="flex items-center gap-2" onClick={() => onSort(field)}>
+      <div 
+        className={clsx(
+          "flex items-center gap-2 text-lg hover:text-foreground transition-colors",
+          isActive ? "text-foreground" : ""
+        )}
+        onClick={() => onSort(field)}
+      >
         {children}
         {isActive ? (
           order === "asc" ? (
-            <ChevronUp className="h-4 w-4 shrink-0 transition-transform duration-200" />
+            <ChevronUp className="h-5 w-5 shrink-0 transition-transform duration-200" />
           ) : (
-            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+            <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200" />
           )
         ) : (
-          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+          <ChevronDown className="h-5 w-5 shrink-0 opacity-40 transition-opacity duration-200 group-hover:opacity-70" />
         )}
       </div>
     </TableHead>

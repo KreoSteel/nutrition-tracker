@@ -9,7 +9,6 @@ let prismaInstance: PrismaClient;
 if (!globalForPrisma.prisma) {
   prismaInstance = new PrismaClient({
     log: ['error', 'warn'],
-    // Add connection configuration
     datasources: {
       db: {
         url: process.env.DATABASE_URL,

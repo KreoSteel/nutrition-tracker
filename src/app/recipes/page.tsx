@@ -7,7 +7,7 @@ import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
 import { useRecipes } from "../hooks/useRecipes";
 
 export default function RecipesPage() {
-  const { data: recipesData, isLoading, isError } = useRecipes();
+  const { data: recipesData } = useRecipes();
   const [searchTerm, setSearchTerm] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({
