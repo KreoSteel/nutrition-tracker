@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         }
       : {};
 
-    const ingredients = await (prisma as any).ingredient.findMany({
+    const ingredients = await prisma.ingredient.findMany({
       where: {
         ...where,
         ...(queryParams.minCalories !== undefined ||
@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
             },
     });
 
-    const totalIngredients = await (prisma as any).ingredient.count({where});
+    const totalIngredients = await prisma.ingredient.count({where});
     const hasMore = ingredients.length > (queryParams.limit ?? 20);
     const data = hasMore ? ingredients.slice(0, queryParams.limit) : ingredients;
     const nextCursor =
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const validatedData = CreateIngredientSchema.parse(body);
-    const ingredient = await (prisma as any).ingredient.create({
+    const ingredient = await prisma.ingredient.create({
       data: {
         name: validatedData.name,
         caloriesPer100g: validatedData.caloriesPer100g,

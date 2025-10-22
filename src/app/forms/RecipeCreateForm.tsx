@@ -445,9 +445,9 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                       id={`ingredients.${index}.quantityGrams`}
                       {...register(`ingredients.${index}.quantityGrams`)}
                       placeholder="0"
-                      min="0"
-                      max="1000"
-                      step="0.1"
+                      min={0}
+                      max={1000}
+                      step={1}
                       className={`w-24 h-10 ${
                         errors.ingredients?.[index]?.quantityGrams
                           ? "border-red-500 focus:border-red-500"

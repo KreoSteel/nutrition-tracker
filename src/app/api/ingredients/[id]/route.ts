@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { GetIngredientSchema, UpdateIngredientSchema } from "../../../../../utils/schemas";
 import { ZodError } from "zod";
 
-export async function GET(
+export async function GET(  
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {

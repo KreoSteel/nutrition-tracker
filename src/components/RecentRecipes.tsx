@@ -1,22 +1,132 @@
-import { ChefHat } from "lucide-react";
-import { ArrowRight } from "lucide-react";
+"use client";
+import { ChefHat, ArrowRight, Heart, Star, Eye } from "lucide-react";
+import { useRecipes } from "@/app/hooks/useRecipes";
+import { calculateRecipeNutritionData } from "../../utils/calculations/nutrition";
 import Link from "next/link";
+import { Button } from "./ui/button";
+import RecipeDetailsCard from "./cards/RecipeDetailsCard";
 
 export default function RecentRecipes() {
-    return (
-        <section className="w-full border border-gray-200/80 rounded-xl flex flex-col items-center justify-center shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
-            <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
-                <h2 className="text-3xl font-semibold">Recent Recipes</h2>
-                <Link className="flex items-center gap-1.5 text-primary text-base font-semibold hover:text-primary/80 transition-all" href="/recipes">View All <ArrowRight size={20} /></Link>
-            </span>
-            <div>
+    const { data: recipes, isLoading, isError } = useRecipes({
+        sortBy: "createdAt",
+        sortOrder: "desc"
+    });
+
+    const recentRecipes = recipes?.slice(0, 3) || [];
+
+    if (isLoading) {
+        return (
+            <section className="w-full border border-gray-200/80 rounded-xl flex flex-col items-center justify-center shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+                <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
+                    <h2 className="text-3xl font-semibold">Recent Recipes</h2>
+                    <Link className="flex items-center gap-1.5 text-primary text-base font-semibold hover:text-primary/80 transition-all" href="/recipes">View All <ArrowRight size={20} /></Link>
+                </span>
+                <div className="flex flex-col items-center gap-3 py-20">
+                    <div className="text-muted-foreground">
+                        <ChefHat size={64} />
+                    </div>
+                    <p className="text-muted-foreground text-base">Loading recipes...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (isError) {
+        return (
+            <section className="w-full border border-gray-200/80 rounded-xl flex flex-col items-center justify-center shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+                <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
+                    <h2 className="text-3xl font-semibold">Recent Recipes</h2>
+                    <Link className="flex items-center gap-1.5 text-primary text-base font-semibold hover:text-primary/80 transition-all" href="/recipes">View All <ArrowRight size={20} /></Link>
+                </span>
+                <div className="flex flex-col items-center gap-3 py-20">
+                    <div className="text-muted-foreground">
+                        <ChefHat size={64} />
+                    </div>
+                    <p className="text-muted-foreground text-base">Failed to load recipes. Please try again.</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (!recentRecipes || recentRecipes.length === 0) {
+        return (
+            <section className="w-full border border-gray-200/80 rounded-xl flex flex-col items-center justify-center shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+                <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
+                    <h2 className="text-3xl font-semibold">Recent Recipes</h2>
+                    <Link className="flex items-center gap-1.5 text-primary text-base font-semibold hover:text-primary/80 transition-all" href="/recipes">View All <ArrowRight size={20} /></Link>
+                </span>
                 <div className="flex flex-col items-center gap-3 py-20">
                     <div className="text-muted-foreground">
                         <ChefHat size={64} />
                     </div>
                     <p className="text-muted-foreground text-base">No recipes yet. Create your first recipe!</p>
                 </div>
+            </section>
+        );
+    }
+
+    return (
+        <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+            <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
+                <h2 className="text-3xl font-semibold">Recent Recipes</h2>
+                <Link className="flex items-center gap-1.5 text-primary text-base font-semibold hover:text-primary/80 transition-all" href="/recipes">View All <ArrowRight size={20} /></Link>
+            </span>
+            
+            <div className="px-8 pb-8">
+                <div className="flex flex-col gap-4">
+                    {recentRecipes.map((recipe) => {
+                        const nutrition = calculateRecipeNutritionData(recipe);
+                        return (
+                            <div 
+                                key={recipe.id}
+                                className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <h3 className="text-lg font-semibold text-foreground">{recipe.name}</h3>
+                                            {recipe.rating && (
+                                                <div className="flex items-center gap-1">
+                                                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                                    <span className="text-sm text-muted-foreground">{recipe.rating}/100</span>
+                                                </div>
+                                            )}
+                                            {recipe.isFavorite && (
+                                                <Heart className="w-4 h-4 text-red-500 fill-current" />
+                                            )}
+                                        </div>
+                                        
+                                        {recipe.description && (
+                                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                                {recipe.description}
+                                            </p>
+                                        )}
+                                        
+                                        <div className="flex items-center gap-4 text-sm">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-medium">
+                                                {Number(nutrition.calories).toFixed(0)} kcal
+                                            </span>
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 font-medium">
+                                                {Number(nutrition.protein).toFixed(1)}g Protein
+                                            </span>
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-medium">
+                                                {Number(nutrition.carbs).toFixed(1)}g Carbs
+                                            </span>
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-medium">
+                                                {Number(nutrition.fat).toFixed(1)}g Fat
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="ml-4">
+                                        <RecipeDetailsCard recipe={recipe} />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </section>
-    )
+    );
 }

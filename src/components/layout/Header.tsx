@@ -15,7 +15,7 @@ export default function Header() {
                 <li className="transition-colors hover:text-primary"><Link href="/">Dashboard</Link></li>
                 <li className="transition-colors hover:text-primary"><Link href="/recipes">Recipes</Link></li>
                 <li className="transition-colors hover:text-primary"><Link href="/ingredients">Ingredients</Link></li>
-                <li className="transition-colors hover:text-primary"><Link href="/history">History</Link></li>
+                <li className="transition-colors hover:text-primary"><Link href="/cooking-history">History</Link></li>
             </ul>
         </nav>
         <div className="justify-self-end">
