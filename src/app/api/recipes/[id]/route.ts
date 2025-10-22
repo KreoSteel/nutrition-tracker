@@ -66,9 +66,6 @@ export async function PATCH(
                instructions: validatedData.instructions,
             }),
             ...(validatedData.servings && { servings: validatedData.servings }),
-            ...(validatedData.imageUrl !== undefined && {
-               imageUrl: validatedData.imageUrl,
-            }),
             ...(validatedData.cookingTime !== undefined && {
                cookingTime: validatedData.cookingTime,
             }),

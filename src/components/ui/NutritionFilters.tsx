@@ -25,6 +25,12 @@ interface NutritionFiltersProps {
   setSearchTerm: (term: string) => void;
   inputValue: string;
   setInputValue: (value: string) => void;
+  limits?: {
+    calories: { max: number };
+    protein: { max: number };
+    carbs: { max: number };
+    fat: { max: number };
+  };
 }
 
 export function NutritionFilters({
@@ -44,6 +50,12 @@ export function NutritionFilters({
   setSearchTerm,
   inputValue,
   setInputValue,
+  limits = {
+    calories: { max: 900 },
+    protein: { max: 100 },
+    carbs: { max: 100 },
+    fat: { max: 100 },
+  },
 }: NutritionFiltersProps) {
   const [isCaloriesOpen, setIsCaloriesOpen] = useState(false);
   const [isProteinOpen, setIsProteinOpen] = useState(false);
@@ -54,10 +66,10 @@ export function NutritionFilters({
   const searchParams = useSearchParams();
 
   function clearFilters() {
-    onChangeProtein(0, 100);
-    onChangeCarbs(0, 100);
-    onChangeCalories(0, 900);
-    onChangeFat(0, 100);
+    onChangeProtein(0, limits.protein.max);
+    onChangeCarbs(0, limits.carbs.max);
+    onChangeCalories(0, limits.calories.max);
+    onChangeFat(0, limits.fat.max);
     setSearchTerm("");
     setInputValue("");
     router.replace(pathname);
@@ -78,6 +90,8 @@ export function NutritionFilters({
     params.set("query", term);
     router.replace(`${pathname}?${params.toString()}`);
   }, 300);
+
+
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -100,12 +114,12 @@ export function NutritionFilters({
               size="sm"
               className={cn(
                 "h-8 border-dashed transition-colors duration-150 hover:bg-muted",
-                (proteinMin !== 0 || proteinMax !== 100) &&
+                (proteinMin !== 0 || proteinMax !== limits.protein.max) &&
                   "bg-accent border-solid"
               )}
             >
               <span className="font-medium text-sm">Protein</span>
-              {(proteinMin !== 0 || proteinMax !== 100) && (
+              {(proteinMin !== 0 || proteinMax !== limits.protein.max) && (
                 <span className="ml-2 text-xs text-muted-foreground">
                   {proteinMin}-{proteinMax}g
                 </span>
@@ -128,7 +142,7 @@ export function NutritionFilters({
                       type="number"
                       value={proteinMin}
                       min={0}
-                      max={100}
+                      max={limits.protein.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeProtein(Number(e.target.value), proteinMax)
@@ -144,7 +158,7 @@ export function NutritionFilters({
                       type="number"
                       value={proteinMax}
                       min={0}
-                      max={100}
+                      max={limits.protein.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeProtein(proteinMin, Number(e.target.value))
@@ -155,7 +169,7 @@ export function NutritionFilters({
                 <div className="px-2 pt-2">
                   <Slider
                     min={0}
-                    max={100}
+                    max={limits.protein.max}
                     step={1}
                     value={[proteinMin, proteinMax]}
                     onValueChange={(values) =>
@@ -165,7 +179,7 @@ export function NutritionFilters({
                   />
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                     <span>0g</span>
-                    <span>100g</span>
+                    <span>{limits.protein.max}g</span>
                   </div>
                 </div>
               </div>
@@ -180,12 +194,12 @@ export function NutritionFilters({
               size="sm"
               className={cn(
                 "h-8 border-dashed transition-colors duration-150 hover:bg-muted",
-                (caloriesMin !== 0 || caloriesMax !== 900) &&
+                (caloriesMin !== 0 || caloriesMax !== limits.calories.max) &&
                   "bg-accent border-solid"
               )}
             >
               <span className="font-medium text-sm">Calories</span>
-              {(caloriesMin !== 0 || caloriesMax !== 900) && (
+              {(caloriesMin !== 0 || caloriesMax !== limits.calories.max) && (
                 <span className="ml-2 text-xs text-muted-foreground">
                   {caloriesMin}-{caloriesMax}kcal
                 </span>
@@ -206,7 +220,7 @@ export function NutritionFilters({
                       type="number"
                       value={caloriesMin}
                       min={0}
-                      max={900}
+                      max={limits.calories.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeCalories(Number(e.target.value), caloriesMax)
@@ -220,7 +234,7 @@ export function NutritionFilters({
                       type="number"
                       value={caloriesMax}
                       min={0}
-                      max={900}
+                      max={limits.calories.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeCalories(caloriesMin, Number(e.target.value))
@@ -231,7 +245,7 @@ export function NutritionFilters({
                 <div className="px-2 pt-2">
                   <Slider
                     min={0}
-                    max={900}
+                    max={limits.calories.max}
                     step={1}
                     value={[caloriesMin, caloriesMax]}
                     onValueChange={(values) => {
@@ -241,7 +255,7 @@ export function NutritionFilters({
                   />
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                     <span>0kcal</span>
-                    <span>900kcal</span>
+                    <span>{limits.calories.max}kcal</span>
                   </div>
                 </div>
               </div>
@@ -256,11 +270,11 @@ export function NutritionFilters({
               size="sm"
               className={cn(
                 "h-8 border-dashed transition-colors duration-150 hover:bg-muted",
-                (carbsMin !== 0 || carbsMax !== 100) && "bg-accent border-solid"
+                (carbsMin !== 0 || carbsMax !== limits.carbs.max) && "bg-accent border-solid"
               )}
             >
               <span className="font-medium text-sm">Carbs</span>
-              {(carbsMin !== 0 || carbsMax !== 100) && (
+              {(carbsMin !== 0 || carbsMax !== limits.carbs.max) && (
                 <span className="ml-2 text-xs text-muted-foreground">
                   {carbsMin}-{carbsMax}g
                 </span>
@@ -281,7 +295,7 @@ export function NutritionFilters({
                       type="number"
                       value={carbsMin}
                       min={0}
-                      max={100}
+                      max={limits.carbs.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeCarbs(Number(e.target.value), carbsMax)
@@ -297,7 +311,7 @@ export function NutritionFilters({
                       type="number"
                       value={carbsMax}
                       min={0}
-                      max={100}
+                      max={limits.carbs.max}
                       onChange={(e) =>
                         onChangeCarbs(carbsMin, Number(e.target.value))
                       }
@@ -308,7 +322,7 @@ export function NutritionFilters({
                 <div className="px-2 pt-2">
                   <Slider
                     min={0}
-                    max={100}
+                    max={limits.carbs.max}
                     step={1}
                     value={[carbsMin, carbsMax]}
                     onValueChange={(values) =>
@@ -318,7 +332,7 @@ export function NutritionFilters({
                   />
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                     <span>0g</span>
-                    <span>100g</span>
+                    <span>{limits.carbs.max}g</span>
                   </div>
                 </div>
               </div>
@@ -333,11 +347,11 @@ export function NutritionFilters({
               size="sm"
               className={cn(
                 "h-8 border-dashed transition-colors duration-150 hover:bg-muted",
-                (fatMin !== 0 || fatMax !== 100) && "bg-accent border-solid"
+                (fatMin !== 0 || fatMax !== limits.fat.max) && "bg-accent border-solid"
               )}
             >
               <span className="font-medium text-sm">Fat</span>
-              {(fatMin !== 0 || fatMax !== 100) && (
+              {(fatMin !== 0 || fatMax !== limits.fat.max) && (
                 <span className="ml-2 text-xs text-muted-foreground">
                   {fatMin}-{fatMax}g
                 </span>
@@ -360,7 +374,7 @@ export function NutritionFilters({
                       type="number"
                       value={fatMin}
                       min={0}
-                      max={100}
+                      max={limits.fat.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeFat(Number(e.target.value), fatMax)
@@ -376,7 +390,7 @@ export function NutritionFilters({
                       type="number"
                       value={fatMax}
                       min={0}
-                      max={100}
+                      max={limits.fat.max}
                       className="h-8"
                       onChange={(e) =>
                         onChangeFat(fatMin, Number(e.target.value))
@@ -387,7 +401,7 @@ export function NutritionFilters({
                 <div className="px-2 pt-2">
                   <Slider
                     min={0}
-                    max={100}
+                    max={limits.fat.max}
                     step={1}
                     value={[fatMin, fatMax]}
                     onValueChange={(values) =>
@@ -397,7 +411,7 @@ export function NutritionFilters({
                   />
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                     <span>0g</span>
-                    <span>100g</span>
+                    <span>{limits.fat.max}g</span>
                   </div>
                 </div>
               </div>

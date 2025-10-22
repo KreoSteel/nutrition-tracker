@@ -10,7 +10,7 @@ import {
    TableRow,
 } from "../ui/table";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
-import { RecipeResponse } from "../../../utils/schemas/recipe";
+import { RecipeQuery, RecipeResponse } from "../../../utils/schemas/recipe";
 import { useRecipes, useToggleFavorite } from "@/app/hooks/useRecipes";
 import { Heart, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -24,7 +24,17 @@ type SortableField =
    | "fat"
    | "rating";
 
-export default function RecipesTables() {
+interface RecipesTablesProps {
+   searchTerm: string;
+   filters: {
+      calories: { min: number; max: number };
+      protein: { min: number; max: number };
+      carbs: { min: number; max: number };
+      fat: { min: number; max: number };
+   };
+}
+
+export default function RecipesTables({ searchTerm, filters }: RecipesTablesProps) {
    const [sortState, setSortState] = useState<
       | {
            field: SortableField;
@@ -37,8 +47,17 @@ export default function RecipesTables() {
       isLoading,
       isError,
    } = useRecipes({
+      search: searchTerm,
       sortBy: sortState?.field,
       sortOrder: sortState?.order,
+      minCalories: filters.calories.min !== 0 ? filters.calories.min : undefined,
+      maxCalories: filters.calories.max !== 3000 ? filters.calories.max : undefined,
+      minProtein: filters.protein.min !== 0 ? filters.protein.min : undefined,
+      maxProtein: filters.protein.max !== 200 ? filters.protein.max : undefined,
+      minCarbs: filters.carbs.min !== 0 ? filters.carbs.min : undefined,
+      maxCarbs: filters.carbs.max !== 300 ? filters.carbs.max : undefined,
+      minFat: filters.fat.min !== 0 ? filters.fat.min : undefined,
+      maxFat: filters.fat.max !== 150 ? filters.fat.max : undefined,
    });
    const { mutate: toggleFavorite } = useToggleFavorite();
    const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(

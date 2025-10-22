@@ -1,21 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../utils/prisma/prisma";
-import { CreateRecipeSchema } from "../../../../utils/schemas/recipe";
+import { calculateRecipeNutritionData } from "../../../../utils/calculations/nutrition";
+import {
+   CreateRecipeSchema,
+   RecipeQuerySchema,
+} from "../../../../utils/schemas/recipe";
 import { ZodError } from "zod";
 
 export async function GET(req: NextRequest) {
    try {
       const { searchParams } = new URL(req.url);
+      const queryParams = RecipeQuerySchema.parse(
+         Object.fromEntries(searchParams.entries())
+      );
+      const search = queryParams.search?.trim();
+      const where = search
+         ? {
+              OR: [
+                 { name: { contains: search, mode: "insensitive" as const } },
+                 { description: {contains: search, mode: "insensitive" as const}}
+              ],
+           }
+         : {};
+
       const sortBy = searchParams.get("sortBy");
       const sortOrder =
          (searchParams.get("sortOrder") as "asc" | "desc") || "asc";
 
       let orderBy: any = undefined;
-      
+
       if (sortBy) {
          orderBy = { [sortBy]: sortOrder };
       }
-      const recipes = await prisma.recipe.findMany({
+
+
+      let recipes = await prisma.recipe.findMany({
+         where,
          include: {
             ingredients: {
                include: {
@@ -29,6 +49,67 @@ export async function GET(req: NextRequest) {
                  isFavorite: "desc",
               },
       });
+
+      recipes = recipes.filter((recipe) => {
+         const nutrition = calculateRecipeNutritionData(recipe)
+
+         if (queryParams.minCalories !== undefined && nutrition.calories < queryParams.minCalories) {
+            return false
+         }
+         if (queryParams.maxCalories !== undefined && nutrition.calories > queryParams.maxCalories) {
+            return false
+         }
+
+         if (queryParams.minCarbs !== undefined && nutrition.carbs < queryParams.minCarbs) {
+            return false
+         }
+         if (queryParams.maxCarbs !== undefined && nutrition.carbs > queryParams.maxCarbs) {
+            return false
+         }
+
+         if (queryParams.minProtein !== undefined && nutrition.protein < queryParams.minProtein) {
+            return false
+         }
+         if (queryParams.maxProtein!== undefined && nutrition.protein > queryParams.maxProtein) {
+            return false
+         }
+
+         if (queryParams.minFat !== undefined && nutrition.fat < queryParams.minFat) {
+            return false
+         }
+         if (queryParams.maxFat !== undefined && nutrition.fat > queryParams.maxFat) {
+            return false
+         }
+
+         return true
+      })
+
+      if (sortBy && ["calories", "carbs", "protein", "fat"].includes(sortBy)) {
+         recipes.sort((a, b) => {
+            const nutritionA = calculateRecipeNutritionData(a);
+            const nutritionB = calculateRecipeNutritionData(b);
+            const valueA = nutritionA[sortBy as keyof typeof nutritionA]
+            const valueB = nutritionB[sortBy as keyof typeof nutritionB]
+            return sortOrder === "asc" ? Number(valueA) - Number(valueB) : Number(valueB) - Number(valueA)
+         })
+      } else if (sortBy) {
+         recipes.sort((a, b) => {
+            const valueA = a[sortBy as keyof typeof a];
+            const valueB = b[sortBy as keyof typeof b];
+            
+            // Handle null/undefined values
+            if (valueA == null && valueB == null) return 0;
+            if (valueA == null) return sortOrder === "asc" ? 1 : -1;
+            if (valueB == null) return sortOrder === "asc" ? -1 : 1;
+            
+            // Compare values
+            if (sortOrder === "asc") {
+               return valueA > valueB ? 1 : -1;
+            } else {
+               return valueA < valueB ? 1 : -1;
+            }
+         });
+      }
       return NextResponse.json(recipes);
    } catch (error) {
       return NextResponse.json(

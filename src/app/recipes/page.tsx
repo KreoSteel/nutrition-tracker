@@ -4,17 +4,15 @@ import { NutritionFilters } from "@/components/ui/NutritionFilters";
 import { useState } from "react";
 import RecipesTables from "@/components/recipes/RecipesTables";
 import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
-import { useRecipes } from "../hooks/useRecipes";
 
 export default function RecipesPage() {
-  const { data: recipesData } = useRecipes();
   const [searchTerm, setSearchTerm] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({
-    calories: { min: 0, max: 900 },
-    protein: { min: 0, max: 100 },
-    carbs: { min: 0, max: 100 },
-    fat: { min: 0, max: 100 },
+    calories: { min: 0, max: 3000 },
+    protein: { min: 0, max: 200 },
+    carbs: { min: 0, max: 300 },
+    fat: { min: 0, max: 150 },
   });
   const updateFilter = (
     nutrient: "protein" | "carbs" | "fat" | "calories",
@@ -32,7 +30,7 @@ export default function RecipesPage() {
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl">Recipes</h1>
           <h3 className="text-muted-foreground text-lg font-light">
-            Total Recipes: {recipesData?.length || 0}
+            Total Recipes: <span>Loading...</span>
           </h3>
         </div>
         <RecipeCreateForm>
@@ -56,8 +54,14 @@ export default function RecipesPage() {
         caloriesMin={filters.calories.min}
         caloriesMax={filters.calories.max}
         onChangeCalories={(min, max) => updateFilter("calories", min, max)}
+        limits={{
+          calories: { max: 3000 },
+          protein: { max: 200 },
+          carbs: { max: 300 },
+          fat: { max: 150 },
+        }}
       />
-      <RecipesTables />
+      <RecipesTables searchTerm={searchTerm} filters={filters} />
       
     </div>
   );
