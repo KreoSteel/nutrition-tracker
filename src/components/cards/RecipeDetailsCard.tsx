@@ -7,6 +7,7 @@ import {
    DialogTrigger,
 } from "@/components/ui/dialog";
 import { RecipeResponse } from "../../../utils/schemas";
+import { CookingHistoryResponse } from "../../../utils/schemas/cookingHistory";
 import { Button } from "../ui/button";
 import {
    ChefHat,
@@ -17,35 +18,49 @@ import {
    Users,
    ChevronLeft,
    Edit,
+   Loader2,
 } from "lucide-react";
 import { Separator } from "../ui/separator";
 import NutritionDisplay from "../recipes/NutritionDisplay";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import RecipeUpdateForm from "@/app/forms/RecipeUpdateForm";
 import { useState } from "react";
+import { useCreateCookingHistory } from "@/app/hooks/useCookingHistory";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface RecipeDetailsCardProps {
-    recipe: RecipeResponse;
+   recipe: RecipeResponse | CookingHistoryResponse['recipe'];
 }
 
 export default function RecipeDetailsCard({ recipe }: RecipeDetailsCardProps) {
    const [isEditOpen, setIsEditOpen] = useState(false);
    const queryClient = useQueryClient();
-
+   const { mutate: createCookingHistory, isPending } =
+      useCreateCookingHistory();
    const handleEditSuccess = () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["cooking-history"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-cooking-history"] });
+      queryClient.invalidateQueries({ queryKey: ["cooking-stats"] });
       setIsEditOpen(false);
+   };
+
+   const today = new Date()
+   const handleCookedToday = () => {
+      createCookingHistory({
+         recipeId: recipe.id,
+         cookedAt: today,
+      });
    };
 
    return (
       <Dialog>
-            <DialogTrigger asChild>
+         <DialogTrigger asChild>
             <Button
                variant="ghost"
                size="icon"
                className="h-12 w-12 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
-               <Eye className="w-5 h-5" />
+               <Eye className='size-6' />
             </Button>
          </DialogTrigger>
          <DialogContent className="max-w-4xl min-w-xl max-h-[90vh] overflow-y-auto">
@@ -53,13 +68,13 @@ export default function RecipeDetailsCard({ recipe }: RecipeDetailsCardProps) {
                <DialogTitle className="text-2xl">{recipe.name}</DialogTitle>
                {recipe.description && (
                   <DialogDescription className="text-base pt-2">
-                    {recipe.description}
-                </DialogDescription>
+                     {recipe.description}
+                  </DialogDescription>
                )}
             </DialogHeader>
-               <div className="flex items-center justify-center h-64 w-full rounded-lg bg-gradient-to-tl from-primary/90 via-orange-500/90 to-accent">
-                  <ChefHat className="w-30 h-30 text-white dark:text-black opacity-70" />
-               </div>
+            <div className="flex items-center justify-center h-64 w-full rounded-lg bg-gradient-to-tl from-primary/90 via-orange-500/90 to-accent">
+               <ChefHat className="w-30 h-30 text-white dark:text-black opacity-70" />
+            </div>
             <Separator></Separator>
             <div className="flex justify-between gap-2 items-center">
                <div className="flex items-center gap-3">
@@ -216,25 +231,30 @@ export default function RecipeDetailsCard({ recipe }: RecipeDetailsCardProps) {
             <Separator />
 
             <div className="flex items-center justify-between gap-3">
-               <Button className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2">
-                  <ChevronLeft className="w-4 h-4" />I Cooked This Today
+               <Button
+                  onClick={handleCookedToday}
+                  disabled={isPending}
+                  className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2">
+                  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronLeft className="w-4 h-4" />}
+                  I Cooked This Today
                </Button>
 
                <div className="flex items-center gap-2">
-                  <RecipeUpdateForm 
-                     recipe={recipe} 
-                     isOpen={isEditOpen} 
+                  <RecipeUpdateForm
+                     recipe={recipe as RecipeResponse}
+                     isOpen={isEditOpen}
                      onOpenChange={setIsEditOpen}
-                     onSuccessDetailsCard={handleEditSuccess}
-                  >
-                     <Button variant="outline" className="flex items-center gap-2">
+                     onSuccessDetailsCard={handleEditSuccess}>
+                     <Button
+                        variant="outline"
+                        className="flex items-center gap-2">
                         <Edit className="w-4 h-4" />
                         Edit Recipe
                      </Button>
                   </RecipeUpdateForm>
                </div>
             </div>
-            </DialogContent>
-        </Dialog>
+         </DialogContent>
+      </Dialog>
    );
 }

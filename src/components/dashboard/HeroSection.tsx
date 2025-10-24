@@ -1,9 +1,14 @@
 import { TrendingUp, Utensils, Flame } from "lucide-react";
 import { useRecipes } from "@/app/hooks/useRecipes";
+import { useCookingStats } from "@/app/hooks/useCookingHistory";
 
 export default function HeroSection() {
   const { data: recipesData } = useRecipes()
-  const totalRecipes = recipesData?.length || 0
+  const totalRecipes = recipesData?.totalRecipes || 0
+
+  const { data: cookingStats } = useCookingStats();
+  const todayCooks = cookingStats?.todayCooks || 0
+  const thisWeekCooks = cookingStats?.thisWeekCooks || 0
 
   return (
     <section className="w-full flex flex-col items-center justify-center bg-muted/30 py-16 px-8 rounded-xl shadow-sm">
@@ -20,7 +25,7 @@ export default function HeroSection() {
           </div>
           <div>
             <p className="text-muted-foreground text-base">Today&apos;s Meals</p>
-            <p className="text-foreground text-2xl font-semibold">0</p>
+            <p className="text-foreground text-2xl font-semibold">{todayCooks}</p>
           </div>
         </div>
         <div className="flex items-center gap-5 border-2 border-border/50 py-8 px-14 rounded-xl shadow-md hover:shadow-lg transition-all dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
@@ -38,7 +43,7 @@ export default function HeroSection() {
           </div>
           <div>
             <p className="text-muted-foreground text-base">This Week&apos;s Cooking</p>
-            <p className="text-foreground text-2xl font-semibold">0</p>
+            <p className="text-foreground text-2xl font-semibold">{thisWeekCooks}</p>
           </div>
         </div>
       </div>

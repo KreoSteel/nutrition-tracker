@@ -5,13 +5,27 @@ import {
   RecipeResponse,
   RecipeResponseSchema,
   RecipeQuery,
+  RecipeQuerySchema,
 } from "../../../utils/schemas/recipe";
 import { ZodError } from "zod";
 
-export const getRecipes = async (filters: Partial<RecipeQuery> = {}): Promise<RecipeResponse[]> => {
+export const getRecipes = async (filters: Partial<RecipeQuery> = {}): Promise<{ data: RecipeResponse[]; totalRecipes: number }> => {
   try {
-    const response = await http.get("/recipes", { params: filters });
-    return RecipeResponseSchema.array().parse(response.data);
+    const validatedParams = RecipeQuerySchema.partial().parse(filters);
+    const queryParams = new URLSearchParams();
+
+    Object.entries(validatedParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const response = await http.get(`/recipes?${queryParams.toString()}`);
+    const responseData = response.data as { data: RecipeResponse[]; totalRecipes: number };
+    return {
+      data: RecipeResponseSchema.array().parse(responseData.data),
+      totalRecipes: responseData.totalRecipes
+    };
   } catch (error) {
     if (error instanceof ZodError) {
       throw new Error("Invalid recipe data: " + error.message);

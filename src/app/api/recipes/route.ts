@@ -50,6 +50,8 @@ export async function GET(req: NextRequest) {
               },
       });
 
+      const totalRecipes = await prisma.recipe.count({where});
+
       recipes = recipes.filter((recipe) => {
          const nutrition = calculateRecipeNutritionData(recipe)
 
@@ -110,7 +112,10 @@ export async function GET(req: NextRequest) {
             }
          });
       }
-      return NextResponse.json(recipes);
+      return NextResponse.json({
+         data: recipes,
+         totalRecipes,
+      });
    } catch (error) {
       return NextResponse.json(
          { error: "Failed to fetch recipes" },

@@ -33,7 +33,15 @@ export async function GET(req: NextRequest) {
       const cookingHistory = await prisma.cookingHistory.findMany({
          where,
          include: {
-            recipe: true,
+            recipe: {
+               include: {
+                  ingredients: {
+                     include: {
+                        ingredient: true,
+                     },
+                  },
+               },
+            },
          },
          take: limit + 1,
          ...(queryParams.cursor && queryParams.cursor !== ""
@@ -51,6 +59,24 @@ export async function GET(req: NextRequest) {
                : { cookedAt: "desc" },
       });
 
+      const recentCookingHistoryLimit = 3;
+      const recentCookingHistory = await prisma.cookingHistory.findMany({
+         where,
+         include: {
+            recipe: {
+               include: {
+                  ingredients: {
+                     include: {
+                        ingredient: true,
+                     },
+                  },
+               },
+            },
+         },
+         orderBy: { cookedAt: "desc" },
+         take: recentCookingHistoryLimit,
+      });
+
       const hasMore = cookingHistory.length > limit;
       const data = hasMore ? cookingHistory.slice(0, limit) : cookingHistory;
       const nextCursor =
@@ -62,6 +88,7 @@ export async function GET(req: NextRequest) {
          nextCursor,
          hasMore,
          totalCooks,
+         recentCookingHistory,
       });
    } catch (error) {
       if (error instanceof ZodError) {
@@ -84,7 +111,15 @@ export async function POST(req: NextRequest) {
       const cookingHistory = await prisma.cookingHistory.create({
          data: validatedData,
          include: {
-            recipe: true,
+            recipe: {
+               include: {
+                  ingredients: {
+                     include: {
+                        ingredient: true,
+                     },
+                  },
+               },
+            },
          },
       });
       return NextResponse.json(cookingHistory);

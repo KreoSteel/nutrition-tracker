@@ -7,6 +7,8 @@ import {
    PaginatedCookingHistoryResponseSchema,
    CookingHistoryResponse,
    CreateCookingHistorySchema,
+   CookingHistoryStats,
+   CookingHistoryStatsSchema,
 } from "../../../utils/schemas";
 import { ZodError } from "zod";
 
@@ -31,6 +33,19 @@ export const getCookingHistory = async (
         throw new Error("Failed to fetch cooking history");
     }
 };
+
+export const getCookingStats = async (): Promise<CookingHistoryStats> => {
+    try {
+        const response = await http.get("/cooking-history/stats")
+        return CookingHistoryStatsSchema.parse(response.data);
+    } catch (error) {
+        if (error instanceof ZodError) {
+            throw new Error("Invalid cooking stats: " + error.message);
+        }
+        throw new Error("Failed to fetch cooking stats");
+    }
+};
+
 
 export const createCookingHistory = async (cookingHistory: CreateCookingHistorySchema): Promise<CookingHistoryResponse> => {
     try {

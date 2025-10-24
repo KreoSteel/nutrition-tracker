@@ -1,5 +1,5 @@
 import z from "zod";
-import { RecipeSchema } from "./recipe";
+import { RecipeResponseSchema } from "./recipe";
 
 export const CreateCookingHistorySchema = z
    .object({
@@ -25,7 +25,22 @@ export const CookingHistorySchema = z.object({
 });
 
 export const CookingHistoryResponseSchema = CookingHistorySchema.extend({
-   recipe: RecipeSchema,
+   recipe: RecipeResponseSchema.extend({
+      ingredients: z.array(z.object({
+         id: z.string(),
+         recipeId: z.string(),
+         ingredientId: z.string(),
+         quantityGrams: z.number().or(z.any()),
+         ingredient: z.object({
+            id: z.string(),
+            name: z.string(),
+            caloriesPer100g: z.number().or(z.any()),
+            proteinPer100g: z.number().or(z.any()),
+            carbsPer100g: z.number().or(z.any()),
+            fatPer100g: z.number().or(z.any()),
+         })
+      }))
+   })
 });
 
 export const CookingHistoryQuerySchema = z
@@ -56,11 +71,13 @@ export const PaginatedCookingHistoryResponseSchema = z.object({
    nextCursor: z.string().nullable(),
    hasMore: z.boolean(),
    totalCooks: z.number(),
+   recentCookingHistory: z.array(CookingHistoryResponseSchema)
 });
 
 export const CookingHistoryStatsSchema = z.object({
    totalCooks: z.number(),
    thisWeekCooks: z.number(),
+   todayCooks: z.number(),
    currentStreak: z.number(),
    mostCookedRecipe: z
       .object({

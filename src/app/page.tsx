@@ -1,9 +1,9 @@
 "use client"
-import CookingHistory from "@/components/CookingHistory";
-import HeroSection from "@/components/HeroSection";
-import QuickActions from "@/components/QuickActions";
-import RecentRecipes from "@/components/RecentRecipes";
-import WeekNutrition from "@/components/WeekNutrition";
+import CookingHistory from "@/components/dashboard/CookingHistory";
+import HeroSection from "@/components/dashboard/HeroSection";
+import QuickActions from "@/components/dashboard/QuickActions";
+import RecentRecipes from "@/components/dashboard/RecentRecipes";
+import WeekNutrition from "@/components/dashboard/WeekNutrition";
 
 export default function Dashboard() {
   return (

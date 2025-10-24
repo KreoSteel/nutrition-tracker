@@ -1,18 +1,19 @@
 "use client";
 import { ChefHat, ArrowRight, Heart, Star, Eye } from "lucide-react";
 import { useRecipes } from "@/app/hooks/useRecipes";
-import { calculateRecipeNutritionData } from "../../utils/calculations/nutrition";
+import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import Link from "next/link";
-import { Button } from "./ui/button";
-import RecipeDetailsCard from "./cards/RecipeDetailsCard";
+import { Button } from "../ui/button";
+import RecipeDetailsCard from "../cards/RecipeDetailsCard";
 
 export default function RecentRecipes() {
-    const { data: recipes, isLoading, isError } = useRecipes({
+    const { data, isLoading, isError } = useRecipes({
         sortBy: "createdAt",
         sortOrder: "desc"
     });
 
-    const recentRecipes = recipes?.slice(0, 3) || [];
+    const recipes = data?.recipes || [];
+    const recentRecipes = recipes.slice(0, 3);
 
     if (isLoading) {
         return (

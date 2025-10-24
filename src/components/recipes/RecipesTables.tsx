@@ -43,7 +43,7 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
       | undefined
    >(undefined);
    const {
-      data: recipes,
+      data,
       isLoading,
       isError,
    } = useRecipes({
@@ -59,6 +59,8 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
       minFat: filters.fat.min !== 0 ? filters.fat.min : undefined,
       maxFat: filters.fat.max !== 150 ? filters.fat.max : undefined,
    });
+
+   const recipes = data?.recipes || [];
    const { mutate: toggleFavorite } = useToggleFavorite();
    const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(
       null
@@ -183,11 +185,11 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
                         className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors">
                         <TableCell className="py-8 max-w-xs">
                            <div className="flex flex-col gap-1.5">
-                              <span className="text-lg font-semibold text-foreground">
+                              <span className="text-xl font-semibold text-foreground truncate">
                                  {recipe.name}
                               </span>
                               {recipe.description && (
-                                 <span className="text-sm text-muted-foreground truncate">
+                                 <span className="text-base text-muted-foreground line-clamp-2 leading-relaxed">
                                     {recipe.description}
                                  </span>
                               )}
@@ -215,7 +217,7 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
                            </span>
                         </TableCell>
                         <TableCell className="py-8">
-                           <span className="text-lg font-medium text-muted-foreground">
+                           <span className="text-xl font-medium text-muted-foreground">
                               {recipe.rating ? `${recipe.rating}/100` : "—"}
                            </span>
                         </TableCell>

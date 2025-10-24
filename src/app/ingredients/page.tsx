@@ -232,35 +232,35 @@ export default function IngredientsPage() {
                 key={ingredient.id}
                 className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors"
               >
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <div className="line-clamp-2 text-lg font-semibold text-foreground max-w-xl" title={ingredient.name}>
                     {ingredient.name}
                   </div>
                 </TableCell>
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-base">
                     {ingredient.caloriesPer100g.toString()}kcal
                   </span>
                 </TableCell>
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <span className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 font-semibold text-base">
                     {ingredient.proteinPer100g.toString()}g
                   </span>
                 </TableCell>
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <span className="inline-flex items-center px-4 py-2 rounded-lg bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-semibold text-base">
                     {ingredient.carbsPer100g.toString()}g
                   </span>
                 </TableCell>
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <span className="inline-flex items-center px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-base">
                     {ingredient.fatPer100g.toString()}g
                   </span>
                 </TableCell>
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <span className="text-base font-medium text-muted-foreground">{ingredient.category}</span>
                 </TableCell>
-                <TableCell className="py-8">
+                <TableCell className="py-4">
                   <div className="flex items-center justify-end gap-2">
                     <Button
                       type="button"
@@ -272,7 +272,7 @@ export default function IngredientsPage() {
                       }}
                       className="h-12 w-12 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
                     >
-                      <Pencil className="h-5 w-5" />
+                      <Pencil className="size-5" />
                     </Button>
                     <IngredientDelete ingredient={ingredient}>
                       <Button 
@@ -281,7 +281,7 @@ export default function IngredientsPage() {
                         variant="ghost"
                         className="h-12 w-12 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       >
-                        <Trash2 className="h-5 w-5" />
+                        <Trash2 className="size-5" />
                       </Button>
                     </IngredientDelete>
                   </div>

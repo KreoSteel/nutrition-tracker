@@ -4,6 +4,7 @@ import { NutritionFilters } from "@/components/ui/NutritionFilters";
 import { useState } from "react";
 import RecipesTables from "@/components/recipes/RecipesTables";
 import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
+import { useRecipes } from "@/app/hooks/useRecipes";
 
 export default function RecipesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +23,10 @@ export default function RecipesPage() {
     setFilters((prev) => ({ ...prev, [nutrient]: { min, max } }));
   };
 
+  // Get total recipes count
+  const { data: totalData } = useRecipes({});
+  const totalRecipes = totalData?.totalRecipes;
+
 
 
   return (
@@ -30,7 +35,7 @@ export default function RecipesPage() {
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl">Recipes</h1>
           <h3 className="text-muted-foreground text-lg font-light">
-            Total Recipes: <span>Loading...</span>
+            Total Recipes: <span>{totalRecipes !== undefined ? totalRecipes : "Loading..."}</span>
           </h3>
         </div>
         <RecipeCreateForm>

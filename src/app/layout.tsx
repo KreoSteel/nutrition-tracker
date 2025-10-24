@@ -53,7 +53,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <div className="mx-auto w-full max-w-[2000px] px-6 lg:px-10 flex flex-col items-center justify-center">
+          <div className="mx-auto w-full max-w-[2000px] px-6 pb-20 lg:px-10 flex flex-col items-center justify-center">
             <QueryClientProvider client={queryClient}>
               {children}
             </QueryClientProvider>

@@ -40,6 +40,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.64.0",
+    "recharts": "^3.3.0",
     "select": "^1.1.2",
     "shadcn": "^3.4.2",
     "sonner": "^2.0.7",

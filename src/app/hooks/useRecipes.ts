@@ -17,6 +17,10 @@ export const useRecipes = (filters: Partial<RecipeQuery> = {}) => {
    return useQuery({
       queryKey: ["recipes", filters],
       queryFn: () => getRecipes(filters),
+      select: (data) => ({
+         recipes: data.data,
+         totalRecipes: data.totalRecipes
+      })
    });
 };
 
