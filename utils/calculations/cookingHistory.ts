@@ -1,5 +1,5 @@
 import { CookingHistoryResponse } from "../schemas";
-import { startOfDay, isSameDay, subDays, differenceInDays, endOfWeek, startOfWeek, isThisWeek } from "date-fns";
+import { startOfDay, isSameDay, subDays, differenceInDays } from "date-fns";
 
 export function calculateCookingStreak(cookingHistory: CookingHistoryResponse[]): number {
     if (!cookingHistory || cookingHistory.length === 0) {

@@ -379,6 +379,7 @@ export default function RecipeUpdateForm({
                                     <button
                                        type="button"
                                        role="combobox"
+                                       aria-controls={`ingredients.${index}.ingredientId`}
                                        aria-expanded={
                                           openIngredientIndex === index
                                        }

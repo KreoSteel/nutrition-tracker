@@ -2,9 +2,9 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
-import { IngredientUpdateForm } from "../forms/IngredientUpdateForm";
+import { IngredientUpdateForm } from "@/app/forms/IngredientUpdateForm";
 import { SortableHeader } from "@/components/layout/SortableHeader";
-import { useIngredients } from "../hooks/useIngredients";
+import { useIngredients } from "@/app/hooks/useIngredients";
 import { NutritionFilters } from "@/components/ui/NutritionFilters";
 import {
   Table,
@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/table";
 import { useState, useEffect, useRef } from "react";
 import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
-import { IngredientResponse } from "../../../utils/schemas";
-import IngredientDelete from "../forms/IngredientDelete";
+import { IngredientResponse } from "../../../../utils/schemas";
+import IngredientDelete from "@/app/forms/IngredientDelete";
 
 export default function IngredientsPage() {
   const searchParams = useSearchParams();

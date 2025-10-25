@@ -1,9 +1,8 @@
 "use client";
-import { ChefHat, ArrowRight, Heart, Star, Eye } from "lucide-react";
+import { ChefHat, ArrowRight, Heart, Star } from "lucide-react";
 import { useRecipes } from "@/app/hooks/useRecipes";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import Link from "next/link";
-import { Button } from "../ui/button";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";
 
 export default function RecentRecipes() {
@@ -12,8 +11,7 @@ export default function RecentRecipes() {
         sortOrder: "desc"
     });
 
-    const recipes = data?.recipes || [];
-    const recentRecipes = recipes.slice(0, 3);
+    const recentRecipes = data?.recipes.slice(0, 4) || [];
 
     if (isLoading) {
         return (

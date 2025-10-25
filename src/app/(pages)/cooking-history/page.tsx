@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useCookingStats } from "../hooks/useCookingHistory";
+import { useCookingStats } from "@/app/hooks/useCookingHistory";
 import CookingHistoryTables from "@/components/cooking-history/CookingHistoryTables";
 import Statistics from "@/components/cooking-history/Statistics";
 

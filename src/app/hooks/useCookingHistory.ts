@@ -9,6 +9,7 @@ import {
    createCookingHistory,
    deleteCookingHistory,
    getCookingStats,
+   getWeeklyNutrition,
 } from "../services/cooking-history";
 import { CookingHistoryQuery } from "../../../utils/schemas";
 import { toast } from "sonner";
@@ -43,7 +44,15 @@ export const useCookingStats = () => {
    return useQuery({
       queryKey: ["cooking-stats"],
       queryFn: () => getCookingStats(),
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000
+   })
+}
+
+export const useWeeklyNutrition = () => {
+   return useQuery({
+      queryKey: ["weekly-nutrition"],
+      queryFn: () => getWeeklyNutrition(),
+      staleTime: 5 * 60 * 1000
    })
 }
 
@@ -57,6 +66,7 @@ export const useCreateCookingHistory = () => {
          queryClient.invalidateQueries({ queryKey: ["cooking-history"] })
          queryClient.invalidateQueries({ queryKey: ["recent-cooking-history"] });
          queryClient.invalidateQueries({ queryKey: ["cooking-stats"] });
+         queryClient.invalidateQueries({ queryKey: ["weekly-nutrition"] });
          toast.success("Cooking history created successfully");
       },
       onError: () => {
@@ -74,6 +84,7 @@ export const useDeleteCookingHistory = () => {
          queryClient.invalidateQueries({ queryKey: ["cooking-history"] });
          queryClient.invalidateQueries({ queryKey: ["recent-cooking-history"] });
          queryClient.invalidateQueries({ queryKey: ["cooking-stats"] });
+         queryClient.invalidateQueries({ queryKey: ["weekly-nutrition"] });
          toast.success("Cooking history deleted successfully");
       },
       onError: () => {

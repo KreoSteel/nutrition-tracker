@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-   CreateRecipe,
    RecipeQuery,
    UpdateRecipe,
 } from "../../../utils/schemas/recipe";

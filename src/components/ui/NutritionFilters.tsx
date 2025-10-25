@@ -46,7 +46,6 @@ export function NutritionFilters({
   caloriesMin,
   caloriesMax,
   onChangeCalories,
-  searchTerm,
   setSearchTerm,
   inputValue,
   setInputValue,

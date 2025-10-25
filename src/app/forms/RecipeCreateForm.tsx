@@ -5,7 +5,6 @@ import {
 } from "../../../utils/schemas/recipe";
 import {
   calculateRecipeNutrition,
-  calculateNutritionPerServing,
   RecipeIngredient,
 } from "../../../utils/calculations/nutrition";
 import NutritionDisplay from "@/components/recipes/NutritionDisplay";
@@ -317,6 +316,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                         <button
                           type="button"
                           role="combobox"
+                          aria-controls={`ingredients.${index}.ingredientId`}
                           aria-expanded={openIngredientIndex === index}
                           className={`flex items-center justify-between w-full h-10 px-3 py-2 text-sm border rounded-md bg-background shadow-md hover:bg-accent hover:text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer ${
                             errors.ingredients?.[index]?.ingredientId

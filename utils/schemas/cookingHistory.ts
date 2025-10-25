@@ -88,6 +88,18 @@ export const CookingHistoryStatsSchema = z.object({
    weeklyAverage: z.number(),
 });
 
+export const WeeklyNutritionSchema = z.object({
+   weekStart: z.string().transform((str) => new Date(str)),
+   weekEnd: z.string().transform((str) => new Date(str)),
+   totalNutritionPerWeek: z.object({
+     calories: z.number(),
+     protein: z.number(),
+     carbs: z.number(),
+     fat: z.number(),
+   }),
+   totalMeals: z.number(),
+})
+
 export type CookingHistory = z.infer<typeof CookingHistorySchema>;
 export type CookingHistoryResponse = z.infer<
    typeof CookingHistoryResponseSchema
@@ -98,3 +110,4 @@ export type PaginatedCookingHistoryResponse = z.infer<
 >;
 export type CookingHistoryStats = z.infer<typeof CookingHistoryStatsSchema>;
 export type CreateCookingHistorySchema = z.infer<typeof CreateCookingHistorySchema>;
+export type WeeklyNutrition = z.infer<typeof WeeklyNutritionSchema>;

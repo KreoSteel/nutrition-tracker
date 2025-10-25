@@ -117,6 +117,7 @@ export async function GET(req: NextRequest) {
          totalRecipes,
       });
    } catch (error) {
+      console.error("Error fetching recipes:", error);
       return NextResponse.json(
          { error: "Failed to fetch recipes" },
          { status: 500 }
@@ -154,11 +155,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(recipe);
    } catch (error) {
       if (error instanceof ZodError) {
+         console.error("Invalid recipe data:", error.issues);
          return NextResponse.json(
             { error: "Invalid recipe data", details: error.issues },
             { status: 400 }
          );
       }
+      console.error("Failed to create recipe:", error);
       return NextResponse.json(
          { error: "Failed to create recipe" },
          { status: 500 }

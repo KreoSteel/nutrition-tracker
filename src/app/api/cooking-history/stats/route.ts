@@ -5,9 +5,6 @@ import { calculateCookingStreak } from "../../../../../utils/calculations/cookin
 
 export async function GET(req: NextRequest) {
    try {
-      const searchParams = new URLSearchParams(req.url);
-      const period = searchParams.get("period") || "week";
-
       const cookingHistory = await prisma.cookingHistory.findMany({
          include: {
             recipe: {
@@ -60,9 +57,10 @@ export async function GET(req: NextRequest) {
 
       return NextResponse.json(stats);
    } catch (error) {
+      console.error("Error fetching cooking history stats:", error);
       return NextResponse.json(
          { error: "Failed to fetch cooking history stats" },
-         { status: 500 }
+         { status: 500 } 
       );
    }
 }

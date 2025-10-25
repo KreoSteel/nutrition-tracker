@@ -10,7 +10,7 @@ import {
    TableRow,
 } from "../ui/table";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
-import { RecipeQuery, RecipeResponse } from "../../../utils/schemas/recipe";
+import { RecipeResponse } from "../../../utils/schemas/recipe";
 import { useRecipes, useToggleFavorite } from "@/app/hooks/useRecipes";
 import { Heart, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -244,14 +244,6 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
                         <TableCell className="py-8">
                            <div className="flex items-center justify-end gap-2">
                               <RecipeUpdateForm
-                                 children={
-                                    <Button
-                                       variant="ghost"
-                                       size="icon"
-                                       className="h-12 w-12 hover:bg-orange-50 dark:hover:bg-orange-950/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-                                       <Pencil className="w-5 h-5" />
-                                    </Button>
-                                 }
                                  recipe={recipe}
                                  isOpen={selectedRecipeId === recipe.id}
                                  onOpenChange={(open) => {
@@ -259,7 +251,14 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
                                        open ? recipe.id : null
                                     );
                                  }}
-                              />
+                              >
+                                 <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-12 w-12 hover:bg-orange-50 dark:hover:bg-orange-950/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                                    <Pencil className="w-5 h-5" />
+                                 </Button>
+                              </RecipeUpdateForm>
                               <RecipeDelete recipe={recipe}>
                                  <Button
                                     variant="ghost"

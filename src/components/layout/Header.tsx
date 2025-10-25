@@ -13,8 +13,8 @@ export default function Header() {
         <nav className="justify-self-center">
             <ul className="flex items-center gap-8 text-muted-foreground font-semibold">
                 <li className="transition-colors hover:text-primary"><Link href="/">Dashboard</Link></li>
-                <li className="transition-colors hover:text-primary"><Link href="/recipes">Recipes</Link></li>
                 <li className="transition-colors hover:text-primary"><Link href="/ingredients">Ingredients</Link></li>
+                <li className="transition-colors hover:text-primary"><Link href="/recipes">Recipes</Link></li>
                 <li className="transition-colors hover:text-primary"><Link href="/cooking-history">History</Link></li>
             </ul>
         </nav>
