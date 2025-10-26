@@ -12,7 +12,7 @@ import {
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import { RecipeResponse } from "../../../utils/schemas/recipe";
 import { useRecipes, useToggleFavorite } from "@/app/hooks/useRecipes";
-import { Heart, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Eye, Heart, Loader2, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import RecipeDelete from "@/app/forms/RecipeDelete";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";
@@ -32,9 +32,10 @@ interface RecipesTablesProps {
       carbs: { min: number; max: number };
       fat: { min: number; max: number };
    };
+   ingredients: string | null;
 }
 
-export default function RecipesTables({ searchTerm, filters }: RecipesTablesProps) {
+export default function RecipesTables({ searchTerm, filters, ingredients }: RecipesTablesProps) {
    const [sortState, setSortState] = useState<
       | {
            field: SortableField;
@@ -58,6 +59,7 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
       maxCarbs: filters.carbs.max !== 300 ? filters.carbs.max : undefined,
       minFat: filters.fat.min !== 0 ? filters.fat.min : undefined,
       maxFat: filters.fat.max !== 150 ? filters.fat.max : undefined,
+      ingredients: ingredients || undefined,
    });
 
    const recipes = data?.recipes || [];
@@ -267,7 +269,14 @@ export default function RecipesTables({ searchTerm, filters }: RecipesTablesProp
                                     <Trash2 className="w-5 h-5" />
                                  </Button>
                               </RecipeDelete>
-                              <RecipeDetailsCard recipe={recipe} />
+                              <RecipeDetailsCard recipe={recipe}>
+                                 <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-12 w-12 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                                    <Eye className="w-5 h-5" />
+                                 </Button>
+                              </RecipeDetailsCard>
                            </div>
                         </TableCell>
                      </TableRow>

@@ -13,15 +13,30 @@ export async function GET(req: NextRequest) {
       const queryParams = RecipeQuerySchema.parse(
          Object.fromEntries(searchParams.entries())
       );
+      const ingredientIds = queryParams.ingredients
+         ? queryParams.ingredients.split(",").filter((id) => id.trim())
+         : [];
+
+      const ingredientFilter = ingredientIds.length > 0 ? {
+         ingredients: {
+            some: {
+               ingredientId: {
+                  in: ingredientIds,
+               }
+            }
+         }
+      } : {};
+      
       const search = queryParams.search?.trim();
-      const where = search
-         ? {
-              OR: [
-                 { name: { contains: search, mode: "insensitive" as const } },
-                 { description: {contains: search, mode: "insensitive" as const}}
-              ],
-           }
-         : {};
+      const where = {
+         ...(search ? {
+            OR: [
+               { name: { contains: search, mode: "insensitive" as const } },
+               { description: { contains: search, mode: "insensitive" as const } },
+            ]
+         } : {}),
+         ...ingredientFilter,
+      }
 
       const sortBy = searchParams.get("sortBy");
       const sortOrder =
@@ -32,7 +47,6 @@ export async function GET(req: NextRequest) {
       if (sortBy) {
          orderBy = { [sortBy]: sortOrder };
       }
-
 
       let recipes = await prisma.recipe.findMany({
          where,
@@ -50,60 +64,86 @@ export async function GET(req: NextRequest) {
               },
       });
 
-      const totalRecipes = await prisma.recipe.count({where});
+      const totalRecipes = await prisma.recipe.count({ where });
 
       recipes = recipes.filter((recipe) => {
-         const nutrition = calculateRecipeNutritionData(recipe)
+         const nutrition = calculateRecipeNutritionData(recipe);
 
-         if (queryParams.minCalories !== undefined && nutrition.calories < queryParams.minCalories) {
-            return false
+         if (
+            queryParams.minCalories !== undefined &&
+            nutrition.calories < queryParams.minCalories
+         ) {
+            return false;
          }
-         if (queryParams.maxCalories !== undefined && nutrition.calories > queryParams.maxCalories) {
-            return false
-         }
-
-         if (queryParams.minCarbs !== undefined && nutrition.carbs < queryParams.minCarbs) {
-            return false
-         }
-         if (queryParams.maxCarbs !== undefined && nutrition.carbs > queryParams.maxCarbs) {
-            return false
-         }
-
-         if (queryParams.minProtein !== undefined && nutrition.protein < queryParams.minProtein) {
-            return false
-         }
-         if (queryParams.maxProtein!== undefined && nutrition.protein > queryParams.maxProtein) {
-            return false
+         if (
+            queryParams.maxCalories !== undefined &&
+            nutrition.calories > queryParams.maxCalories
+         ) {
+            return false;
          }
 
-         if (queryParams.minFat !== undefined && nutrition.fat < queryParams.minFat) {
-            return false
+         if (
+            queryParams.minCarbs !== undefined &&
+            nutrition.carbs < queryParams.minCarbs
+         ) {
+            return false;
          }
-         if (queryParams.maxFat !== undefined && nutrition.fat > queryParams.maxFat) {
-            return false
+         if (
+            queryParams.maxCarbs !== undefined &&
+            nutrition.carbs > queryParams.maxCarbs
+         ) {
+            return false;
          }
 
-         return true
-      })
+         if (
+            queryParams.minProtein !== undefined &&
+            nutrition.protein < queryParams.minProtein
+         ) {
+            return false;
+         }
+         if (
+            queryParams.maxProtein !== undefined &&
+            nutrition.protein > queryParams.maxProtein
+         ) {
+            return false;
+         }
+
+         if (
+            queryParams.minFat !== undefined &&
+            nutrition.fat < queryParams.minFat
+         ) {
+            return false;
+         }
+         if (
+            queryParams.maxFat !== undefined &&
+            nutrition.fat > queryParams.maxFat
+         ) {
+            return false;
+         }
+
+         return true;
+      });
 
       if (sortBy && ["calories", "carbs", "protein", "fat"].includes(sortBy)) {
          recipes.sort((a, b) => {
             const nutritionA = calculateRecipeNutritionData(a);
             const nutritionB = calculateRecipeNutritionData(b);
-            const valueA = nutritionA[sortBy as keyof typeof nutritionA]
-            const valueB = nutritionB[sortBy as keyof typeof nutritionB]
-            return sortOrder === "asc" ? Number(valueA) - Number(valueB) : Number(valueB) - Number(valueA)
-         })
+            const valueA = nutritionA[sortBy as keyof typeof nutritionA];
+            const valueB = nutritionB[sortBy as keyof typeof nutritionB];
+            return sortOrder === "asc"
+               ? Number(valueA) - Number(valueB)
+               : Number(valueB) - Number(valueA);
+         });
       } else if (sortBy) {
          recipes.sort((a, b) => {
             const valueA = a[sortBy as keyof typeof a];
             const valueB = b[sortBy as keyof typeof b];
-            
+
             // Handle null/undefined values
             if (valueA == null && valueB == null) return 0;
             if (valueA == null) return sortOrder === "asc" ? 1 : -1;
             if (valueB == null) return sortOrder === "asc" ? -1 : 1;
-            
+
             // Compare values
             if (sortOrder === "asc") {
                return valueA > valueB ? 1 : -1;

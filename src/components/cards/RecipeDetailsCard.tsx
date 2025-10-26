@@ -30,9 +30,10 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface RecipeDetailsCardProps {
    recipe: RecipeResponse | CookingHistoryResponse['recipe'];
+   children: React.ReactNode | undefined;
 }
 
-export default function RecipeDetailsCard({ recipe }: RecipeDetailsCardProps) {
+export default function RecipeDetailsCard({ recipe, children }: RecipeDetailsCardProps) {
    const [isEditOpen, setIsEditOpen] = useState(false);
    const queryClient = useQueryClient();
    const { mutate: createCookingHistory, isPending } =
@@ -56,12 +57,7 @@ export default function RecipeDetailsCard({ recipe }: RecipeDetailsCardProps) {
    return (
       <Dialog>
          <DialogTrigger asChild>
-            <Button
-               variant="ghost"
-               size="icon"
-               className="h-12 w-12 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
-               <Eye className='size-6' />
-            </Button>
+            {children}
          </DialogTrigger>
          <DialogContent className="max-w-4xl min-w-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>

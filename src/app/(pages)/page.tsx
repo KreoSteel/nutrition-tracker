@@ -1,5 +1,5 @@
 "use client"
-import CookingHistory from "@/components/dashboard/CookingHistory";
+import CookingHistory from "@/components/dashboard/RecentCookingHistory";
 import HeroSection from "@/components/dashboard/HeroSection";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentRecipes from "@/components/dashboard/RecentRecipes";

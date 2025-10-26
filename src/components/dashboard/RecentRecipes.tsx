@@ -1,9 +1,10 @@
 "use client";
-import { ChefHat, ArrowRight, Heart, Star } from "lucide-react";
+import { ChefHat, ArrowRight, Heart, Star, Eye } from "lucide-react";
 import { useRecipes } from "@/app/hooks/useRecipes";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import Link from "next/link";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";
+import { Button } from "../ui/button";
 
 export default function RecentRecipes() {
     const { data, isLoading, isError } = useRecipes({
@@ -102,23 +103,30 @@ export default function RecentRecipes() {
                                         )}
                                         
                                         <div className="flex items-center gap-4 text-sm">
-                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-medium">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/30 text-calories dark:text-orange-400 font-medium">
                                                 {Number(nutrition.calories).toFixed(0)} kcal
                                             </span>
-                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 font-medium">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-950/30 text-protein dark:text-blue-400 font-medium">
                                                 {Number(nutrition.protein).toFixed(1)}g Protein
                                             </span>
-                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-medium">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-green-50 dark:bg-green-950/30 text-carbs dark:text-green-400 font-medium">
                                                 {Number(nutrition.carbs).toFixed(1)}g Carbs
                                             </span>
-                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-medium">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-red-50 dark:bg-red-950/30 text-fat dark:text-red-400 font-medium">
                                                 {Number(nutrition.fat).toFixed(1)}g Fat
                                             </span>
                                         </div>
                                     </div>
                                     
                                     <div className="ml-4">
-                                        <RecipeDetailsCard recipe={recipe} />
+                                        <RecipeDetailsCard recipe={recipe}>
+                                           <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className=" hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                                              <Eye className="size-5" />
+                                           </Button>
+                                        </RecipeDetailsCard>
                                     </div>
                                 </div>
                             </div>

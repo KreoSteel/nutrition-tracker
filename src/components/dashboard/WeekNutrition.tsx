@@ -76,7 +76,7 @@ export default function WeekNutrition() {
       { name: "Fat", value: weeklyNutrition?.totalNutritionPerWeek.fat || 0 },
    ];
 
-   const COLORS = ["#004DE5", "#008236", "#ca3500"];
+   const COLORS = ["#1976D2", "#388E3C", "#FBC02D"]; // Carbs, Fat, Protein
 
    const renderLabel = (entry: any) => {
     const total = pieData.reduce((sum, item) => sum + item.value, 0);
@@ -107,7 +107,7 @@ export default function WeekNutrition() {
             <h2 className="text-3xl font-semibold">Week Nutrition</h2>
          </span>
 
-         <div className="w-full px-8 pb-8">
+         <div className="w-full px-8 pb-8 pointer-events-none">
             <div className="relative h-120">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -133,7 +133,7 @@ export default function WeekNutrition() {
 
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center flex flex-col gap-4">
                   <div>
-                     <div className="text-2xl font-bold text-primary">
+                     <div className="text-2xl font-bold text-calories">
                         {weeklyNutrition?.totalNutritionPerWeek.calories.toFixed(
                            0
                         ) || 0}
@@ -147,29 +147,29 @@ export default function WeekNutrition() {
 
             <div className="mt-6 grid grid-cols-3 gap-4">
                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-lg font-bold text-green-600">
+                  <div className="text-lg font-bold text-carbs">
                      {weeklyNutrition?.totalNutritionPerWeek.carbs.toFixed(0) ||
                         0}
                      g
                   </div>
-                  <div className="text-xs text-green-500">Carbs</div>
+                  <div className="text-xs text-carbs">Carbs</div>
                </div>
-               <div className="text-center p-4 bg-red-50 rounded-lg">
-                  <div className="text-lg font-bold text-red-600">
+               <div className="text-center p-4 bg-orange-50 rounded-lg">
+                  <div className="text-lg font-bold text-fat">
                      {weeklyNutrition?.totalNutritionPerWeek.fat.toFixed(0) ||
                         0}
                      g
                   </div>
-                  <div className="text-xs text-red-500">Fat</div>
+                  <div className="text-xs text-fat">Fat</div>
                </div>
                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-lg font-bold text-blue-600">
+                  <div className="text-lg font-bold text-protein">
                      {weeklyNutrition?.totalNutritionPerWeek.protein.toFixed(
                         0
                      ) || 0}
                      g
                   </div>
-                  <div className="text-xs text-blue-500">Protein</div>
+                  <div className="text-xs text-protein">Protein</div>
                </div>
             </div>
          </div>

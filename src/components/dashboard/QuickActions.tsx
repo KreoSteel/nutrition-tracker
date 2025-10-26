@@ -1,6 +1,7 @@
-import { Plus, PackagePlus } from "lucide-react";
+import { Plus, PackagePlus, ChefHat } from "lucide-react";
 import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
 import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
+import { IngredientSearchModal } from "@/app/forms/IngredientSearchModal";
 
 export default function QuickActions() {
 
@@ -23,7 +24,7 @@ export default function QuickActions() {
           </RecipeCreateForm>
           
           <IngredientCreateForm>
-            <button className="group text-left flex items-center gap-4 p-6 shadow-md bg-chart-2 text-primary-foreground rounded-xl w-full cursor-pointer hover:bg-[#E89251] transition-all dark:hover:bg-[#E89251]">
+            <button className="group text-left flex items-center gap-4 p-6 shadow-md bg-chart-2 text-primary-foreground rounded-xl w-full cursor-pointer hover:bg-green-800/90 transition-all dark:hover:bg-green-800/90">
               <div className="bg-white/20 text-primary-foreground rounded-xl p-3 group-hover:scale-105 transition-all">
                 <PackagePlus className="w-6 h-6" />
               </div>
@@ -33,6 +34,17 @@ export default function QuickActions() {
               </div>
             </button>
           </IngredientCreateForm>
+          <IngredientSearchModal>
+            <button className="group text-left flex items-center gap-4 p-6 shadow-md bg-purple-600 text-white rounded-xl w-full cursor-pointer hover:bg-purple-700 transition-all dark:hover:bg-purple-900">
+              <div className="bg-white/20 text-white rounded-xl p-3 group-hover:scale-105 transition-all">
+                <ChefHat className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col w-full">
+                <p className="font-semibold text-lg">Search by Ingredients</p>
+                <p className="text-sm font-light opacity-90">Find recipes</p>
+              </div>
+            </button>
+          </IngredientSearchModal>
         </div>
       </section>  
   );

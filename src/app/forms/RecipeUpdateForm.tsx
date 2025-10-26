@@ -81,7 +81,7 @@ export default function RecipeUpdateForm({
    const {
       register,
       handleSubmit,
-      formState: { errors },
+      formState: { errors, isSubmitting },
       reset,
       control,
       watch,
@@ -133,10 +133,10 @@ export default function RecipeUpdateForm({
                ingredientId: ingredient.ingredientId,
                quantityGrams: ingredient.quantityGrams,
                nutritionalData: {
-                  calories: ingredientData.caloriesPer100g,
-                  protein: ingredientData.proteinPer100g,
-                  carbs: ingredientData.carbsPer100g,
-                  fat: ingredientData.fatPer100g,
+                  calories: Number(ingredientData.caloriesPer100g),
+                  protein: Number(ingredientData.proteinPer100g),
+                  carbs: Number(ingredientData.carbsPer100g),
+                  fat: Number(ingredientData.fatPer100g),
                },
             };
          })
@@ -190,13 +190,11 @@ export default function RecipeUpdateForm({
 
    return (
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-         <DialogTrigger asChild>
-            {children}
-         </DialogTrigger>
+         <DialogTrigger asChild>{children}</DialogTrigger>
          <DialogContent className="max-w-5xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-               <DialogTitle>Update Recipe</DialogTitle>
-               <DialogDescription>Update the recipe details.</DialogDescription>
+               <DialogTitle> Edit Recipe</DialogTitle>
+               <DialogDescription>Edit the recipe details.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                <div className="space-y-4">
@@ -276,7 +274,8 @@ export default function RecipeUpdateForm({
                         className="w-full resize-y"
                      />
                      <p className="text-xs text-muted-foreground">
-                        Tip: Write each step on a separate line for better formatting
+                        Tip: Write each step on a separate line for better
+                        formatting
                      </p>
                      {errors.instructions && (
                         <p className="text-sm text-red-500">
@@ -622,8 +621,11 @@ export default function RecipeUpdateForm({
                      onClick={() => onOpenChange(false)}>
                      Cancel
                   </Button>
-                  <Button type="submit" className="px-8">
-                     Update
+                  <Button
+                     type="submit"
+                     disabled={isSubmitting}
+                     className="px-8">
+                     {isSubmitting ? "Editing..." : "Edit"}
                   </Button>
                </div>
             </form>

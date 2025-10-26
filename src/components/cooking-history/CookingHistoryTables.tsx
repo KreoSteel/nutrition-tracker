@@ -5,6 +5,7 @@ import {
    Star,
    Trash2,
    Utensils,
+   Eye,
 } from "lucide-react";
 import {
    Table,
@@ -71,7 +72,7 @@ export default function CookingHistoryTables() {
                      Date & Time
                   </TableHead>
                   <TableHead className="text-lg font-semibold">
-                     Rating
+                     Times Cooked
                   </TableHead>
                   <TableHead className="text-lg font-semibold text-right">
                      Actions
@@ -100,7 +101,8 @@ export default function CookingHistoryTables() {
                   cookingHistory?.pages
                      .flatMap((page) => page.data)
                      .map((cookingHistory) => {
-                        const recipeNutritionData = calculateRecipeNutritionData(cookingHistory.recipe);
+                        const recipeNutritionData =
+                           calculateRecipeNutritionData(cookingHistory.recipe);
                         return (
                            <TableRow
                               key={cookingHistory.id}
@@ -125,18 +127,30 @@ export default function CookingHistoryTables() {
                                  <div className="flex flex-col gap-2">
                                     <div className="flex items-center gap-2">
                                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold text-sm">
-                                          {Number(recipeNutritionData.calories).toFixed(1)} kcal
+                                          {Number(
+                                             recipeNutritionData.calories
+                                          ).toFixed(1)}{" "}
+                                          kcal
                                        </span>
                                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 font-semibold text-sm">
-                                          {Number(recipeNutritionData.protein).toFixed(1)}g
+                                          {Number(
+                                             recipeNutritionData.protein
+                                          ).toFixed(1)}
+                                          g
                                        </span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 font-semibold text-sm">
-                                          {Number(recipeNutritionData.carbs).toFixed(1)}g
+                                          {Number(
+                                             recipeNutritionData.carbs
+                                          ).toFixed(1)}
+                                          g
                                        </span>
                                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400 font-semibold text-sm">
-                                          {Number(recipeNutritionData.fat).toFixed(1)}g
+                                          {Number(
+                                             recipeNutritionData.fat
+                                          ).toFixed(1)}
+                                          g
                                        </span>
                                     </div>
                                  </div>
@@ -153,7 +167,10 @@ export default function CookingHistoryTables() {
                                     </div>
                                     <div className="flex items-center gap-2 text-base text-muted-foreground">
                                        <Clock className="w-5 h-5" />
-                                       {format(cookingHistory.cookedAt, "HH:mm")}
+                                       {format(
+                                          cookingHistory.cookedAt,
+                                          "HH:mm"
+                                       )}
                                     </div>
                                  </div>
                               </TableCell>
@@ -169,7 +186,15 @@ export default function CookingHistoryTables() {
 
                               <TableCell className="py-6">
                                  <div className="flex items-center justify-end gap-2">
-                                    <RecipeDetailsCard recipe={cookingHistory.recipe} />
+                                    <RecipeDetailsCard
+                                       recipe={cookingHistory.recipe}>
+                                       <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-12 w-12 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                                          <Eye className="size-6" />
+                                       </Button>
+                                    </RecipeDetailsCard>
                                     <CookingHistoryDelete
                                        cookingHistory={cookingHistory}>
                                        <Button
@@ -187,8 +212,7 @@ export default function CookingHistoryTables() {
                )}
             </TableBody>
          </Table>
-         <div ref={observerRef} className="h-4">
-         </div>
+         <div ref={observerRef} className="h-4"></div>
       </div>
    );
 }

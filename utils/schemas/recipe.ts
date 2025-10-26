@@ -66,6 +66,7 @@ export const RecipeResponseSchema = RecipeSchema.extend({
 
 export const RecipeQuerySchema = z.object({
   search: z.string().optional(),
+  ingredients: z.string().optional(),
   minCalories: z.coerce.number().min(1).max(3000).optional(),
   maxCalories: z.coerce.number().min(1).max(3000).optional(),
   minProtein: z.coerce.number().min(1).max(200).optional(),

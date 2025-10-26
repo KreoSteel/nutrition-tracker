@@ -5,8 +5,11 @@ import { useState } from "react";
 import RecipesTables from "@/components/recipes/RecipesTables";
 import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
 import { useRecipes } from "@/app/hooks/useRecipes";
+import { useSearchParams } from "next/navigation";
 
 export default function RecipesPage() {
+  const searchParams = useSearchParams();
+  const ingredientsParam = searchParams.get("ingredients");
   const [searchTerm, setSearchTerm] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [filters, setFilters] = useState({
@@ -33,9 +36,9 @@ export default function RecipesPage() {
     <div className="w-full mt-10 flex flex-col gap-8">
       <div className="flex flex-col md:flex-row w-full justify-between items-center">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl">Recipes</h1>
-          <h3 className="text-muted-foreground text-lg font-light">
-            Total Recipes: <span>{totalRecipes !== undefined ? totalRecipes : "Loading..."}</span>
+          <h1 className="text-3xl font-bold">Recipes</h1>
+          <h3 className="text-muted-foreground text-lg font-normal">
+             <span>Total Recipes: {totalRecipes !== undefined ? totalRecipes : "Loading..."}</span>
           </h3>
         </div>
         <RecipeCreateForm>
@@ -66,7 +69,7 @@ export default function RecipesPage() {
           fat: { max: 150 },
         }}
       />
-      <RecipesTables searchTerm={searchTerm} filters={filters} />
+      <RecipesTables searchTerm={searchTerm} filters={filters} ingredients={ingredientsParam}/>
       
     </div>
   );

@@ -6,10 +6,13 @@ import {
    ChefHat,
    Loader2,
    ArrowRightIcon,
+   Eye,
 } from "lucide-react";
 import Link from "next/link";
+import RecipeDetailsCard from "@/components/cards/RecipeDetailsCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRecentCookingHistory } from "@/app/hooks/useCookingHistory";
+import { Button } from "../ui/button";
 
 export default function CookingHistory() {
    const {
@@ -22,7 +25,9 @@ export default function CookingHistory() {
       <section className="w-full flex flex-col bg-muted/30 py-8 px-8 rounded-xl shadow-sm">
          <div className="flex w-full pb-6 justify-between items-center">
             <h2 className="text-3xl font-semibold">Recent Cooking History</h2>
-            <Link href="/cooking-history" className="flex items-center gap-2 text-sm text-primary font-semibold hover:text-primary/80 transition-colors">
+            <Link
+               href="/cooking-history"
+               className="flex items-center gap-2 text-sm text-primary font-semibold hover:text-primary/80 transition-colors">
                View All <ArrowRightIcon size={16} />
             </Link>
          </div>
@@ -47,17 +52,22 @@ export default function CookingHistory() {
                <Card
                   key={history.id}
                   className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                     <div className="flex items-start justify-between mb-3">
+                  <CardContent className="px-4 py-2">
+                     <div className="flex items-start justify-between ">
                         <div className="flex items-center gap-2">
                            <ChefHat className="h-5 w-5 text-orange-500" />
                            <h3 className="font-semibold text-lg leading-tight">
                               {history.recipe.name}
                            </h3>
                         </div>
-                        {history.recipe.isFavorite && (
-                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        )}
+                        <RecipeDetailsCard recipe={history.recipe}>
+                           <Button
+                              variant="ghost"
+                              size="icon"
+                              className="hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                              <Eye className="size-5" />
+                           </Button>
+                        </RecipeDetailsCard>
                      </div>
 
                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
@@ -89,7 +99,7 @@ export default function CookingHistory() {
                         </div>
 
                         <div className="flex items-center gap-1">
-                           <Star className="h-3 w-3 text-yellow-500" />
+                           <Star className="h-3 w-3 fill-current text-yellow-500" />
                            <span className="text-xs font-medium">
                               {history.recipe.rating}/100
                            </span>

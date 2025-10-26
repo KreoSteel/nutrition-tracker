@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
     const queryParams = IngredientQuerySchema.parse(
       Object.fromEntries(searchParams.entries())
     );
-
     const search = queryParams.search?.trim();
     const where = search
       ? {

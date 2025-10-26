@@ -121,13 +121,13 @@ export default function IngredientsPage() {
     <div className="w-full mt-10 flex flex-col gap-8">
       <div className="flex flex-col md:flex-row w-full justify-between items-center">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl">Ingredients</h1>
-          <h3 className="text-muted-foreground text-sm">
-            Total Ingredients: {totalIngredients}
+          <h1 className="text-3xl font-bold">Ingredients</h1>
+          <h3 className="text-muted-foreground text-lg font-normal">
+            <span>Total Ingredients: {totalIngredients}</span>
           </h3>
         </div>
         <IngredientCreateForm>
-          <Button>Add Ingredient</Button>
+        <Button >Add Ingredient</Button>
         </IngredientCreateForm>
       </div>
       <div className="w-full flex flex-col gap-4">

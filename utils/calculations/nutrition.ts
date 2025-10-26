@@ -70,12 +70,12 @@ export function calculateRecipeNutritionData(recipe: any): NutritionalData {
     const recipeIngredients: RecipeIngredient[] = recipe.ingredients.map(
         (ingredient: any) => ({
             ingredientId: ingredient.ingredientId,
-            quantityGrams: ingredient.quantityGrams,
+            quantityGrams: Number(ingredient.quantityGrams),
             nutritionalData: {
-                calories: ingredient.ingredient.caloriesPer100g,
-                protein: ingredient.ingredient.proteinPer100g,
-                carbs: ingredient.ingredient.carbsPer100g,
-                fat: ingredient.ingredient.fatPer100g,
+                calories: Number(ingredient.ingredient.caloriesPer100g),
+                protein: Number(ingredient.ingredient.proteinPer100g),
+                carbs: Number(ingredient.ingredient.carbsPer100g),
+                fat: Number(ingredient.ingredient.fatPer100g),
             },
         })
     );
