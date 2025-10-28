@@ -1,4 +1,4 @@
-import { prisma } from "../../../../../utils/prisma/prisma";
+import prisma from "../../../../../utils/prisma/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { GetIngredientSchema, UpdateIngredientSchema } from "../../../../../utils/schemas";
 import { ZodError } from "zod";

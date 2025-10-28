@@ -1,6 +1,6 @@
 import { endOfWeek, startOfWeek } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../../utils/prisma/prisma";
+import prisma from "../../../../../utils/prisma/prisma";
 import { calculateRecipeNutritionData } from "../../../../../utils/calculations/nutrition";
 
 export async function GET(req: NextRequest) {

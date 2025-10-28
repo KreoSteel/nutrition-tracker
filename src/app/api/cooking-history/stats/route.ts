@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../../utils/prisma/prisma";
+import prisma from "../../../../../utils/prisma/prisma";
 import { startOfDay, startOfWeek, isSameDay } from "date-fns";
 import { calculateCookingStreak } from "../../../../../utils/calculations/cookingHistory";
 

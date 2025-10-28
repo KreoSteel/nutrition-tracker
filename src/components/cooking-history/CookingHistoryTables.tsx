@@ -6,6 +6,7 @@ import {
    Trash2,
    Utensils,
    Eye,
+   Loader2,
 } from "lucide-react";
 import {
    Table,
@@ -23,13 +24,29 @@ import { useEffect, useRef } from "react";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";
 
-export default function CookingHistoryTables() {
+interface CookingHistoryTablesProps {
+   searchTerm: string;
+   startDate: Date | undefined;
+   endDate: Date | undefined;
+}
+
+export default function CookingHistoryTables({
+   searchTerm,
+   startDate,
+   endDate,
+}: CookingHistoryTablesProps) {
    const {
       data: cookingHistory,
       hasNextPage,
       fetchNextPage,
       isFetchingNextPage,
-   } = useCookingHistory();
+      isLoading,
+      isFetching,
+   } = useCookingHistory({
+      search: searchTerm,
+      startDate,
+      endDate,
+   });
    const observerRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
@@ -80,7 +97,23 @@ export default function CookingHistoryTables() {
                </TableRow>
             </TableHeader>
             <TableBody>
-               {cookingHistory?.pages.flatMap((page) => page.data).length ===
+               {isLoading ? (
+                  <TableRow>
+                     <TableCell colSpan={5} className="py-20">
+                        <div className="flex justify-center items-center">
+                           <div className="text-center">
+                              <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                              <p className="text-lg font-semibold text-muted-foreground">
+                                 Loading cooking history...
+                              </p>
+                              <p className="text-base text-muted-foreground mt-2">
+                                 Please wait while we fetch your data
+                              </p>
+                           </div>
+                        </div>
+                     </TableCell>
+                  </TableRow>
+               ) : cookingHistory?.pages.flatMap((page) => page.data).length ===
                0 ? (
                   <TableRow>
                      <TableCell colSpan={5} className="py-20">
@@ -176,10 +209,10 @@ export default function CookingHistoryTables() {
                               </TableCell>
 
                               <TableCell className="py-6">
-                                 <div className="flex items-center gap-1">
-                                    <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                                    <span className="text-xl font-medium">
-                                       {cookingHistory.recipe.rating}/100
+                                 <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400 font-semibold text-sm">
+                                       {cookingHistory.recipe.timesCooked || 0}{" "}
+                                       times
                                     </span>
                                  </div>
                               </TableCell>
@@ -212,6 +245,16 @@ export default function CookingHistoryTables() {
                )}
             </TableBody>
          </Table>
+         {isFetchingNextPage && (
+            <div className="flex justify-center items-center py-6 border-t border-border">
+               <div className="flex items-center gap-3">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                     Loading more cooking history...
+                  </p>
+               </div>
+            </div>
+         )}
          <div ref={observerRef} className="h-4"></div>
       </div>
    );

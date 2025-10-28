@@ -23,7 +23,11 @@ export const getCookingHistory = async (
 
       Object.entries(validatedParams).forEach(([key, value]) => {
          if (value !== undefined && value !== null && value !== "") {
-            queryParams.append(key, value.toString());
+            if (value instanceof Date) {
+               queryParams.append(key, value.toISOString());
+            } else {
+               queryParams.append(key, value.toString());
+            }
          }
       });
       const response = await http.get(
@@ -50,17 +54,16 @@ export const getCookingStats = async (): Promise<CookingHistoryStats> => {
    }
 };
 
-export const getWeeklyNutrition = async (
-): Promise<WeeklyNutrition> => {
-    try {
-        const response = await http.get("/cooking-history/nutrition")
-        return WeeklyNutritionSchema.parse(response.data)
-    } catch (error) {
-        if (error instanceof ZodError) {
-            throw new Error("Invalid weekly nutrition data: " + error.message);
-        }
-        throw new Error("Failed to fetch weekly nutrition");
-    }
+export const getWeeklyNutrition = async (): Promise<WeeklyNutrition> => {
+   try {
+      const response = await http.get("/cooking-history/nutrition");
+      return WeeklyNutritionSchema.parse(response.data);
+   } catch (error) {
+      if (error instanceof ZodError) {
+         throw new Error("Invalid weekly nutrition data: " + error.message);
+      }
+      throw new Error("Failed to fetch weekly nutrition");
+   }
 };
 
 export const createCookingHistory = async (

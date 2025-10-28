@@ -39,8 +39,9 @@ export const CookingHistoryResponseSchema = CookingHistorySchema.extend({
             carbsPer100g: z.number().or(z.any()),
             fatPer100g: z.number().or(z.any()),
          })
-      }))
-   })
+      })),
+      timesCooked: z.number().optional(),
+   }),
 });
 
 export const CookingHistoryQuerySchema = z
@@ -50,6 +51,7 @@ export const CookingHistoryQuerySchema = z
       search: z.string().optional(),
       startDate: z.coerce.date().optional(),
       endDate: z.coerce.date().optional(),
+      timesCooked: z.number().optional(),
       sortBy: z.enum(["cookedAt", "recipeName", "rating"]).optional(),
       sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
    })

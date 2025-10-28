@@ -1,5 +1,5 @@
 import { z, ZodError } from "zod";
-import { prisma } from "../../../../../utils/prisma/prisma";
+import prisma from "../../../../../utils/prisma/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 

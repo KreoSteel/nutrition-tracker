@@ -32,11 +32,18 @@ export const useCookingHistory = (
    });
 };
 
+
 export const useRecentCookingHistory = () => {
    return useQuery({
       queryKey: ["recent-cooking-history"],
       queryFn: () => getCookingHistory({ limit: 1 }),
-      select: (data) => data.recentCookingHistory || [],
+      select: (data) => data.recentCookingHistory.map(history => ({
+         ...history,
+         recipe: {
+            ...history.recipe,
+            timesCooked: history.recipe.timesCooked || 0,
+         },
+      })),
    });
 };
 

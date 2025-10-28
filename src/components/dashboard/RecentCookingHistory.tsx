@@ -98,10 +98,13 @@ export default function CookingHistory() {
                            </span>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                            <Star className="h-3 w-3 fill-current text-yellow-500" />
                            <span className="text-xs font-medium">
                               {history.recipe.rating}/100
+                           </span>
+                           <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400 font-semibold text-xs">
+                              {history.recipe.timesCooked} times
                            </span>
                         </div>
                      </div>

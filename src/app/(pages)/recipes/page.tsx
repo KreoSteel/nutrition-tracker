@@ -25,8 +25,6 @@ export default function RecipesPage() {
   ) => {
     setFilters((prev) => ({ ...prev, [nutrient]: { min, max } }));
   };
-
-  // Get total recipes count
   const { data: totalData } = useRecipes({});
   const totalRecipes = totalData?.totalRecipes;
 

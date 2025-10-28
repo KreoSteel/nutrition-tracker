@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../utils/prisma/prisma";
+import prisma from "../../../../utils/prisma/prisma";
 import { calculateRecipeNutritionData } from "../../../../utils/calculations/nutrition";
 import {
    CreateRecipeSchema,
@@ -53,10 +53,23 @@ export async function GET(req: NextRequest) {
          include: {
             ingredients: {
                include: {
-                  ingredient: true,
+                  ingredient: {
+                     select: {
+                        id: true,
+                        name: true,
+                        caloriesPer100g: true,
+                        proteinPer100g: true,
+                        carbsPer100g: true,
+                        fatPer100g: true,
+                        category: true,
+                        isCustom: true,
+                        createdAt: true,
+                     },
+                  },
                },
             },
          },
+           cacheStrategy: { swr: 60, ttl: 60 },
          orderBy: orderBy
             ? orderBy
             : {
@@ -66,7 +79,7 @@ export async function GET(req: NextRequest) {
 
       const totalRecipes = await prisma.recipe.count({ where });
 
-      recipes = recipes.filter((recipe) => {
+      recipes = recipes.filter((recipe: typeof recipes[0]) => {
          const nutrition = calculateRecipeNutritionData(recipe);
 
          if (
@@ -125,7 +138,7 @@ export async function GET(req: NextRequest) {
       });
 
       if (sortBy && ["calories", "carbs", "protein", "fat"].includes(sortBy)) {
-         recipes.sort((a, b) => {
+         recipes.sort((a: typeof recipes[0], b: typeof recipes[0]) => {
             const nutritionA = calculateRecipeNutritionData(a);
             const nutritionB = calculateRecipeNutritionData(b);
             const valueA = nutritionA[sortBy as keyof typeof nutritionA];
@@ -135,7 +148,7 @@ export async function GET(req: NextRequest) {
                : Number(valueB) - Number(valueA);
          });
       } else if (sortBy) {
-         recipes.sort((a, b) => {
+         recipes.sort((a: typeof recipes[0], b: typeof recipes[0]) => {
             const valueA = a[sortBy as keyof typeof a];
             const valueB = b[sortBy as keyof typeof b];
 
@@ -187,7 +200,19 @@ export async function POST(req: NextRequest) {
          include: {
             ingredients: {
                include: {
-                  ingredient: true,
+                  ingredient: {
+                     select: {
+                        id: true,
+                        name: true,
+                        caloriesPer100g: true,
+                        proteinPer100g: true,
+                        carbsPer100g: true,
+                        fatPer100g: true,
+                        category: true,
+                        isCustom: true,
+                        createdAt: true,
+                     },
+                  },
                },
             },
          },

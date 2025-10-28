@@ -3,7 +3,7 @@ import {
    GetRecipeSchema,
    UpdateRecipeSchema,
 } from "../../../../../utils/schemas/recipe";
-import { prisma } from "../../../../../utils/prisma/prisma";
+import prisma from "../../../../../utils/prisma/prisma";
 import { ZodError } from "zod";
 
 export async function GET(
@@ -18,7 +18,19 @@ export async function GET(
          include: {
             ingredients: {
                include: {
-                  ingredient: true,
+                  ingredient: {
+                     select: {
+                        id: true,
+                        name: true,
+                        caloriesPer100g: true,
+                        proteinPer100g: true,
+                        carbsPer100g: true,
+                        fatPer100g: true,
+                        category: true,
+                        isCustom: true,
+                        createdAt: true,
+                     },
+                  },
                },
             },
          },
@@ -88,7 +100,19 @@ export async function PATCH(
          include: {
             ingredients: {
                include: {
-                  ingredient: true,
+                  ingredient: {
+                     select: {
+                        id: true,
+                        name: true,
+                        caloriesPer100g: true,
+                        proteinPer100g: true,
+                        carbsPer100g: true,
+                        fatPer100g: true,
+                        category: true,
+                        isCustom: true,
+                        createdAt: true,
+                     },
+                  },
                },
             },
          },

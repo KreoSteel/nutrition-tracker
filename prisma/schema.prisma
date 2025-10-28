@@ -20,7 +20,6 @@ model Ingredient {
   
   recipeIngredients RecipeIngredient[]
   
-  @@index([name])
   @@index([category])
   @@map("ingredients")
 }

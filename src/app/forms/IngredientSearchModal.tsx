@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIngredients } from "@/app/hooks/useIngredients";
 import { useRouter } from "next/navigation";
+import { useDebouncedCallback } from "use-debounce";
 import { Label } from "@/components/ui/label";
 
 
@@ -41,6 +42,10 @@ export function IngredientSearchModal({ children }: { children: React.ReactNode 
   const handleRemoveIngredient = (id: string) => {
     setSelectedIngredients(prev => prev.filter(ing => ing.id !== id));
   };
+
+  const debouncedSearch = useDebouncedCallback((searchTerm: string) => {
+    setSearchTerm(searchTerm);
+  }, 500);
 
   const handleSearch = () => {
     const ingredientIds = selectedIngredients.map(ing => ing.id).join(',');

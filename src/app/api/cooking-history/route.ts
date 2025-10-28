@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../utils/prisma/prisma";
+import prisma from "../../../../utils/prisma/prisma";
+import { startOfDay, endOfDay } from "date-fns";
 import { ZodError } from "zod";
 import {
    CookingHistoryQuerySchema,
@@ -14,17 +15,27 @@ export async function GET(req: NextRequest) {
       );
 
       const search = queryParams.search?.trim();
-      const where = search
-         ? {
-              OR: [
-                 {
-                    recipe: {
-                       name: { contains: search, mode: "insensitive" as const },
-                    },
+      const where = {
+         ...(queryParams.startDate || queryParams.endDate
+            ? {
+                 cookedAt: {
+                    ...(queryParams.startDate && {
+                       gte: startOfDay(queryParams.startDate),
+                    }),
+                    ...(queryParams.endDate && {
+                       lte: endOfDay(queryParams.endDate),
+                    }),
                  },
-              ],
-           }
-         : {};
+              }
+            : {}),
+         ...(search
+            ? {
+                 recipe: {
+                    name: { contains: search, mode: "insensitive" as const },
+                 },
+              }
+            : {}),
+      };
 
       const sortBy = queryParams.sortBy;
       const sortOrder = queryParams.sortOrder;
@@ -37,7 +48,19 @@ export async function GET(req: NextRequest) {
                include: {
                   ingredients: {
                      include: {
-                        ingredient: true,
+                        ingredient: {
+                           select: {
+                              id: true,
+                              name: true,
+                              caloriesPer100g: true,
+                              proteinPer100g: true,
+                              carbsPer100g: true,
+                              fatPer100g: true,
+                              category: true,
+                              isCustom: true,
+                              createdAt: true,
+                           },
+                        },
                      },
                   },
                },
@@ -59,6 +82,18 @@ export async function GET(req: NextRequest) {
                : { cookedAt: "desc" },
       });
 
+      const recipeCounts = new Map<string, number>();
+
+      const allCookingHistory = await prisma.cookingHistory.groupBy({
+         by: ["recipeId"],
+         where,
+         _count: { recipeId: true },
+      });
+
+      allCookingHistory.forEach((entry: { recipeId: string; _count: { recipeId: number } }) => {
+         recipeCounts.set(entry.recipeId, entry._count.recipeId);
+      });
+
       const recentCookingHistoryLimit = 3;
       const recentCookingHistory = await prisma.cookingHistory.findMany({
          where,
@@ -67,7 +102,19 @@ export async function GET(req: NextRequest) {
                include: {
                   ingredients: {
                      include: {
-                        ingredient: true,
+                        ingredient: {
+                           select: {
+                              id: true,
+                              name: true,
+                              caloriesPer100g: true,
+                              proteinPer100g: true,
+                              carbsPer100g: true,
+                              fatPer100g: true,
+                              category: true,
+                              isCustom: true,
+                              createdAt: true,
+                           },
+                        },
                      },
                   },
                },
@@ -75,7 +122,20 @@ export async function GET(req: NextRequest) {
          },
          orderBy: { cookedAt: "desc" },
          take: recentCookingHistoryLimit,
+         cacheStrategy: {
+            swr: 60,
+            ttl: 60,
+          },
       });
+      const transformedRecentCookingHistory = recentCookingHistory.map(
+         (history: typeof recentCookingHistory[0]) => ({
+            ...history,
+            recipe: {
+               ...history.recipe,
+               timesCooked: recipeCounts.get(history.recipeId) || 0,
+            },
+         })
+      );
 
       const hasMore = cookingHistory.length > limit;
       const data = hasMore ? cookingHistory.slice(0, limit) : cookingHistory;
@@ -83,12 +143,20 @@ export async function GET(req: NextRequest) {
          hasMore && data.length > 0 ? data[data.length - 1].id : null;
       const totalCooks = await prisma.cookingHistory.count({ where });
 
+      const transformedData = data.map((cooking: typeof data[0]) => ({
+         ...cooking,
+         recipe: {
+            ...cooking.recipe,
+            timesCooked: recipeCounts.get(cooking.recipeId) || 0,
+         },
+      }));
+
       return NextResponse.json({
-         data,
+         data: transformedData,
          nextCursor,
          hasMore,
          totalCooks,
-         recentCookingHistory,
+         recentCookingHistory: transformedRecentCookingHistory,
       });
    } catch (error) {
       if (error instanceof ZodError) {
@@ -115,7 +183,19 @@ export async function POST(req: NextRequest) {
                include: {
                   ingredients: {
                      include: {
-                        ingredient: true,
+                        ingredient: {
+                           select: {
+                              id: true,
+                              name: true,
+                              caloriesPer100g: true,
+                              proteinPer100g: true,
+                              carbsPer100g: true,
+                              fatPer100g: true,
+                              category: true,
+                              isCustom: true,
+                              createdAt: true,
+                           },
+                        },
                      },
                   },
                },

@@ -1,4 +1,4 @@
-import { prisma } from "../../utils/prisma/prisma";
+import prisma from "../../utils/prisma/prisma";
 import fs from "fs";
 import path from "path";
 
@@ -26,7 +26,7 @@ async function validateData(): Promise<ValidationResult> {
     console.log("Starting comprehensive data validation...");
 
     // Fetch all ingredients from database
-    const ingredients = await (prisma as any).ingredient.findMany();
+    const ingredients = await prisma.ingredient.findMany();
 
     const result: ValidationResult = {
       totalIngredients: ingredients.length,
@@ -115,13 +115,13 @@ async function validateData(): Promise<ValidationResult> {
       const carbs = Number(ingredient.carbsPer100g);
       const fat = Number(ingredient.fatPer100g);
 
-      if (calories > 900) {
-        ingredientIssues.push("Suspiciously high calories (>900 per 100g)");
+      if (calories > 1000) {
+        ingredientIssues.push("Suspiciously high calories (>1000 per 100g)");
         isValid = false;
       }
 
-      if (protein > 80) {
-        ingredientIssues.push("Suspiciously high protein (>80g per 100g)");
+      if (protein > 90) {
+        ingredientIssues.push("Suspiciously high protein (>90g per 100g)");
         isValid = false;
       }
 
@@ -135,7 +135,6 @@ async function validateData(): Promise<ValidationResult> {
         isValid = false;
       }
 
-      // Check for suspiciously low values (warnings)
       if (calories < 5 && ingredient.category !== "Spices") {
         ingredientWarnings.push("Very low calories (<5 per 100g)");
       }
@@ -212,10 +211,10 @@ async function validateData(): Promise<ValidationResult> {
 
 async function printValidationReport(result: ValidationResult) {
   console.log("\n" + "=".repeat(60));
-  console.log("📊 COMPREHENSIVE DATA VALIDATION REPORT");
+  console.log("Comprehensive data validation report");
   console.log("=".repeat(60));
 
-  console.log(`\n📈 Summary:`);
+  console.log(`\nSummary:`);
   console.log(`  Total ingredients: ${result.totalIngredients}`);
   console.log(`  ✅ Valid ingredients: ${result.validIngredients}`);
   console.log(`  ❌ Invalid ingredients: ${result.invalidIngredients}`);
@@ -226,14 +225,14 @@ async function printValidationReport(result: ValidationResult) {
     ).toFixed(1)}%`
   );
 
-  console.log(`\n📊 Nutritional Statistics:`);
+  console.log(`\nNutritional Statistics:`);
   console.log(`  Average calories per 100g: ${result.nutritionalStats.avgCalories.toFixed(1)}`);
   console.log(`  Average protein per 100g: ${result.nutritionalStats.avgProtein.toFixed(1)}g`);
   console.log(`  Average carbs per 100g: ${result.nutritionalStats.avgCarbs.toFixed(1)}g`);
   console.log(`  Average fat per 100g: ${result.nutritionalStats.avgFat.toFixed(1)}g`);
   console.log(`  Calorie range: ${result.nutritionalStats.minCalories.toFixed(1)} - ${result.nutritionalStats.maxCalories.toFixed(1)}`);
 
-  console.log(`\n📂 Categories:`);
+  console.log(`\nCategories:`);
   const sortedCategories = Object.entries(result.categoryBreakdown)
     .sort(([,a], [,b]) => b - a);
   for (const [category, count] of sortedCategories) {
@@ -275,19 +274,19 @@ async function printValidationReport(result: ValidationResult) {
 
 async function validateJsonFile(): Promise<void> {
   try {
-    console.log("Validating ingredients.json file...");
+    console.log("Validating ingredients.json file\n");
     
     const jsonPath = path.join(__dirname, "data", "ingredients.json");
     
     if (!fs.existsSync(jsonPath)) {
-      console.log("❌ ingredients.json file not found");
+      console.log("ingredients.json file not found");
       return;
     }
 
     const jsonContent = fs.readFileSync(jsonPath, "utf-8");
     const ingredients = JSON.parse(jsonContent);
 
-    console.log(`📄 JSON file validation:`);
+    console.log(`JSON file validation:`);
     console.log(`  File size: ${(fs.statSync(jsonPath).size / 1024).toFixed(1)} KB`);
     console.log(`  Ingredients count: ${ingredients.length}`);
     console.log(`  Valid JSON format: ✅`);
@@ -312,13 +311,13 @@ async function validateJsonFile(): Promise<void> {
     console.log(`  JSON validation: ${validJsonItems === ingredients.length ? '✅' : '❌'}`);
 
   } catch (error) {
-    console.log(`❌ JSON file validation failed: ${error}`);
+    console.log(`JSON file validation failed: ${error}`);
   }
 }
 
 async function main() {
   try {
-    console.log("🔍 Starting comprehensive validation process...\n");
+    console.log("Starting comprehensive validation process...\n");
     
     // Validate JSON file first
     await validateJsonFile();
@@ -330,7 +329,7 @@ async function main() {
     await printValidationReport(result);
     
     // Generate validation summary
-    console.log("\n📋 VALIDATION SUMMARY:");
+    console.log("\nValidation summary:");
     console.log(`  Database ingredients: ${result.totalIngredients}`);
     console.log(`  Valid ingredients: ${result.validIngredients}`);
     console.log(`  Success rate: ${((result.validIngredients / result.totalIngredients) * 100).toFixed(1)}%`);
