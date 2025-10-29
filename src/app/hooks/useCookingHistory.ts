@@ -29,6 +29,7 @@ export const useCookingHistory = (
       getNextPageParam: (lastPage) => {
          return lastPage.nextCursor ?? undefined;
       },
+      staleTime: 60 * 1000, // Cache for 60 seconds
    });
 };
 
@@ -44,6 +45,7 @@ export const useRecentCookingHistory = () => {
             timesCooked: history.recipe.timesCooked || 0,
          },
       })),
+      staleTime: 60 * 1000, // Cache for 60 seconds
    });
 };
 

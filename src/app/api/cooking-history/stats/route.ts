@@ -1,57 +1,69 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "../../../../../utils/prisma/prisma";
-import { startOfDay, startOfWeek, isSameDay } from "date-fns";
 import { calculateCookingStreak } from "../../../../../utils/calculations/cookingHistory";
+import { startOfDay, startOfWeek } from "date-fns";
+import prisma from "../../../../../utils/prisma/prisma";
+import { CookingHistoryResponse } from "../../../../../utils/schemas";
 
 export async function GET(req: NextRequest) {
    try {
-      const cookingHistory = await prisma.cookingHistory.findMany({
-         include: {
-            recipe: {
-               include: {
-                  ingredients: {
-                     include: {
-                        ingredient: true,
-                     },
-                  },
-               },
-            },
-         },
-         orderBy: { cookedAt: "desc" },
-      });
-
-      const currentStreak = calculateCookingStreak(cookingHistory);
-
       const today = startOfDay(new Date());
       const weekStart = startOfWeek(today);
 
-      const todayCooks = cookingHistory.filter(cooking => isSameDay(cooking.cookedAt, today)).length
+      // Use parallel queries and date filters
+      const [
+         totalCooks,
+         todayCooks,
+         thisWeekCooks,
+         cookingHistoryForStreak,
+         mostCookedRecipe,
+      ] = await Promise.all([
+         prisma.cookingHistory.count(),
+         
+         prisma.cookingHistory.count({
+            where: {
+               cookedAt: {
+                  gte: today,
+                  lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+               },
+            },
+         }),
 
-      const thisWeekCooks = cookingHistory.filter(
-         (cooking) => cooking.cookedAt >= weekStart
-      ).length;
+         prisma.cookingHistory.count({
+            where: {
+               cookedAt: { gte: weekStart },
+            },
+         }),
 
-      const recipeCounts = cookingHistory.reduce((acc, cooking) => {
-         const recipeName = cooking.recipe.name;
-         acc[recipeName] = (acc[recipeName] || 0) + 1;
-         return acc;
-      }, {} as Record<string, number>);
+         prisma.cookingHistory.findMany({
+            select: { cookedAt: true },
+            orderBy: { cookedAt: "desc" },
+            take: 100, // Reasonable limit for streak calculation
+         }),
 
-      const entries = Object.entries(recipeCounts);
-      const sortedEntries = entries.sort(([, a], [, b]) => b - a);
-      const mostCookedRecipe = sortedEntries[0];
+         prisma.cookingHistory.groupBy({
+            by: ["recipeId"],
+            _count: { recipeId: true },
+            orderBy: { _count: { recipeId: "desc" } },
+            take: 1,
+         }).then(async (results) => {
+            if (results.length === 0) return null;
+            const result = results[0] as { recipeId: string; _count: { recipeId: number } };
+            const recipe = await prisma.recipe.findUnique({
+               where: { id: result.recipeId },
+               select: { name: true },
+            });
+            return recipe ? { name: recipe.name, count: result._count.recipeId } : null;
+         }),
+      ]);
+
+      const currentStreak = calculateCookingStreak(cookingHistoryForStreak.map(h => ({ cookedAt: h.cookedAt, recipe: { name: '' } })) as unknown as CookingHistoryResponse[]);
 
       const stats = {
-         totalCooks: cookingHistory.length,
+         totalCooks,
          todayCooks,
          thisWeekCooks,
          currentStreak,
-         mostCookedRecipe: mostCookedRecipe
-            ? {
-                 name: mostCookedRecipe[0],
-                 count: mostCookedRecipe[1],
-              }
-            : null,
+         mostCookedRecipe,
          weeklyAverage: thisWeekCooks / 7,
       };
 
@@ -60,7 +72,7 @@ export async function GET(req: NextRequest) {
       console.error("Error fetching cooking history stats:", error);
       return NextResponse.json(
          { error: "Failed to fetch cooking history stats" },
-         { status: 500 } 
+         { status: 500 }
       );
    }
 }

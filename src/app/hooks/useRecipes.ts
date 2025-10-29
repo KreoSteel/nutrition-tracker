@@ -19,7 +19,8 @@ export const useRecipes = (filters: Partial<RecipeQuery> = {}) => {
       select: (data) => ({
          recipes: data.data,
          totalRecipes: data.totalRecipes
-      })
+      }),
+      staleTime: 60 * 1000, // Cache for 60 seconds
    });
 };
 

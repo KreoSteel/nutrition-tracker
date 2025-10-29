@@ -17,32 +17,44 @@ export async function GET(req: NextRequest) {
          ? queryParams.ingredients.split(",").filter((id) => id.trim())
          : [];
 
-      const ingredientFilter = ingredientIds.length > 0 ? {
-         ingredients: {
-            some: {
-               ingredientId: {
-                  in: ingredientIds,
-               }
-            }
-         }
-      } : {};
-      
+      const ingredientFilter =
+         ingredientIds.length > 0
+            ? {
+                 ingredients: {
+                    some: {
+                       ingredientId: {
+                          in: ingredientIds,
+                       },
+                    },
+                 },
+              }
+            : {};
+
       const search = queryParams.search?.trim();
       const where = {
-         ...(search ? {
-            OR: [
-               { name: { contains: search, mode: "insensitive" as const } },
-               { description: { contains: search, mode: "insensitive" as const } },
-            ]
-         } : {}),
+         ...(search
+            ? {
+                 OR: [
+                    {
+                       name: { contains: search, mode: "insensitive" as const },
+                    },
+                    {
+                       description: {
+                          contains: search,
+                          mode: "insensitive" as const,
+                       },
+                    },
+                 ],
+              }
+            : {}),
          ...ingredientFilter,
-      }
+      };
 
       const sortBy = searchParams.get("sortBy");
       const sortOrder =
          (searchParams.get("sortOrder") as "asc" | "desc") || "asc";
 
-      let orderBy: any = undefined;
+      let orderBy: { [key: string]: "asc" | "desc" } | undefined = undefined;
 
       if (sortBy) {
          orderBy = { [sortBy]: sortOrder };
@@ -62,14 +74,11 @@ export async function GET(req: NextRequest) {
                         carbsPer100g: true,
                         fatPer100g: true,
                         category: true,
-                        isCustom: true,
-                        createdAt: true,
                      },
                   },
                },
             },
          },
-           cacheStrategy: { swr: 60, ttl: 60 },
          orderBy: orderBy
             ? orderBy
             : {
@@ -79,7 +88,7 @@ export async function GET(req: NextRequest) {
 
       const totalRecipes = await prisma.recipe.count({ where });
 
-      recipes = recipes.filter((recipe: typeof recipes[0]) => {
+      recipes = recipes.filter((recipe: (typeof recipes)[0]) => {
          const nutrition = calculateRecipeNutritionData(recipe);
 
          if (
@@ -138,7 +147,7 @@ export async function GET(req: NextRequest) {
       });
 
       if (sortBy && ["calories", "carbs", "protein", "fat"].includes(sortBy)) {
-         recipes.sort((a: typeof recipes[0], b: typeof recipes[0]) => {
+         recipes.sort((a: (typeof recipes)[0], b: (typeof recipes)[0]) => {
             const nutritionA = calculateRecipeNutritionData(a);
             const nutritionB = calculateRecipeNutritionData(b);
             const valueA = nutritionA[sortBy as keyof typeof nutritionA];
@@ -148,16 +157,14 @@ export async function GET(req: NextRequest) {
                : Number(valueB) - Number(valueA);
          });
       } else if (sortBy) {
-         recipes.sort((a: typeof recipes[0], b: typeof recipes[0]) => {
+         recipes.sort((a: (typeof recipes)[0], b: (typeof recipes)[0]) => {
             const valueA = a[sortBy as keyof typeof a];
             const valueB = b[sortBy as keyof typeof b];
 
-            // Handle null/undefined values
             if (valueA == null && valueB == null) return 0;
             if (valueA == null) return sortOrder === "asc" ? 1 : -1;
             if (valueB == null) return sortOrder === "asc" ? -1 : 1;
 
-            // Compare values
             if (sortOrder === "asc") {
                return valueA > valueB ? 1 : -1;
             } else {
@@ -209,8 +216,6 @@ export async function POST(req: NextRequest) {
                         carbsPer100g: true,
                         fatPer100g: true,
                         category: true,
-                        isCustom: true,
-                        createdAt: true,
                      },
                   },
                },

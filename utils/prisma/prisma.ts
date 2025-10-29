@@ -1,17 +1,24 @@
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
-import { withOptimize } from "@prisma/extension-optimize";
 
-const globalForPrisma = global as unknown as { prisma: any };
+const globalForPrisma = globalThis as unknown as { 
+  prisma: ReturnType<typeof createPrismaClient> | undefined 
+};
 
-const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: ["query", "warn", "error"],
-  })
-    .$extends(withOptimize({ apiKey: process.env.OPTIMIZE_API_KEY! }))
-    .$extends(withAccelerate());
+function createPrismaClient() {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = globalForPrisma.prisma || createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+// Graceful shutdown
+process.on('beforeExit', async () => {
+  await prisma.$disconnect();
+});
 
 export default prisma;

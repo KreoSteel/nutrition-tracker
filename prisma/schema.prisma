@@ -20,6 +20,7 @@ model Ingredient {
   
   recipeIngredients RecipeIngredient[]
   
+  @@index([name])
   @@index([category])
   @@map("ingredients")
 }
@@ -57,6 +58,7 @@ model RecipeIngredient {
   
   @@unique([recipeId, ingredientId])
   @@index([ingredientId])
+  @@index([recipeId])
   @@map("recipe_ingredients")
 }
 
@@ -68,5 +70,6 @@ model CookingHistory {
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   @@index([cookedAt])
   @@index([recipeId, cookedAt])
+  @@index([recipeId])
   @@map("cooking_history")
 }

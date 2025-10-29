@@ -84,14 +84,19 @@ export async function GET(req: NextRequest) {
 
       const recipeCounts = new Map<string, number>();
 
-      const allCookingHistory = await prisma.cookingHistory.groupBy({
-         by: ["recipeId"],
-         where,
-         _count: { recipeId: true },
-      });
+      // Get counts in parallel for better performance
+      const [allCookingHistory, totalCooks] = await Promise.all([
+         prisma.cookingHistory.groupBy({
+            by: ["recipeId"],
+            where,
+            _count: { recipeId: true },
+         }),
+         prisma.cookingHistory.count({ where }),
+      ]);
 
-      allCookingHistory.forEach((entry: { recipeId: string; _count: { recipeId: number } }) => {
-         recipeCounts.set(entry.recipeId, entry._count.recipeId);
+      allCookingHistory.forEach((entry) => {
+         const e = entry as { recipeId: string; _count: { recipeId: number } };
+         recipeCounts.set(e.recipeId, e._count.recipeId);
       });
 
       const recentCookingHistoryLimit = 3;
@@ -111,8 +116,6 @@ export async function GET(req: NextRequest) {
                               carbsPer100g: true,
                               fatPer100g: true,
                               category: true,
-                              isCustom: true,
-                              createdAt: true,
                            },
                         },
                      },
@@ -122,10 +125,6 @@ export async function GET(req: NextRequest) {
          },
          orderBy: { cookedAt: "desc" },
          take: recentCookingHistoryLimit,
-         cacheStrategy: {
-            swr: 60,
-            ttl: 60,
-          },
       });
       const transformedRecentCookingHistory = recentCookingHistory.map(
          (history: typeof recentCookingHistory[0]) => ({
@@ -141,7 +140,6 @@ export async function GET(req: NextRequest) {
       const data = hasMore ? cookingHistory.slice(0, limit) : cookingHistory;
       const nextCursor =
          hasMore && data.length > 0 ? data[data.length - 1].id : null;
-      const totalCooks = await prisma.cookingHistory.count({ where });
 
       const transformedData = data.map((cooking: typeof data[0]) => ({
          ...cooking,

@@ -60,7 +60,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
       Record<string, { id: string; name: string }>
    >({});
    const [fetchedIngredientsCache, setFetchedIngredientsCache] = useState<
-      Record<string, any>
+      Record<string, unknown>
    >({});
 
    const {
@@ -152,7 +152,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
          )
          .map((ingredient) => {
             let ingredientData =
-               fetchedIngredientsCache[ingredient.ingredientId];
+               fetchedIngredientsCache[ingredient.ingredientId] as typeof allIngredients[number] | undefined;
             if (!ingredientData) {
                ingredientData = allIngredients.find(
                   (ing) => ing.id === ingredient.ingredientId

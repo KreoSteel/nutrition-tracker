@@ -17,7 +17,8 @@ export const useIngredients = (filters: Partial<IngredientQuery> = {}) => {
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => {
             return lastPage.nextCursor ?? undefined
-        }
+        },
+        staleTime: 60 * 1000, // Cache for 60 seconds
     })
 }
 
