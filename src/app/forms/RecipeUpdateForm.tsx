@@ -103,12 +103,12 @@ export default function RecipeUpdateForm({
       if (watchedIngredients?.length === 0) return null;
 
       interface IngredientData {
-         id: string;
+         id?: string;
          name: string;
-         caloriesPer100g: number | string;
-         proteinPer100g: number | string;
-         carbsPer100g: number | string;
-         fatPer100g: number | string;
+         caloriesPer100g: number | string | { toString(): string };
+         proteinPer100g: number | string | { toString(): string };
+         carbsPer100g: number | string | { toString(): string };
+         fatPer100g: number | string | { toString(): string };
       }
       const ingredientDataMap: Record<string, IngredientData> = {};
 
@@ -141,10 +141,26 @@ export default function RecipeUpdateForm({
                ingredientId: ingredient.ingredientId,
                quantityGrams: ingredient.quantityGrams,
                nutritionalData: {
-                  calories: Number(ingredientData.caloriesPer100g),
-                  protein: Number(ingredientData.proteinPer100g),
-                  carbs: Number(ingredientData.carbsPer100g),
-                  fat: Number(ingredientData.fatPer100g),
+                  calories: Number(
+                     typeof ingredientData.caloriesPer100g === 'object'
+                        ? ingredientData.caloriesPer100g.toString()
+                        : ingredientData.caloriesPer100g
+                  ),
+                  protein: Number(
+                     typeof ingredientData.proteinPer100g === 'object'
+                        ? ingredientData.proteinPer100g.toString()
+                        : ingredientData.proteinPer100g
+                  ),
+                  carbs: Number(
+                     typeof ingredientData.carbsPer100g === 'object'
+                        ? ingredientData.carbsPer100g.toString()
+                        : ingredientData.carbsPer100g
+                  ),
+                  fat: Number(
+                     typeof ingredientData.fatPer100g === 'object'
+                        ? ingredientData.fatPer100g.toString()
+                        : ingredientData.fatPer100g
+                  ),
                },
             };
          })

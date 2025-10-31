@@ -8,6 +8,7 @@ import {
    ResponsiveContainer,
    Cell,
 } from "recharts";
+import type { PieLabelRenderProps } from "recharts";
 
 export default function WeekNutrition() {
    const { data: weeklyNutrition, isLoading, isError, refetch } = useWeeklyNutrition();
@@ -86,11 +87,6 @@ export default function WeekNutrition() {
 
    const COLORS = ["#1976D2", "#388E3C", "#FBC02D"]; // Carbs, Fat, Protein
 
-   interface PieEntry {
-      name: string;
-      value: number;
-   }
-
    interface TooltipPayload {
       name: string;
       value: number;
@@ -101,10 +97,13 @@ export default function WeekNutrition() {
       payload?: TooltipPayload[];
    }
 
-   const renderLabel = (entry: PieEntry) => {
-    const total = pieData.reduce((sum, item) => sum + item.value, 0);
-    const percentage = ((entry.value / total) * 100).toFixed(1) || 0;
-      return `${entry.name}: ${entry.value.toFixed(1)}g (${percentage}%)`;
+   const renderLabel = (props: PieLabelRenderProps) => {
+      if (!props.name || props.value === undefined || props.percent === undefined || props.percent === null) {
+         return '';
+      }
+      const value = typeof props.value === 'number' ? props.value : Number(props.value);
+      const percent = typeof props.percent === 'number' ? props.percent : Number(props.percent);
+      return `${props.name}: ${value.toFixed(1)}g (${(percent * 100).toFixed(1)}%)`;
    };
 
    function CustomTooltip({ active, payload }: CustomTooltipProps) {

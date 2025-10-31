@@ -62,14 +62,15 @@ export function calculateNutritionPerServing(totalNutrition: NutritionalData, se
 }
 
 // Helper function to calculate nutrition from RecipeResponse
+// Accepts Prisma Decimal types and converts them to numbers
 interface RecipeIngredientInput {
     ingredientId: string;
-    quantityGrams: number | string;
+    quantityGrams: number | string | { toString(): string };
     ingredient: {
-        caloriesPer100g: number | string;
-        proteinPer100g: number | string;
-        carbsPer100g: number | string;
-        fatPer100g: number | string;
+        caloriesPer100g: number | string | { toString(): string };
+        proteinPer100g: number | string | { toString(): string };
+        carbsPer100g: number | string | { toString(): string };
+        fatPer100g: number | string | { toString(): string };
     };
 }
 
@@ -85,12 +86,32 @@ export function calculateRecipeNutritionData(recipe: RecipeInput): NutritionalDa
     const recipeIngredients: RecipeIngredient[] = recipe.ingredients.map(
         (ingredient: RecipeIngredientInput) => ({
             ingredientId: ingredient.ingredientId,
-            quantityGrams: Number(ingredient.quantityGrams),
+            quantityGrams: Number(
+                typeof ingredient.quantityGrams === 'object' 
+                    ? ingredient.quantityGrams.toString() 
+                    : ingredient.quantityGrams
+            ),
             nutritionalData: {
-                calories: Number(ingredient.ingredient.caloriesPer100g),
-                protein: Number(ingredient.ingredient.proteinPer100g),
-                carbs: Number(ingredient.ingredient.carbsPer100g),
-                fat: Number(ingredient.ingredient.fatPer100g),
+                calories: Number(
+                    typeof ingredient.ingredient.caloriesPer100g === 'object'
+                        ? ingredient.ingredient.caloriesPer100g.toString()
+                        : ingredient.ingredient.caloriesPer100g
+                ),
+                protein: Number(
+                    typeof ingredient.ingredient.proteinPer100g === 'object'
+                        ? ingredient.ingredient.proteinPer100g.toString()
+                        : ingredient.ingredient.proteinPer100g
+                ),
+                carbs: Number(
+                    typeof ingredient.ingredient.carbsPer100g === 'object'
+                        ? ingredient.ingredient.carbsPer100g.toString()
+                        : ingredient.ingredient.carbsPer100g
+                ),
+                fat: Number(
+                    typeof ingredient.ingredient.fatPer100g === 'object'
+                        ? ingredient.ingredient.fatPer100g.toString()
+                        : ingredient.ingredient.fatPer100g
+                ),
             },
         })
     );
