@@ -1,3 +1,4 @@
+import IngredientDelete from "@/app/forms/IngredientDelete";
 import prisma from "../../../../utils/prisma/prisma";
 import {
   CreateIngredientSchema,
@@ -110,9 +111,10 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: "Invalid query parameters", details: error.issues }, { status: 400 });
+      return NextResponse.json({ error: "Invalid query parameters. Please check your search and filter values.", details: error.issues }, { status: 400 });
     }
-    return NextResponse.json({ error: "Failed to fetch ingredients" }, { status: 500 });
+    console.error("Failed to fetch ingredients:", error);
+    return NextResponse.json({ error: "Unable to load ingredients. Please try again later." }, { status: 500 });
   }
 }
 
@@ -131,13 +133,18 @@ export async function POST(req: NextRequest) {
         isCustom: true,
       },
     });
+    
+    if (ingredient.name.toLowerCase() === validatedData.name.toLowerCase()) {
+      return NextResponse.json({ error: "Ingredient name already exists. Please choose a different name.", details: { name: "Ingredient name already exists. Please choose a different name." } }, { status: 400 });
+    }
     return NextResponse.json(ingredient);
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: "Invalid ingredient data", details: error.issues }, { status: 400 });
+      return NextResponse.json({ error: "Invalid ingredient data. Please check all fields are filled correctly.", details: error.issues }, { status: 400 });
     }
+    console.error("Failed to create ingredient:", error);
     return NextResponse.json(
-      { error: "Failed to create ingredient" },
+      { error: "Unable to create ingredient. Please try again later." },
       { status: 500 }
     );
   }

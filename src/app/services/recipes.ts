@@ -1,4 +1,4 @@
-import { http } from "@/lib/http";
+import { http, getErrorMessage } from "@/lib/http";
 import {
   CreateRecipe,
   UpdateRecipe,
@@ -30,7 +30,7 @@ export const getRecipes = async (filters: Partial<RecipeQuery> = {}): Promise<{ 
     if (error instanceof ZodError) {
       throw new Error("Invalid recipe data: " + error.message);
     }
-    throw new Error("Failed to fetch recipes");
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -44,7 +44,7 @@ export const createRecipe = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid recipe data: " + error.message);
     }
-    throw new Error("Failed to create recipe");
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -59,7 +59,7 @@ export const updateRecipe = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid recipe data: " + error.message);
     }
-    throw new Error("Failed to update recipe");
+    throw new Error(getErrorMessage(error));
   }
 }
 export const deleteRecipe = async (
@@ -72,7 +72,7 @@ export const deleteRecipe = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid recipe data: " + error.message);
     }
-    throw new Error("Failed to delete recipe");
+    throw new Error(getErrorMessage(error));
   }
 }
 
@@ -87,6 +87,6 @@ export const toggleFavorite = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid recipe data: " + error.message);
     }
-    throw new Error("Failed to toggle favorite");
+    throw new Error(getErrorMessage(error));
   }
 }

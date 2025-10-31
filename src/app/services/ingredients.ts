@@ -1,4 +1,4 @@
-import { http } from "@/lib/http";
+import { http, getErrorMessage } from "@/lib/http";
 import {
   CreateIngredient,
   IngredientQuery,
@@ -30,7 +30,7 @@ export const getIngredients = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid ingredient query: " + error.message);
     }
-    throw new Error("Failed to fetch ingredients");
+    throw new Error(getErrorMessage(error));
   }
 }
 
@@ -46,7 +46,7 @@ export const createIngredient = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid ingredient data: " + error.message);
     }
-    throw new Error("Failed to create ingredient");
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -60,7 +60,7 @@ export const getIngredient = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid ingredient data: " + error.message);
     }
-    throw new Error("Failed to fetch ingredient");
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -75,7 +75,7 @@ export const updateIngredient = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid ingredient data: " + error.message);
     }
-    throw new Error("Failed to update ingredient");
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -89,6 +89,6 @@ export const deleteIngredient = async (
     if (error instanceof ZodError) {
       throw new Error("Invalid ingredient data: " + error.message);
     }
-    throw new Error("Failed to delete ingredient");
+    throw new Error(getErrorMessage(error));
   }
 };

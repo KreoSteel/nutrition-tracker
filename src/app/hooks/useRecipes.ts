@@ -32,8 +32,8 @@ export const useCreateRecipe = () => {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
       },
-      onError: () => {
-         toast.error("Failed to create recipe");
+      onError: (error) => {
+         toast.error(error instanceof Error ? error.message : "Failed to create recipe");
       },
    });
 };
@@ -47,8 +47,8 @@ export const useUpdateRecipe = () => {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
       },
-      onError: () => {
-         toast.error("Failed to update recipe");
+      onError: (error) => {
+         toast.error(error instanceof Error ? error.message : "Failed to update recipe");
       },
    });
 };
@@ -61,8 +61,8 @@ export const useDeleteRecipe = () => {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
       },
-      onError: () => {
-         toast.error("Failed to delete recipe");
+      onError: (error) => {
+         toast.error(error instanceof Error ? error.message : "Failed to delete recipe");
       },
    });
 };
@@ -76,8 +76,8 @@ export const useToggleFavorite = () => {
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
       },
-      onError: () => {
-         toast.error("Failed to update favorite");
+      onError: (error) => {
+         toast.error(error instanceof Error ? error.message : "Failed to update favorite");
       },
    });
 };

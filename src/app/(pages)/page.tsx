@@ -10,9 +10,13 @@ export default function Dashboard() {
     <div className="flex flex-col w-full gap-10 mt-10">
       <HeroSection />
       <QuickActions />
-      <div className="grid grid-cols-2 gap-8">
-        <RecentRecipes />
-        <WeekNutrition />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div className="order-2 sm:order-1">
+          <RecentRecipes />
+        </div>
+        <div className="order-1 sm:order-2">
+          <WeekNutrition />
+        </div>
       </div>
       <CookingHistory />
     </div>

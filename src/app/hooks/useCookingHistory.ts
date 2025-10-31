@@ -45,7 +45,7 @@ export const useRecentCookingHistory = () => {
             timesCooked: history.recipe.timesCooked || 0,
          },
       })),
-      staleTime: 60 * 1000, // Cache for 60 seconds
+      staleTime: 60 * 1000,
    });
 };
 
@@ -78,8 +78,8 @@ export const useCreateCookingHistory = () => {
          queryClient.invalidateQueries({ queryKey: ["weekly-nutrition"] });
          toast.success("Cooking history created successfully");
       },
-      onError: () => {
-         toast.error("Failed to create cooking history");
+      onError: (error) => {
+         toast.error(error instanceof Error ? error.message : "Failed to create cooking history");
       },
    });
 };
@@ -96,8 +96,8 @@ export const useDeleteCookingHistory = () => {
          queryClient.invalidateQueries({ queryKey: ["weekly-nutrition"] });
          toast.success("Cooking history deleted successfully");
       },
-      onError: () => {
-         toast.error("Failed to delete cooking history");
+      onError: (error) => {
+         toast.error(error instanceof Error ? error.message : "Failed to delete cooking history");
       },
    });
 };

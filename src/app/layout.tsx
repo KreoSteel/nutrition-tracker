@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import Header from '@/components/layout/Header';
 import { Toaster } from '@/components/ui/sooner';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 import './globals.css';
 
 const inter = Inter({
@@ -29,11 +30,14 @@ export default function RootLayout({
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000, // 1 minute
+        refetchOnWindowFocus: false, // Prevent refetching on focus to reduce requests
+        retry: 1, // Reduce retries on failure
       },
     },
   })
 
   // Add to global window for devtools
+  
   if (typeof window !== 'undefined') {
     window.__TANSTACK_QUERY_CLIENT__ = queryClient
   }
@@ -43,6 +47,7 @@ export default function RootLayout({
       <head>
         <title>NutriTrack - Nutrition Tracker</title>
         <meta name="description" content="Track your recipes, ingredients, and nutrition with NutriTrack" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
@@ -52,13 +57,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <div className="mx-auto w-full max-w-[2000px] px-6 pb-20 lg:px-10 flex flex-col items-center justify-center">
-            <QueryClientProvider client={queryClient}>
-              {children}
-            </QueryClientProvider>
-          </div>
-          <Toaster />
+          <ErrorBoundary>
+            <Header />
+            <div className="mx-auto w-full max-w-[2000px] px-6 pb-20 lg:px-10 flex flex-col items-center justify-center">
+              <QueryClientProvider client={queryClient}>
+                {children}
+              </QueryClientProvider>
+            </div>
+            <Toaster />
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

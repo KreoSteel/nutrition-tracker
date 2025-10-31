@@ -78,6 +78,7 @@ export default function IngredientsPage() {
     isFetchingNextPage,
     isLoading,
     isError,
+    refetch,
   } = useIngredients({
     search: searchTerm,
     sortBy: sortState?.field,
@@ -211,10 +212,21 @@ export default function IngredientsPage() {
             {isError && (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-12"
                 >
-                  <span className="text-base font-medium text-red-600 dark:text-red-400">Failed to load ingredients. Please try again.</span>
+                  <div className="flex flex-col items-center gap-4">
+                    <span className="text-base font-medium text-red-600 dark:text-red-400">
+                      Failed to load ingredients. Please try again.
+                    </span>
+                    <Button
+                      onClick={() => refetch()}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Retry
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

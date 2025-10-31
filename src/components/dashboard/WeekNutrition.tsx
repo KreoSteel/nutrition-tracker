@@ -1,5 +1,6 @@
 import { ChefHat, Loader2 } from "lucide-react";
 import { useWeeklyNutrition } from "@/app/hooks/useCookingHistory";
+import { Button } from "../ui/button";
 import {
    PieChart,
    Pie,
@@ -9,7 +10,7 @@ import {
 } from "recharts";
 
 export default function WeekNutrition() {
-   const { data: weeklyNutrition, isLoading, isError } = useWeeklyNutrition();
+   const { data: weeklyNutrition, isLoading, isError, refetch } = useWeeklyNutrition();
 
    if (isLoading) {
       return (
@@ -34,9 +35,16 @@ export default function WeekNutrition() {
                <h2 className="text-3xl font-semibold">Week Nutrition</h2>
             </span>
             <div className="flex flex-col items-center gap-4 py-20">
-               <p className="text-base text-red-500">
+               <p className="text-base text-red-600 dark:text-red-400 font-medium">
                   Error loading weekly nutrition data
                </p>
+               <Button
+                  onClick={() => refetch()}
+                  variant="outline"
+                  size="sm"
+               >
+                  Retry
+               </Button>
             </div>
          </section>
       );
@@ -103,12 +111,12 @@ export default function WeekNutrition() {
 
    return (
       <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
-         <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
-            <h2 className="text-3xl font-semibold">Week Nutrition</h2>
+         <span className="flex w-full px-4 sm:px-8 pb-4 sm:pb-6 pt-6 sm:pt-8 justify-center sm:justify-between items-center">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-center sm:text-left">Week Nutrition</h2>
          </span>
 
-         <div className="w-full px-8 pb-8 pointer-events-none">
-            <div className="relative h-120">
+         <div className="w-full px-4 sm:px-8 pb-6 sm:pb-8 pointer-events-none">
+            <div className="relative h-80 sm:h-96 md:h-120">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                      <Pie
@@ -145,7 +153,7 @@ export default function WeekNutrition() {
                </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-lg font-bold text-carbs">
                      {weeklyNutrition?.totalNutritionPerWeek.carbs.toFixed(0) ||

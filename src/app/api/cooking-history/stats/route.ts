@@ -9,16 +9,15 @@ export async function GET(req: NextRequest) {
       const today = startOfDay(new Date());
       const weekStart = startOfWeek(today);
 
-      // Use parallel queries and date filters
       const [
          totalCooks,
          todayCooks,
          thisWeekCooks,
          cookingHistoryForStreak,
-         mostCookedRecipe,
-      ] = await Promise.all([
+         mostCookedRecipeResults,
+      ] = await prisma.$transaction([
          prisma.cookingHistory.count(),
-         
+
          prisma.cookingHistory.count({
             where: {
                cookedAt: {
@@ -37,7 +36,7 @@ export async function GET(req: NextRequest) {
          prisma.cookingHistory.findMany({
             select: { cookedAt: true },
             orderBy: { cookedAt: "desc" },
-            take: 100, // Reasonable limit for streak calculation
+            take: 100,
          }),
 
          prisma.cookingHistory.groupBy({
@@ -45,18 +44,30 @@ export async function GET(req: NextRequest) {
             _count: { recipeId: true },
             orderBy: { _count: { recipeId: "desc" } },
             take: 1,
-         }).then(async (results) => {
-            if (results.length === 0) return null;
-            const result = results[0] as { recipeId: string; _count: { recipeId: number } };
-            const recipe = await prisma.recipe.findUnique({
-               where: { id: result.recipeId },
-               select: { name: true },
-            });
-            return recipe ? { name: recipe.name, count: result._count.recipeId } : null;
          }),
       ]);
 
-      const currentStreak = calculateCookingStreak(cookingHistoryForStreak.map(h => ({ cookedAt: h.cookedAt, recipe: { name: '' } })) as unknown as CookingHistoryResponse[]);
+      let mostCookedRecipe = null;
+      if (mostCookedRecipeResults.length > 0) {
+         const result = mostCookedRecipeResults[0] as {
+            recipeId: string;
+            _count: { recipeId: number };
+         };
+         const recipe = await prisma.recipe.findUnique({
+            where: { id: result.recipeId },
+            select: { name: true },
+         });
+         mostCookedRecipe = recipe
+            ? { name: recipe.name, count: result._count.recipeId }
+            : null;
+      }
+
+      const currentStreak = calculateCookingStreak(
+         cookingHistoryForStreak.map((history) => ({
+            cookedAt: history.cookedAt,
+            recipe: { name: "" },
+         })) as unknown as CookingHistoryResponse[]
+      );
 
       const stats = {
          totalCooks,

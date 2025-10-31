@@ -1,4 +1,4 @@
-import { http } from "@/lib/http";
+import { http, getErrorMessage } from "@/lib/http";
 import {
    CookingHistoryQuery,
    CookingHistoryQuerySchema,
@@ -38,7 +38,7 @@ export const getCookingHistory = async (
       if (error instanceof ZodError) {
          throw new Error("Invalid cooking history query: " + error.message);
       }
-      throw new Error("Failed to fetch cooking history");
+      throw new Error(getErrorMessage(error));
    }
 };
 
@@ -50,7 +50,7 @@ export const getCookingStats = async (): Promise<CookingHistoryStats> => {
       if (error instanceof ZodError) {
          throw new Error("Invalid cooking stats: " + error.message);
       }
-      throw new Error("Failed to fetch cooking stats");
+      throw new Error(getErrorMessage(error));
    }
 };
 
@@ -62,7 +62,7 @@ export const getWeeklyNutrition = async (): Promise<WeeklyNutrition> => {
       if (error instanceof ZodError) {
          throw new Error("Invalid weekly nutrition data: " + error.message);
       }
-      throw new Error("Failed to fetch weekly nutrition");
+      throw new Error(getErrorMessage(error));
    }
 };
 
@@ -76,7 +76,7 @@ export const createCookingHistory = async (
       if (error instanceof ZodError) {
          throw new Error("Invalid cooking history data: " + error.message);
       }
-      throw new Error("Failed to create cooking history");
+      throw new Error(getErrorMessage(error));
    }
 };
 
@@ -88,6 +88,6 @@ export const deleteCookingHistory = async (id: string): Promise<void> => {
       if (error instanceof ZodError) {
          throw new Error("Invalid cooking history data: " + error.message);
       }
-      throw new Error("Failed to delete cooking history");
+      throw new Error(getErrorMessage(error));
    }
 };

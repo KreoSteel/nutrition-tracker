@@ -227,13 +227,13 @@ export async function POST(req: NextRequest) {
       if (error instanceof ZodError) {
          console.error("Invalid recipe data:", error.issues);
          return NextResponse.json(
-            { error: "Invalid recipe data", details: error.issues },
+            { error: "Invalid recipe data. Please check all fields are filled correctly.", details: error.issues },
             { status: 400 }
          );
       }
       console.error("Failed to create recipe:", error);
       return NextResponse.json(
-         { error: "Failed to create recipe" },
+         { error: "Unable to create recipe. Please try again later." },
          { status: 500 }
       );
    }

@@ -41,7 +41,8 @@ export default function CookingHistoryTables({
       fetchNextPage,
       isFetchingNextPage,
       isLoading,
-      isFetching,
+      isError,
+      refetch,
    } = useCookingHistory({
       search: searchTerm,
       startDate,
@@ -109,6 +110,28 @@ export default function CookingHistoryTables({
                               <p className="text-base text-muted-foreground mt-2">
                                  Please wait while we fetch your data
                               </p>
+                           </div>
+                        </div>
+                     </TableCell>
+                  </TableRow>
+               ) : isError ? (
+                  <TableRow>
+                     <TableCell colSpan={5} className="py-20">
+                        <div className="flex justify-center items-center">
+                           <div className="text-center flex flex-col gap-4">
+                              <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+                                 Error loading cooking history
+                              </p>
+                              <p className="text-base text-muted-foreground">
+                                 Please try again later
+                              </p>
+                              <Button
+                                 onClick={() => refetch()}
+                                 variant="outline"
+                                 size="sm"
+                              >
+                                 Retry
+                              </Button>
                            </div>
                         </div>
                      </TableCell>

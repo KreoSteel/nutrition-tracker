@@ -46,10 +46,6 @@ export function IngredientCreateForm({ children }: { children: React.ReactNode }
         toast.success(`Ingredient ${data.name} created successfully!`);
         setOpen(false);
       },
-      onError: () => {
-        toast.error(`Failed to create ingredient ${data.name}`);
-        setOpen(false);
-      },
     });
   };
 

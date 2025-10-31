@@ -22,7 +22,7 @@ export default function CookingHistory() {
    } = useRecentCookingHistory();
 
    return (
-      <section className="w-full flex flex-col bg-muted/30 py-8 px-8 rounded-xl shadow-sm">
+      <section className="w-full flex flex-col bg-muted/30 py-8 px-8 border border-border/50  rounded-xl shadow-md">
          <div className="flex w-full pb-6 justify-between items-center">
             <h2 className="text-3xl font-semibold">Recent Cooking History</h2>
             <Link

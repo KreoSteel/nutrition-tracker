@@ -47,6 +47,7 @@ export default function RecipesTables({ searchTerm, filters, ingredients }: Reci
       data,
       isLoading,
       isError,
+      refetch,
    } = useRecipes({
       search: searchTerm,
       sortBy: sortState?.field,
@@ -101,13 +102,20 @@ export default function RecipesTables({ searchTerm, filters, ingredients }: Reci
    if (isError) {
       return (
          <div className="flex justify-center items-center h-80 border border-border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
-            <div className="text-center">
+            <div className="text-center flex flex-col gap-4">
                <p className="text-lg font-semibold text-red-600 dark:text-red-400">
                   Error loading recipes
                </p>
-               <p className="text-base text-muted-foreground mt-2">
+               <p className="text-base text-muted-foreground">
                   Please try again later
                </p>
+               <Button
+                  onClick={() => refetch()}
+                  variant="outline"
+                  size="sm"
+               >
+                  Retry
+               </Button>
             </div>
          </div>
       );
