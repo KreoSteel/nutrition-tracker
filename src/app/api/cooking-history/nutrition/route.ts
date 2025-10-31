@@ -1,9 +1,9 @@
 import { endOfWeek, startOfWeek } from "date-fns";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "../../../../../utils/prisma/prisma";
 import { calculateRecipeNutritionData } from "../../../../../utils/calculations/nutrition";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
    try {
       const weekStartDate = startOfWeek(new Date());
       const weekEndDate = endOfWeek(new Date());

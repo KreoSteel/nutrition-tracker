@@ -102,7 +102,15 @@ export default function RecipeUpdateForm({
    const calculateCurrentNutrition = () => {
       if (watchedIngredients?.length === 0) return null;
 
-      const ingredientDataMap: Record<string, any> = {};
+      interface IngredientData {
+         id: string;
+         name: string;
+         caloriesPer100g: number | string;
+         proteinPer100g: number | string;
+         carbsPer100g: number | string;
+         fatPer100g: number | string;
+      }
+      const ingredientDataMap: Record<string, IngredientData> = {};
 
       recipe.ingredients?.forEach((recipeIng) => {
          if (recipeIng.ingredient) {

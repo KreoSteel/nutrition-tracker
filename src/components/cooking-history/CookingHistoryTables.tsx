@@ -2,7 +2,6 @@ import {
    Heart,
    CalendarDays,
    Clock,
-   Star,
    Trash2,
    Utensils,
    Eye,

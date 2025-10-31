@@ -1,4 +1,3 @@
-import IngredientDelete from "@/app/forms/IngredientDelete";
 import prisma from "../../../../utils/prisma/prisma";
 import {
   CreateIngredientSchema,

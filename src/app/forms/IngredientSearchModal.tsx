@@ -21,7 +21,12 @@ export function IngredientSearchModal({ children }: { children: React.ReactNode 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedIngredients, setSelectedIngredients] = useState<{id: string, name: string}[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const router = useRouter();
+
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setSearchTerm(value);
+  }, 500);
 
   const { data: ingredientsData, isFetching } = useIngredients({
     search: searchTerm,
@@ -36,16 +41,13 @@ export function IngredientSearchModal({ children }: { children: React.ReactNode 
     if (!selectedIngredients.find(ing => ing.id === ingredient.id)) {
       setSelectedIngredients(prev => [...prev, ingredient]);
     }
+    setInputValue("");
     setSearchTerm("");
   };
 
   const handleRemoveIngredient = (id: string) => {
     setSelectedIngredients(prev => prev.filter(ing => ing.id !== id));
   };
-
-  const debouncedSearch = useDebouncedCallback((searchTerm: string) => {
-    setSearchTerm(searchTerm);
-  }, 500);
 
   const handleSearch = () => {
     const ingredientIds = selectedIngredients.map(ing => ing.id).join(',');
@@ -95,8 +97,11 @@ export function IngredientSearchModal({ children }: { children: React.ReactNode 
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+                debouncedSearch(e.target.value);
+              }}
               placeholder="Type to search ingredients..."
               className="pl-9"
             />

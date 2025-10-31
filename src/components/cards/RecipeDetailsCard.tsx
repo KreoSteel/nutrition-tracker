@@ -12,7 +12,6 @@ import { Button } from "../ui/button";
 import {
    ChefHat,
    Clock,
-   Eye,
    InfoIcon,
    Star,
    Users,

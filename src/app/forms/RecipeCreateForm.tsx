@@ -126,7 +126,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
 
          if (missingIds.length > 0) {
             const fetches = missingIds.map((id) =>
-               getIngredient(id).catch((err) => null)
+               getIngredient(id).catch(() => null)
             );
             const results = await Promise.all(fetches);
             const newCache = { ...fetchedIngredientsCache };

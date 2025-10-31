@@ -62,13 +62,28 @@ export function calculateNutritionPerServing(totalNutrition: NutritionalData, se
 }
 
 // Helper function to calculate nutrition from RecipeResponse
-export function calculateRecipeNutritionData(recipe: any): NutritionalData {
+interface RecipeIngredientInput {
+    ingredientId: string;
+    quantityGrams: number | string;
+    ingredient: {
+        caloriesPer100g: number | string;
+        proteinPer100g: number | string;
+        carbsPer100g: number | string;
+        fatPer100g: number | string;
+    };
+}
+
+interface RecipeInput {
+    ingredients?: RecipeIngredientInput[];
+}
+
+export function calculateRecipeNutritionData(recipe: RecipeInput): NutritionalData {
     if (!recipe.ingredients || recipe.ingredients.length === 0) {
         return { calories: 0, protein: 0, carbs: 0, fat: 0 };
     }
 
     const recipeIngredients: RecipeIngredient[] = recipe.ingredients.map(
-        (ingredient: any) => ({
+        (ingredient: RecipeIngredientInput) => ({
             ingredientId: ingredient.ingredientId,
             quantityGrams: Number(ingredient.quantityGrams),
             nutritionalData: {

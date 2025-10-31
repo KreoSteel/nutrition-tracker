@@ -86,13 +86,28 @@ export default function WeekNutrition() {
 
    const COLORS = ["#1976D2", "#388E3C", "#FBC02D"]; // Carbs, Fat, Protein
 
-   const renderLabel = (entry: any) => {
+   interface PieEntry {
+      name: string;
+      value: number;
+   }
+
+   interface TooltipPayload {
+      name: string;
+      value: number;
+   }
+
+   interface CustomTooltipProps {
+      active?: boolean;
+      payload?: TooltipPayload[];
+   }
+
+   const renderLabel = (entry: PieEntry) => {
     const total = pieData.reduce((sum, item) => sum + item.value, 0);
     const percentage = ((entry.value / total) * 100).toFixed(1) || 0;
       return `${entry.name}: ${entry.value.toFixed(1)}g (${percentage}%)`;
    };
 
-   function CustomTooltip({ active, payload }: any) {
+   function CustomTooltip({ active, payload }: CustomTooltipProps) {
       if (active && payload && payload.length) {
          const data = payload[0];
          const total = pieData.reduce((sum, item) => sum + item.value, 0);

@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { calculateCookingStreak } from "../../../../../utils/calculations/cookingHistory";
 import { startOfDay, startOfWeek } from "date-fns";
 import prisma from "../../../../../utils/prisma/prisma";
 import { CookingHistoryResponse } from "../../../../../utils/schemas";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
    try {
       const today = startOfDay(new Date());
       const weekStart = startOfWeek(today);
