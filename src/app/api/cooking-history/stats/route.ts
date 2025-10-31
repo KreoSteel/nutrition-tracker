@@ -63,7 +63,7 @@ export async function GET() {
       }
 
       const currentStreak = calculateCookingStreak(
-         cookingHistoryForStreak.map((history) => ({
+         cookingHistoryForStreak.map((history: { cookedAt: Date }) => ({
             cookedAt: history.cookedAt,
             recipe: { name: "" },
          })) as unknown as CookingHistoryResponse[]

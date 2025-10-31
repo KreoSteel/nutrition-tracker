@@ -99,11 +99,11 @@ export async function GET(req: NextRequest) {
          const e = entry as { recipeId: string; _count: { recipeId: number } };
          recipeCounts.set(e.recipeId, e._count.recipeId);
       });
-
-      // Only fetch recent cooking history separately if we need 3 items but limit is small
-      // For dashboard (limit=1), we need all 3 recent items, so fetch separately
-      // For larger limits, reuse data from main query
-      let recentCookingHistory;
+      type CookingHistoryWithRecipe = typeof cookingHistory[0];
+      type RecentCookingHistoryItem = CookingHistoryWithRecipe & {
+         recipe: CookingHistoryWithRecipe['recipe'] & { timesCooked: number };
+      };
+      let recentCookingHistory: RecentCookingHistoryItem[];
       const recentCookingHistoryLimit = 3;
       if (limit >= recentCookingHistoryLimit && cookingHistory.length >= recentCookingHistoryLimit) {
          // Reuse data from main query to avoid extra database call
@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
          }));
       } else {
          // Fetch separately for dashboard requests (limit=1) or when we don't have enough data
-         recentCookingHistory = await prisma.cookingHistory.findMany({
+         const fetched = await prisma.cookingHistory.findMany({
             where,
             include: {
                recipe: recipeInclude,
@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
             orderBy: { cookedAt: "desc" },
             take: recentCookingHistoryLimit,
          });
-         recentCookingHistory = recentCookingHistory.map((history) => ({
+         recentCookingHistory = fetched.map((history) => ({
             ...history,
             recipe: {
                ...history.recipe,

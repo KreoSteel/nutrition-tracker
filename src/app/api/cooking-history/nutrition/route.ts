@@ -12,26 +12,8 @@ export async function GET() {
       const dailyStartDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0, 0));
       const dailyEndDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
 
-      const dailyCookingHistory = await prisma.cookingHistory.findMany({
-         where: {
-            cookedAt: {
-               gte: dailyStartDate,
-               lte: dailyEndDate,
-            },
-         },
-         include: {
-            recipe: {
-               include: {
-                  ingredients: {
-                     include: {
-                        ingredient: true,
-                     },
-                  },
-               },
-            },
-         },
-      });
-
+      // Fetch weekly data once (includes daily data since daily is within weekly)
+      // Use select to only fetch needed fields for better performance
       const weeklyCookingHistory = await prisma.cookingHistory.findMany({
          where: {
             cookedAt: {
@@ -39,12 +21,22 @@ export async function GET() {
                lte: weekEndDate,
             },
          },
-         include: {
+         select: {
+            cookedAt: true,
             recipe: {
-               include: {
+               select: {
                   ingredients: {
-                     include: {
-                        ingredient: true,
+                     select: {
+                        ingredientId: true,
+                        quantityGrams: true,
+                        ingredient: {
+                           select: {
+                              caloriesPer100g: true,
+                              proteinPer100g: true,
+                              carbsPer100g: true,
+                              fatPer100g: true,
+                           },
+                        },
                      },
                   },
                },
@@ -52,13 +44,19 @@ export async function GET() {
          },
       });
 
+      // Filter daily data from weekly data (more efficient than separate query)
+      const dailyCookingHistory = weeklyCookingHistory.filter(
+         (cooking) =>
+            cooking.cookedAt >= dailyStartDate && cooking.cookedAt <= dailyEndDate
+      );
+
       const totalNutritionPerWeek = {
          calories: 0,
          protein: 0,
          carbs: 0,
          fat: 0,
       };
-      weeklyCookingHistory.forEach((cooking) => {
+      weeklyCookingHistory.forEach((cooking: typeof weeklyCookingHistory[0]) => {
          const recipeNutrition = calculateRecipeNutritionData(cooking.recipe);
 
          totalNutritionPerWeek.calories += recipeNutrition.calories;
@@ -74,7 +72,7 @@ export async function GET() {
          fat: 0,
       };
 
-      dailyCookingHistory.forEach((cooking) => {
+      dailyCookingHistory.forEach((cooking: typeof dailyCookingHistory[0]) => {
          const recipeNutrition = calculateRecipeNutritionData(cooking.recipe);
 
          totalNutritionDaily.calories += recipeNutrition.calories;

@@ -29,7 +29,8 @@ export default function RootLayout({
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000, // 1 minute
+        staleTime: 2 * 60 * 1000, // 2 minutes - longer cache to reduce requests during rapid refreshes
+        gcTime: 5 * 60 * 1000, // 5 minutes - keep cached data longer
         refetchOnWindowFocus: false, // Prevent refetching on focus to reduce requests
         retry: 1, // Reduce retries on failure
       },
