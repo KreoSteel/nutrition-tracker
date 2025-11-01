@@ -23,7 +23,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useIngredients } from "../hooks/useIngredients";
+import { useIngredients } from "@/app/hooks/useIngredients";
+import type { PaginatedIngredientsResponse, IngredientResponse } from "../../../utils/schemas";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -53,7 +54,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
       limit: 50,
    });
    const filteredIngredients = ingredientsData?.pages.flatMap(
-      (page) => page.data
+      (page: PaginatedIngredientsResponse) => page.data
    );
    const queryClient = useQueryClient();
    const [selectedIngredients, setSelectedIngredients] = useState<
@@ -116,8 +117,8 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
          const missingIds = allIngredientIds.filter((id) => {
             if (fetchedIngredientsCache[id]) return false;
             if (
-               ingredientsData?.pages.some((page) =>
-                  page.data.some((ing) => ing.id === id)
+               ingredientsData?.pages.some((page: PaginatedIngredientsResponse) =>
+                  page.data.some((ing: IngredientResponse) => ing.id === id)
                )
             )
                return false;
@@ -144,7 +145,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
       if (watchedIngredients.length === 0) return null;
 
       const allIngredients =
-         ingredientsData?.pages.flatMap((page) => page.data) || [];
+         ingredientsData?.pages.flatMap((page: PaginatedIngredientsResponse) => page.data) || [];
 
       const ingredientsWithNutrition = watchedIngredients
          .filter(
@@ -155,7 +156,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                fetchedIngredientsCache[ingredient.ingredientId] as typeof allIngredients[number] | undefined;
             if (!ingredientData) {
                ingredientData = allIngredients.find(
-                  (ing) => ing.id === ingredient.ingredientId
+                  (ing: IngredientResponse) => ing.id === ingredient.ingredientId
                );
             }
 
@@ -398,9 +399,9 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                                                    ?.ingredientId
                                              ]?.name ||
                                              ingredientsData?.pages
-                                                .flatMap((page) => page.data)
+                                                .flatMap((page: PaginatedIngredientsResponse) => page.data)
                                                 .find(
-                                                   (ingredient) =>
+                                                   (ingredient: IngredientResponse) =>
                                                       ingredient.id ===
                                                       watchedIngredients[index]
                                                          ?.ingredientId
@@ -443,7 +444,7 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                                        </div>
                                        <div className="max-h-70 overflow-y-auto">
                                           {filteredIngredients?.map(
-                                             (ingredient) => (
+                                             (ingredient: IngredientResponse) => (
                                                 <div
                                                    key={ingredient.id}
                                                    className="p-2 hover:bg-muted cursor-pointer"
