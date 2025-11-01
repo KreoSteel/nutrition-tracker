@@ -7,7 +7,7 @@
     "validate-data": "ts-node --project tsconfig.scripts.json src/scripts/validate-data.ts",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint"
   },
