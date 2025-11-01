@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SortableHeader } from "../layout/SortableHeader";
-import RecipeUpdateForm from "@/app/forms/RecipeUpdateForm";
+import RecipeUpdateForm from "@/components/forms/RecipeUpdateForm";
 import {
    Table,
    TableBody,
@@ -14,7 +14,7 @@ import { RecipeResponse } from "../../../utils/schemas/recipe";
 import { useRecipes, useToggleFavorite } from "@/app/hooks/useRecipes";
 import { Eye, Heart, Loader2, Pencil, Trash2, ChefHat } from "lucide-react";
 import { Button } from "../ui/button";
-import RecipeDelete from "@/app/forms/RecipeDelete";
+import RecipeDelete from "@/components/forms/RecipeDelete";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";
 type SortableField =
    | "name"

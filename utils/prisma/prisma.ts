@@ -6,8 +6,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      'DATABASE_URL environment variable is missing. ' +
+      'Please set it in your Render environment variables.'
+    );
+  }
+  
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error'] : ['error'],
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    errorFormat: 'minimal',
   });
 }
 
@@ -17,25 +25,23 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-// Handle graceful shutdown and cleanup in development to prevent connection leaks
-if (process.env.NODE_ENV !== "production") {
-  // Cleanup on process exit
-  process.on('beforeExit', async () => {
-    await prisma.$disconnect();
-  });
+// Handle graceful shutdown and cleanup in all environments
+// Cleanup on process exit
+process.on('beforeExit', async () => {
+  await prisma.$disconnect();
+});
 
-  // Cleanup on SIGINT (Ctrl+C)
-  process.on('SIGINT', async () => {
-    await prisma.$disconnect();
-    process.exit(0);
-  });
+// Cleanup on SIGINT (Ctrl+C)
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
 
-  // Cleanup on SIGTERM
-  process.on('SIGTERM', async () => {
-    await prisma.$disconnect();
-    process.exit(0);
-  });
-}
+// Cleanup on SIGTERM (used by Render and other platforms)
+process.on('SIGTERM', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
 
 // Helper function to retry database operations with exponential backoff
 export async function retryDatabaseOperation<T>(

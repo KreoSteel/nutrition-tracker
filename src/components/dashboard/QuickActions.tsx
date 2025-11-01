@@ -1,7 +1,7 @@
 import { Plus, PackagePlus, ChefHat } from "lucide-react";
-import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
-import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
-import { IngredientSearchModal } from "@/app/forms/IngredientSearchModal";
+import { IngredientCreateForm } from "@/components/forms/IngredientCreateForm";
+import { RecipeCreateForm } from "@/components/forms/RecipeCreateForm";
+import { IngredientSearchModal } from "@/components/forms/IngredientSearchModal";
 
 export default function QuickActions() {
    return (

@@ -18,7 +18,7 @@ import {
 import { useCookingHistory } from "@/app/hooks/useCookingHistory";
 import { format } from "date-fns";
 import { Button } from "../ui/button";
-import CookingHistoryDelete from "@/app/forms/CookingHistoryDelete";
+import CookingHistoryDelete from "@/components/forms/CookingHistoryDelete";
 import { useEffect, useRef } from "react";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";

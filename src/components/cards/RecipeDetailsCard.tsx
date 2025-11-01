@@ -22,7 +22,7 @@ import {
 import { Separator } from "../ui/separator";
 import NutritionDisplay from "../recipes/NutritionDisplay";
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
-import RecipeUpdateForm from "@/app/forms/RecipeUpdateForm";
+import RecipeUpdateForm from "@/components/forms/RecipeUpdateForm";
 import { useState } from "react";
 import { useCreateCookingHistory } from "@/app/hooks/useCookingHistory";
 import { useQueryClient } from "@tanstack/react-query";
@@ -115,8 +115,8 @@ export default function RecipeDetailsCard({ recipe, children }: RecipeDetailsCar
                      <span className="text-sm text-muted-foreground">
                         Cooked:
                      </span>
-                     <span className="font-semibold">0</span>
-                  </div>
+                     <span className="font-semibold">{(recipe as CookingHistoryResponse['recipe']).timesCooked ?? 0}</span>
+                  </div>   
                </div>
             </div>
             <Separator></Separator>

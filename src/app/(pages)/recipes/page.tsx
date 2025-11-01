@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { NutritionFilters } from "@/components/ui/NutritionFilters";
 import { useState, Suspense } from "react";
 import RecipesTables from "@/components/recipes/RecipesTables";
-import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
+import { RecipeCreateForm } from "@/components/forms/RecipeCreateForm";
 import { useRecipes } from "@/app/hooks/useRecipes";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";

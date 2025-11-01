@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard } from "@/app/hooks/useDashboard";
 import { Button } from "../ui/button";
 import type { RecipeResponse } from "../../../utils/schemas/recipe";
+import { format } from "date-fns";
 
 export default function CookingHistory() {
    const {
@@ -140,12 +141,7 @@ export default function CookingHistory() {
                         <div className="flex items-center gap-1">
                            <Calendar className="h-3 w-3 text-muted-foreground" />
                            <span className="text-xs text-muted-foreground">
-                              {history.cookedAt.toLocaleDateString("en-US", {
-                                 month: "short",
-                                 day: "numeric",
-                                 hour: "2-digit",
-                                 minute: "2-digit",
-                              })}
+                              {format(new Date(history.cookedAt), "MMM d, h:mm a")}
                            </span>
                         </div>
 
