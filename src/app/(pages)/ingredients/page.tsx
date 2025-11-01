@@ -1,5 +1,5 @@
 "use client";
-import { Pencil, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import { IngredientUpdateForm } from "@/app/forms/IngredientUpdateForm";
@@ -14,12 +14,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { IngredientCreateForm } from "@/app/forms/IngredientCreateForm";
 import { IngredientResponse } from "../../../../utils/schemas";
 import IngredientDelete from "@/app/forms/IngredientDelete";
 
-export default function IngredientsPage() {
+function IngredientsPageContent() {
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchParams.get("query") || "");
@@ -204,7 +204,7 @@ export default function IngredientsPage() {
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
+                <TableCell colSpan={7} className="text-center py-12">
                   <span className="text-base text-muted-foreground">Loading ingredients...</span>
                 </TableCell>
               </TableRow>
@@ -233,8 +233,11 @@ export default function IngredientsPage() {
 
             {!isLoading && !isError && filteredIngredients?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
-                  <span className="text-base text-muted-foreground">No ingredients found.</span>
+                <TableCell colSpan={7} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <ChefHat className="text-muted-foreground" size={48} />
+                    <span className="text-base text-muted-foreground">No ingredients found. Add your first ingredient!</span>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -327,5 +330,29 @@ export default function IngredientsPage() {
         />
       )}
     </div>
+  );
+}
+
+function IngredientsPageLoading() {
+  return (
+    <div className="w-full mt-10 flex flex-col gap-8">
+      <div className="flex flex-col md:flex-row w-full justify-between items-center">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">Ingredients</h1>
+          <h3 className="text-muted-foreground text-lg font-normal">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Loading...</span>
+          </h3>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function IngredientsPage() {
+  return (
+    <Suspense fallback={<IngredientsPageLoading />}>
+      <IngredientsPageContent />
+    </Suspense>
   );
 }

@@ -1,5 +1,5 @@
 import { ChefHat, Loader2 } from "lucide-react";
-import { useWeeklyNutrition } from "@/app/hooks/useCookingHistory";
+import { useDashboard } from "@/app/hooks/useDashboard";
 import { Button } from "../ui/button";
 import {
    PieChart,
@@ -11,11 +11,12 @@ import {
 import type { PieLabelRenderProps } from "recharts";
 
 export default function WeekNutrition() {
-   const { data: weeklyNutrition, isLoading, isError, refetch } = useWeeklyNutrition();
+   const { data: dashboardData, isLoading, isError, refetch } = useDashboard();
+   const weeklyNutrition = dashboardData?.weeklyNutrition;
 
    if (isLoading) {
       return (
-         <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full border min-h-96 border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Week Nutrition</h2>
             </span>
@@ -57,16 +58,12 @@ export default function WeekNutrition() {
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Week Nutrition</h2>
             </span>
-            <div className="flex flex-col items-center gap-4 py-20">
-               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">
-                     <ChefHat size={24} />
-                  </span>
+            <div className="flex flex-col items-center gap-3 py-20">
+               <div className="text-muted-foreground">
+                  <ChefHat size={64} />
                </div>
-               <p className="text-base text-muted-foreground text-center">
-                  No meals cooked this week yet.
-                  <br />
-                  Start cooking to see your nutrition breakdown!
+               <p className="text-muted-foreground text-base text-center">
+                  No meals cooked this week yet. Start cooking to see your nutrition breakdown!
                </p>
             </div>
          </section>

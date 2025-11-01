@@ -63,59 +63,61 @@ export async function GET(req: NextRequest) {
          },
       };
 
-      // Use transaction to efficiently manage connections and run queries together
-      const [cookingHistory, allCookingHistory, totalCooks] = await prisma.$transaction([
-         prisma.cookingHistory.findMany({
-            where,
-            include: {
-               recipe: recipeInclude,
-            },
-            take: limit + 1,
-            ...(queryParams.cursor && queryParams.cursor !== ""
-               ? {
-                    cursor: {
-                       id: queryParams.cursor,
-                    },
-                    skip: 1,
-                 }
-               : {}),
-            orderBy:
-               sortBy && sortOrder
-                  ? { [sortBy]: sortOrder }
-                  : { cookedAt: "desc" },
-         }),
-         prisma.cookingHistory.groupBy({
-            by: ["recipeId"],
-            where,
-            _count: { recipeId: true },
-            orderBy: { _count: { recipeId: "desc" } },
-         }),
-         prisma.cookingHistory.count({ where }),
-      ]);
+      const [cookingHistory, allCookingHistory, totalCooks] =
+         await prisma.$transaction([
+            prisma.cookingHistory.findMany({
+               where,
+               include: {
+                  recipe: recipeInclude,
+               },
+               take: limit + 1,
+               ...(queryParams.cursor && queryParams.cursor !== ""
+                  ? {
+                       cursor: {
+                          id: queryParams.cursor,
+                       },
+                       skip: 1,
+                    }
+                  : {}),
+               orderBy:
+                  sortBy && sortOrder
+                     ? { [sortBy]: sortOrder }
+                     : { cookedAt: "desc" },
+            }),
+            prisma.cookingHistory.groupBy({
+               by: ["recipeId"],
+               where,
+               _count: { recipeId: true },
+               orderBy: { _count: { recipeId: "desc" } },
+            }),
+            prisma.cookingHistory.count({ where }),
+         ]);
 
-      // Build recipe counts map
       const recipeCounts = new Map<string, number>();
       allCookingHistory.forEach((entry) => {
          const e = entry as { recipeId: string; _count: { recipeId: number } };
          recipeCounts.set(e.recipeId, e._count.recipeId);
       });
-      type CookingHistoryWithRecipe = typeof cookingHistory[0];
+      type CookingHistoryWithRecipe = (typeof cookingHistory)[0];
       type RecentCookingHistoryItem = CookingHistoryWithRecipe & {
-         recipe: CookingHistoryWithRecipe['recipe'] & { timesCooked: number };
+         recipe: CookingHistoryWithRecipe["recipe"] & { timesCooked: number };
       };
       let recentCookingHistory: RecentCookingHistoryItem[];
       const recentCookingHistoryLimit = 3;
-      if (limit >= recentCookingHistoryLimit && cookingHistory.length >= recentCookingHistoryLimit) {
-         // Reuse data from main query to avoid extra database call
-         recentCookingHistory = cookingHistory.slice(0, recentCookingHistoryLimit).map((history) => ({
-            ...history,
-            recipe: {
-               ...history.recipe,
-               timesCooked: recipeCounts.get(history.recipeId) || 0,
-            },
-         }));
+      if (
+         limit >= recentCookingHistoryLimit &&
+         cookingHistory.length >= recentCookingHistoryLimit
+      ) {
+         recentCookingHistory = cookingHistory
+            .slice(0, recentCookingHistoryLimit)
+            .map((history) => ({
+               ...history,
+               recipe: {
+                  ...history.recipe,
+                  timesCooked: recipeCounts.get(history.recipeId) || 0,
+               },
+            }));
       } else {
-         // Fetch separately for dashboard requests (limit=1) or when we don't have enough data
          const fetched = await prisma.cookingHistory.findMany({
             where,
             include: {
@@ -138,7 +140,7 @@ export async function GET(req: NextRequest) {
       const nextCursor =
          hasMore && data.length > 0 ? data[data.length - 1].id : null;
 
-      const transformedData = data.map((cooking: typeof data[0]) => ({
+      const transformedData = data.map((cooking: (typeof data)[0]) => ({
          ...cooking,
          recipe: {
             ...cooking.recipe,

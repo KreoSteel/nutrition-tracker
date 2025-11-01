@@ -32,7 +32,8 @@ export default function RootLayout({
         staleTime: 2 * 60 * 1000, // 2 minutes - longer cache to reduce requests during rapid refreshes
         gcTime: 5 * 60 * 1000, // 5 minutes - keep cached data longer
         refetchOnWindowFocus: false, // Prevent refetching on focus to reduce requests
-        retry: 1, // Reduce retries on failure
+        retry: process.env.NODE_ENV === 'development' ? 0 : 1, // Disable retries in dev to prevent pool exhaustion
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff if retries enabled
       },
     },
   })

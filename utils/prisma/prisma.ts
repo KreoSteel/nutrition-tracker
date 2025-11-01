@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const globalForPrisma = globalThis as unknown as { 
   prisma: ReturnType<typeof createPrismaClient> | undefined 
@@ -6,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient() {
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    log: process.env.NODE_ENV === 'development' ? ['error'] : ['error'],
   });
 }
 
@@ -34,6 +35,48 @@ if (process.env.NODE_ENV !== "production") {
     await prisma.$disconnect();
     process.exit(0);
   });
+}
+
+// Helper function to retry database operations with exponential backoff
+export async function retryDatabaseOperation<T>(
+  operation: () => Promise<T>,
+  maxRetries = 3,
+  baseDelay = 1000
+): Promise<T> {
+  let lastError: unknown;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error: unknown) {
+      lastError = error;
+      
+      // Check if it's a retryable error (connection or pool errors)
+      const isRetryableError = 
+        (error instanceof PrismaClientKnownRequestError && 
+         (error.code === 'P1001' || error.code === 'P2024')) ||
+        (error instanceof Error && 
+         (error.message.includes('connection pool') || 
+          error.message.includes('P2024') ||
+          error.message.includes('P1001') ||
+          error.message.includes('Can\'t reach database server') ||
+          error.message.includes('Timed out fetching') ||
+          error.message.includes('Connection')));
+      
+      if (isRetryableError && attempt < maxRetries - 1) {
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = baseDelay * Math.pow(2, attempt);
+        console.warn(`Database operation failed (attempt ${attempt + 1}/${maxRetries}), retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      // If not a retryable error or max retries reached, throw
+      throw error;
+    }
+  }
+  
+  throw lastError;
 }
 
 export default prisma;

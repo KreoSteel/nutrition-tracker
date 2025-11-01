@@ -12,7 +12,7 @@ import {
 import { calculateRecipeNutritionData } from "../../../utils/calculations/nutrition";
 import { RecipeResponse } from "../../../utils/schemas/recipe";
 import { useRecipes, useToggleFavorite } from "@/app/hooks/useRecipes";
-import { Eye, Heart, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Eye, Heart, Loader2, Pencil, Trash2, ChefHat } from "lucide-react";
 import { Button } from "../ui/button";
 import RecipeDelete from "@/app/forms/RecipeDelete";
 import RecipeDetailsCard from "../cards/RecipeDetailsCard";
@@ -124,11 +124,12 @@ export default function RecipesTables({ searchTerm, filters, ingredients }: Reci
    if (!recipes || recipes.length === 0) {
       return (
          <div className="flex justify-center items-center h-80 border border-border rounded-xl bg-white dark:bg-gray-950 shadow-sm">
-            <div className="text-center">
+            <div className="text-center flex flex-col items-center gap-3">
+               <ChefHat size={48} className="text-muted-foreground" />
                <p className="text-lg font-semibold text-muted-foreground">
                   No recipes found
                </p>
-               <p className="text-base text-muted-foreground mt-2">
+               <p className="text-base text-muted-foreground">
                   Create your first recipe to get started
                </p>
             </div>

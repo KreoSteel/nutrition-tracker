@@ -1,14 +1,11 @@
 import { TrendingUp, Utensils, Flame } from "lucide-react";
-import { useRecipes } from "@/app/hooks/useRecipes";
-import { useCookingStats } from "@/app/hooks/useCookingHistory";
+import { useDashboard } from "@/app/hooks/useDashboard";
 
 export default function HeroSection() {
-  const { data: recipesData } = useRecipes()
-  const totalRecipes = recipesData?.totalRecipes || 0
-
-  const { data: cookingStats } = useCookingStats();
-  const todayCooks = cookingStats?.todayCooks || 0
-  const thisWeekCooks = cookingStats?.thisWeekCooks || 0
+  const { data: dashboardData } = useDashboard();
+  const totalRecipes = dashboardData?.totalRecipes || 0;
+  const todayCooks = dashboardData?.cookingStats.todayCooks || 0;
+  const thisWeekCooks = dashboardData?.cookingStats.thisWeekCooks || 0;
 
   return (
     <section

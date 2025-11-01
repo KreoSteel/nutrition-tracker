@@ -3,9 +3,9 @@ import {
    CalendarDays,
    Clock,
    Trash2,
-   Utensils,
    Eye,
    Loader2,
+   ChefHat,
 } from "lucide-react";
 import {
    Table,
@@ -140,12 +140,12 @@ export default function CookingHistoryTables({
                   <TableRow>
                      <TableCell colSpan={5} className="py-20">
                         <div className="flex justify-center items-center">
-                           <div className="text-center">
-                              <Utensils className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                           <div className="text-center flex flex-col items-center gap-3">
+                              <ChefHat className="w-12 h-12 text-muted-foreground" />
                               <p className="text-lg font-semibold text-muted-foreground">
-                                 No cooking history found
+                                 No cooking history yet
                               </p>
-                              <p className="text-base text-muted-foreground mt-2">
+                              <p className="text-base text-muted-foreground">
                                  Cook something to see your history!
                               </p>
                            </div>

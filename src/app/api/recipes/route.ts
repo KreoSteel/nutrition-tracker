@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "../../../../utils/prisma/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import prisma, { retryDatabaseOperation } from "../../../../utils/prisma/prisma";
 import { calculateRecipeNutritionData } from "../../../../utils/calculations/nutrition";
 import {
    CreateRecipeSchema,
@@ -60,33 +61,37 @@ export async function GET(req: NextRequest) {
          orderBy = { [sortBy]: sortOrder };
       }
 
-      let recipes = await prisma.recipe.findMany({
-         where,
-         include: {
-            ingredients: {
-               include: {
-                  ingredient: {
-                     select: {
-                        id: true,
-                        name: true,
-                        caloriesPer100g: true,
-                        proteinPer100g: true,
-                        carbsPer100g: true,
-                        fatPer100g: true,
-                        category: true,
+      let recipes = await retryDatabaseOperation(() =>
+         prisma.recipe.findMany({
+            where,
+            include: {
+               ingredients: {
+                  include: {
+                     ingredient: {
+                        select: {
+                           id: true,
+                           name: true,
+                           caloriesPer100g: true,
+                           proteinPer100g: true,
+                           carbsPer100g: true,
+                           fatPer100g: true,
+                           category: true,
+                        },
                      },
                   },
                },
             },
-         },
-         orderBy: orderBy
-            ? orderBy
-            : {
-                 isFavorite: "desc",
-              },
-      });
+            orderBy: orderBy
+               ? orderBy
+               : {
+                    isFavorite: "desc",
+                 },
+         })
+      );
 
-      const totalRecipes = await prisma.recipe.count({ where });
+      const totalRecipes = await retryDatabaseOperation(() =>
+         prisma.recipe.count({ where })
+      );
 
       recipes = recipes.filter((recipe: (typeof recipes)[0]) => {
          const nutrition = calculateRecipeNutritionData(recipe);
@@ -178,8 +183,18 @@ export async function GET(req: NextRequest) {
       });
    } catch (error) {
       console.error("Error fetching recipes:", error);
+      
+      // Check if it's a connection error
+      const isConnectionError = 
+         (error instanceof PrismaClientKnownRequestError && error.code === 'P1001') ||
+         (error instanceof Error && error.message.includes("Can't reach database server"));
+      
       return NextResponse.json(
-         { error: "Failed to fetch recipes" },
+         { 
+            error: isConnectionError 
+               ? "Database connection failed. Please check your database connection and try again."
+               : "Failed to fetch recipes"
+         },
          { status: 500 }
       );
    }
@@ -189,7 +204,8 @@ export async function POST(req: NextRequest) {
    try {
       const body = await req.json();
       const validatedData = CreateRecipeSchema.parse(body);
-      const recipe = await prisma.recipe.create({
+      const recipe = await retryDatabaseOperation(() =>
+         prisma.recipe.create({
          data: {
             name: validatedData.name,
             description: validatedData.description,
@@ -221,7 +237,8 @@ export async function POST(req: NextRequest) {
                },
             },
          },
-      });
+         })
+      );
       return NextResponse.json(recipe);
    } catch (error) {
       if (error instanceof ZodError) {
@@ -232,8 +249,18 @@ export async function POST(req: NextRequest) {
          );
       }
       console.error("Failed to create recipe:", error);
+      
+      // Check if it's a connection error
+      const isConnectionError = 
+         (error instanceof PrismaClientKnownRequestError && error.code === 'P1001') ||
+         (error instanceof Error && error.message.includes("Can't reach database server"));
+      
       return NextResponse.json(
-         { error: "Unable to create recipe. Please try again later." },
+         { 
+            error: isConnectionError 
+               ? "Database connection failed. Please check your database connection and try again."
+               : "Unable to create recipe. Please try again later."
+         },
          { status: 500 }
       );
    }

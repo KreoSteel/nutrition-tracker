@@ -31,6 +31,7 @@ export const useCreateRecipe = () => {
       mutationFn: createRecipe,
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
+         queryClient.invalidateQueries({ queryKey: ["dashboard"] }); // Invalidate dashboard when recipes change
       },
       onError: (error) => {
          toast.error(error instanceof Error ? error.message : "Failed to create recipe");
@@ -46,6 +47,7 @@ export const useUpdateRecipe = () => {
          updateRecipe(id, recipe),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
+         queryClient.invalidateQueries({ queryKey: ["dashboard"] }); // Invalidate dashboard when recipes change
       },
       onError: (error) => {
          toast.error(error instanceof Error ? error.message : "Failed to update recipe");
@@ -60,6 +62,7 @@ export const useDeleteRecipe = () => {
       mutationFn: deleteRecipe,
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
+         queryClient.invalidateQueries({ queryKey: ["dashboard"] }); // Invalidate dashboard when recipes change
       },
       onError: (error) => {
          toast.error(error instanceof Error ? error.message : "Failed to delete recipe");
@@ -75,6 +78,7 @@ export const useToggleFavorite = () => {
          toggleFavorite(id, isFavorite),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["recipes"] });
+         queryClient.invalidateQueries({ queryKey: ["dashboard"] }); // Invalidate dashboard when recipes change
       },
       onError: (error) => {
          toast.error(error instanceof Error ? error.message : "Failed to update favorite");

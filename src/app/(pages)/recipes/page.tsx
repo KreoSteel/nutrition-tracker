@@ -1,13 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { NutritionFilters } from "@/components/ui/NutritionFilters";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import RecipesTables from "@/components/recipes/RecipesTables";
 import { RecipeCreateForm } from "@/app/forms/RecipeCreateForm";
 import { useRecipes } from "@/app/hooks/useRecipes";
 import { useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-export default function RecipesPage() {
+function RecipesPageContent() {
   const searchParams = useSearchParams();
   const ingredientsParam = searchParams.get("ingredients");
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,5 +71,29 @@ export default function RecipesPage() {
       <RecipesTables searchTerm={searchTerm} filters={filters} ingredients={ingredientsParam}/>
       
     </div>
+  );
+}
+
+function RecipesPageLoading() {
+  return (
+    <div className="w-full mt-10 flex flex-col gap-8">
+      <div className="flex flex-col md:flex-row w-full justify-between items-center">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">Recipes</h1>
+          <h3 className="text-muted-foreground text-lg font-normal">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Loading...</span>
+          </h3>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function RecipesPage() {
+  return (
+    <Suspense fallback={<RecipesPageLoading />}>
+      <RecipesPageContent />
+    </Suspense>
   );
 }

@@ -76,6 +76,7 @@ export const useCreateCookingHistory = () => {
          queryClient.invalidateQueries({ queryKey: ["recent-cooking-history"] });
          queryClient.invalidateQueries({ queryKey: ["cooking-stats"] });
          queryClient.invalidateQueries({ queryKey: ["weekly-nutrition"] });
+         queryClient.invalidateQueries({ queryKey: ["dashboard"] }); // Invalidate dashboard when cooking history changes
          toast.success("Cooking history created successfully");
       },
       onError: (error) => {
@@ -94,6 +95,7 @@ export const useDeleteCookingHistory = () => {
          queryClient.invalidateQueries({ queryKey: ["recent-cooking-history"] });
          queryClient.invalidateQueries({ queryKey: ["cooking-stats"] });
          queryClient.invalidateQueries({ queryKey: ["weekly-nutrition"] });
+         queryClient.invalidateQueries({ queryKey: ["dashboard"] }); // Invalidate dashboard when cooking history changes
          toast.success("Cooking history deleted successfully");
       },
       onError: (error) => {

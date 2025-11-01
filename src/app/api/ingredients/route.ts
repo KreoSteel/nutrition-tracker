@@ -22,81 +22,86 @@ export async function GET(req: NextRequest) {
         }
       : {};
 
-    const ingredients = await prisma.ingredient.findMany({
-      where: {
-        ...where,
-        ...(queryParams.minCalories !== undefined ||
-        queryParams.maxCalories !== undefined
-          ? {
-              caloriesPer100g: {
-                ...(queryParams.minCalories !== undefined && {
-                  gte: queryParams.minCalories,
-                }),
-                ...(queryParams.maxCalories !== undefined && {
-                  lte: queryParams.maxCalories,
-                }),
-              },
-            }
-          : {}),
-        ...(queryParams.minProtein !== undefined ||
-        queryParams.maxProtein !== undefined
-          ? {
-              proteinPer100g: {
-                ...(queryParams.minProtein !== undefined && {
-                  gte: queryParams.minProtein,
-                }),
-                ...(queryParams.maxProtein !== undefined && {
-                  lte: queryParams.maxProtein,
-                }),
-              },
-            }
-          : {}),
-        ...(queryParams.minCarbs !== undefined ||
-        queryParams.maxCarbs !== undefined
-          ? {
-              carbsPer100g: {
-                ...(queryParams.minCarbs !== undefined && {
-                  gte: queryParams.minCarbs,
-                }),
-                ...(queryParams.maxCarbs !== undefined && {
-                  lte: queryParams.maxCarbs,
-                }),
-              },
-            }
-          : {}),
-        ...(queryParams.minFat !== undefined || queryParams.maxFat !== undefined
-          ? {
-              fatPer100g: {
-                ...(queryParams.minFat !== undefined && {
-                  gte: queryParams.minFat,
-                }),
-                ...(queryParams.maxFat !== undefined && {
-                  lte: queryParams.maxFat,
-                }),
-              },
-            }
-          : {}),
-      },
-      take: (queryParams.limit ?? 20) + 1,
-      ...(queryParams.cursor && queryParams.cursor !== ""
+    const whereClause = {
+      ...where,
+      ...(queryParams.minCalories !== undefined ||
+      queryParams.maxCalories !== undefined
         ? {
-            cursor: {
-              id: queryParams.cursor,
+            caloriesPer100g: {
+              ...(queryParams.minCalories !== undefined && {
+                gte: queryParams.minCalories,
+              }),
+              ...(queryParams.maxCalories !== undefined && {
+                lte: queryParams.maxCalories,
+              }),
             },
-            skip: 1,
           }
         : {}),
-      orderBy:
-        queryParams.sortBy && queryParams.sortOrder
-          ? {
-              [queryParams.sortBy]: queryParams.sortOrder,
-            }
-          : {
-              [queryParams.sortBy ?? "name"]: queryParams.sortOrder ?? "asc",
+      ...(queryParams.minProtein !== undefined ||
+      queryParams.maxProtein !== undefined
+        ? {
+            proteinPer100g: {
+              ...(queryParams.minProtein !== undefined && {
+                gte: queryParams.minProtein,
+              }),
+              ...(queryParams.maxProtein !== undefined && {
+                lte: queryParams.maxProtein,
+              }),
             },
-    });
+          }
+        : {}),
+      ...(queryParams.minCarbs !== undefined ||
+      queryParams.maxCarbs !== undefined
+        ? {
+            carbsPer100g: {
+              ...(queryParams.minCarbs !== undefined && {
+                gte: queryParams.minCarbs,
+              }),
+              ...(queryParams.maxCarbs !== undefined && {
+                lte: queryParams.maxCarbs,
+              }),
+            },
+          }
+        : {}),
+      ...(queryParams.minFat !== undefined || queryParams.maxFat !== undefined
+        ? {
+            fatPer100g: {
+              ...(queryParams.minFat !== undefined && {
+                gte: queryParams.minFat,
+              }),
+              ...(queryParams.maxFat !== undefined && {
+                lte: queryParams.maxFat,
+              }),
+            },
+          }
+        : {}),
+    };
 
-    const totalIngredients = await prisma.ingredient.count({where});
+    // Execute queries sequentially to avoid connection pool exhaustion
+    // Since count doesn't depend on findMany results, we can parallelize these 2 queries
+    const [ingredients, totalIngredients] = await Promise.all([
+      prisma.ingredient.findMany({
+        where: whereClause,
+        take: (queryParams.limit ?? 20) + 1,
+        ...(queryParams.cursor && queryParams.cursor !== ""
+          ? {
+              cursor: {
+                id: queryParams.cursor,
+              },
+              skip: 1,
+            }
+          : {}),
+        orderBy:
+          queryParams.sortBy && queryParams.sortOrder
+            ? {
+                [queryParams.sortBy]: queryParams.sortOrder,
+              }
+            : {
+                [queryParams.sortBy ?? "name"]: queryParams.sortOrder ?? "asc",
+              },
+      }),
+      prisma.ingredient.count({ where: whereClause }),
+    ]);
     const hasMore = ingredients.length > (queryParams.limit ?? 20);
     const data = hasMore ? ingredients.slice(0, queryParams.limit) : ingredients;
     const nextCursor =
@@ -112,8 +117,13 @@ export async function GET(req: NextRequest) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Invalid query parameters. Please check your search and filter values.", details: error.issues }, { status: 400 });
     }
-    console.error("Failed to fetch ingredients:", error);
-    return NextResponse.json({ error: "Unable to load ingredients. Please try again later." }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorCode = error instanceof Error && 'code' in error ? (error as { code?: string }).code : undefined;
+    console.error("Failed to fetch ingredients:", errorMessage, errorCode, error);
+    return NextResponse.json({ 
+      error: "Unable to load ingredients. Please try again later.",
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    }, { status: 500 });
   }
 }
 
