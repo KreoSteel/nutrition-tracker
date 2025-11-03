@@ -35,138 +35,108 @@ export async function GET() {
       },
     };
 
-    // Use interactive transaction with timeout to work better with PgBouncer
-    // Interactive transactions work better than batch transactions with connection poolers
-    const result = await prisma.$transaction(async (tx) => {
-      // Batch 1: Recipe data
-      const [totalRecipes, recentRecipes] = await Promise.all([
-        tx.recipe.count(),
-        tx.recipe.findMany({
-          take: 4,
-          orderBy: { createdAt: "desc" },
-          ...recipeInclude,
-        }),
-      ]);
+    const totalRecipes = await prisma.recipe.count();
+    const recentRecipes = await prisma.recipe.findMany({
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      ...recipeInclude,
+    });
 
-      // Batch 2: Cooking stats (can be parallelized)
-      const [totalCooks, todayCooks, thisWeekCooks, cookingHistoryForStreak, mostCookedRecipeResults] = await Promise.all([
-        tx.cookingHistory.count(),
-        tx.cookingHistory.count({
-          where: {
-            cookedAt: {
-              gte: today,
-              lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-            },
-          },
-        }),
-        tx.cookingHistory.count({
-          where: {
-            cookedAt: { gte: weekStart },
-          },
-        }),
-        tx.cookingHistory.findMany({
-          select: { cookedAt: true },
-          orderBy: { cookedAt: "desc" },
-          take: 100,
-        }),
-        tx.cookingHistory.groupBy({
-          by: ["recipeId"],
-          _count: { recipeId: true },
-          orderBy: { _count: { recipeId: "desc" } },
-          take: 1,
-        }),
-      ]);
-
-      // Batch 3: Recent cooking history and recipe counts
-      const [recentCookingHistoryRaw, recipeCountsRaw] = await Promise.all([
-        tx.cookingHistory.findMany({
-          take: 3,
-          orderBy: { cookedAt: "desc" },
-          include: {
-            recipe: recipeInclude,
-          },
-        }),
-        tx.cookingHistory.groupBy({
-          by: ["recipeId"],
-          _count: { recipeId: true },
-          orderBy: { _count: { recipeId: "desc" } },
-        }),
-      ]);
-
-      // Batch 4: Weekly nutrition data
-      const weeklyCookingHistoryRaw = await tx.cookingHistory.findMany({
-        where: {
-          cookedAt: {
-            gte: weekStart,
-            lte: weekEnd,
-          },
+    const totalCooks = await prisma.cookingHistory.count();
+    const todayCooks = await prisma.cookingHistory.count({
+      where: {
+        cookedAt: {
+          gte: today,
+          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
         },
-        select: {
-          cookedAt: true,
-          recipe: {
-            select: {
-              ingredients: {
-                select: {
-                  ingredientId: true,
-                  quantityGrams: true,
-                  ingredient: {
-                    select: {
-                      caloriesPer100g: true,
-                      proteinPer100g: true,
-                      carbsPer100g: true,
-                      fatPer100g: true,
-                    },
+      },
+    });
+    const thisWeekCooks = await prisma.cookingHistory.count({
+      where: { cookedAt: { gte: weekStart } },
+    });
+    const cookingHistoryForStreak = await prisma.cookingHistory.findMany({
+      select: { cookedAt: true },
+      orderBy: { cookedAt: "desc" },
+      take: 100,
+    });
+    const mostCookedRecipeResults = await prisma.cookingHistory.groupBy({
+      by: ["recipeId"],
+      _count: { recipeId: true },
+      orderBy: { _count: { recipeId: "desc" } },
+      take: 1,
+    });
+
+    const recentCookingHistoryRaw = await prisma.cookingHistory.findMany({
+      take: 3,
+      orderBy: { cookedAt: "desc" },
+      include: {
+        recipe: recipeInclude,
+      },
+    });
+    const recipeCountsRaw = await prisma.cookingHistory.groupBy({
+      by: ["recipeId"],
+      _count: { recipeId: true },
+      orderBy: { _count: { recipeId: "desc" } },
+    });
+
+    const weeklyCookingHistoryRaw = await prisma.cookingHistory.findMany({
+      where: {
+        cookedAt: {
+          gte: weekStart,
+          lte: weekEnd,
+        },
+      },
+      select: {
+        cookedAt: true,
+        recipe: {
+          select: {
+            ingredients: {
+              select: {
+                ingredientId: true,
+                quantityGrams: true,
+                ingredient: {
+                  select: {
+                    caloriesPer100g: true,
+                    proteinPer100g: true,
+                    carbsPer100g: true,
+                    fatPer100g: true,
                   },
                 },
               },
             },
           },
         },
-      });
-
-      return {
-        totalRecipes,
-        recentRecipes,
-        totalCooks,
-        todayCooks,
-        thisWeekCooks,
-        cookingHistoryForStreak,
-        mostCookedRecipeResults,
-        recentCookingHistoryRaw,
-        recipeCountsRaw,
-        weeklyCookingHistoryRaw,
-      };
-    }, {
-      timeout: 30000, // 30 second timeout
-      maxWait: 10000, // Wait max 10 seconds for connection
+      },
     });
 
-    const { 
-      totalRecipes,
-      recentRecipes,
-      totalCooks,
-      todayCooks,
-      thisWeekCooks,
-      cookingHistoryForStreak,
-      mostCookedRecipeResults,
-      recentCookingHistoryRaw,
-      recipeCountsRaw,
-      weeklyCookingHistoryRaw,
-    } = result;
 
     const recipeCounts = new Map<string, number>();
     recipeCountsRaw.forEach((entry) => {
       const e = entry as { recipeId: string; _count: { recipeId: number } };
-      recipeCounts.set(e.recipeId, e._count.recipeId);
+      const recipeId = String(e.recipeId);
+      recipeCounts.set(recipeId, e._count.recipeId);
     });
 
-    const recentCookingHistory = recentCookingHistoryRaw.map((history) => ({
-      ...history,
-      recipe: {
-        ...history.recipe,
-        timesCooked: recipeCounts.get(history.recipeId) || 0,
-      },
-    }));
+    const recentRecipesWithCounts = recentRecipes.map((recipe) => {
+      const recipeId = String(recipe.id);
+      const timesCooked = recipeCounts.get(recipeId) ?? 0;
+      return {
+        ...recipe,
+        timesCooked,
+      };
+    });
+
+    const recentCookingHistory = recentCookingHistoryRaw.map((history) => {
+      const recipeId = String(history.recipeId);
+      const timesCooked = recipeCounts.get(recipeId) ?? 0;
+      return {
+        ...history,
+        recipe: {
+          ...history.recipe,
+          timesCooked,
+        },
+      };
+    });
 
     let mostCookedRecipe = null;
     if (mostCookedRecipeResults.length > 0) {
@@ -182,7 +152,6 @@ export async function GET() {
       } else if (recipeFromRecipes) {
         mostCookedRecipe = { name: recipeFromRecipes.name, count: result._count.recipeId };
       } else {
-        // Last resort: fetch separately (should be rare)
         const recipe = await prisma.recipe.findUnique({
           where: { id: result.recipeId },
           select: { name: true },
@@ -247,7 +216,7 @@ export async function GET() {
 
     return NextResponse.json({
       totalRecipes,
-      recentRecipes,
+      recentRecipes: recentRecipesWithCounts,
       
       cookingStats: {
         totalCooks,

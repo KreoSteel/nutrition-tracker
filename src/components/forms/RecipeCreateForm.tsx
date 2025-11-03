@@ -9,6 +9,7 @@ import {
 } from "../../../utils/calculations/nutrition";
 import NutritionDisplay from "@/components/recipes/NutritionDisplay";
 import { useCreateRecipe } from "@/app/hooks/useRecipes";
+import { useRecipeAIContent } from "@/app/hooks/useGenerateRecipeContent";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
    Dialog,
@@ -24,7 +25,10 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIngredients } from "@/app/hooks/useIngredients";
-import type { PaginatedIngredientsResponse, IngredientResponse } from "../../../utils/schemas";
+import type {
+   PaginatedIngredientsResponse,
+   IngredientResponse,
+} from "../../../utils/schemas";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -32,7 +36,13 @@ import {
    PopoverContent,
    PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronsUpDownIcon, Loader2, PlusIcon, Search, Trash2 } from "lucide-react";
+import {
+   ChevronsUpDownIcon,
+   Loader2,
+   PlusIcon,
+   Search,
+   Trash2,
+} from "lucide-react";
 import { IngredientCreateForm } from "./IngredientCreateForm";
 import { getIngredient } from "@/app/services/ingredients";
 
@@ -84,6 +94,18 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
       },
    });
 
+   const { onGenerate, isPendingDesc, isPendingInstr } = useRecipeAIContent({
+      watch,
+      setValue,
+      resolveIngredientName: (id: string) => {
+         return (
+            selectedIngredients[id]?.name ||
+            (fetchedIngredientsCache[id] as IngredientResponse)?.name ||
+            ""
+         );
+      },
+   });
+
    const onSubmit = (data: CreateRecipe) => {
       createRecipe(data, {
          onSuccess: () => {
@@ -117,8 +139,9 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
          const missingIds = allIngredientIds.filter((id) => {
             if (fetchedIngredientsCache[id]) return false;
             if (
-               ingredientsData?.pages.some((page: PaginatedIngredientsResponse) =>
-                  page.data.some((ing: IngredientResponse) => ing.id === id)
+               ingredientsData?.pages.some(
+                  (page: PaginatedIngredientsResponse) =>
+                     page.data.some((ing: IngredientResponse) => ing.id === id)
                )
             )
                return false;
@@ -145,18 +168,22 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
       if (watchedIngredients.length === 0) return null;
 
       const allIngredients =
-         ingredientsData?.pages.flatMap((page: PaginatedIngredientsResponse) => page.data) || [];
+         ingredientsData?.pages.flatMap(
+            (page: PaginatedIngredientsResponse) => page.data
+         ) || [];
 
       const ingredientsWithNutrition = watchedIngredients
          .filter(
             (ingredient) => ingredient.ingredientId && ingredient.quantityGrams
          )
          .map((ingredient) => {
-            let ingredientData =
-               fetchedIngredientsCache[ingredient.ingredientId] as typeof allIngredients[number] | undefined;
+            let ingredientData = fetchedIngredientsCache[
+               ingredient.ingredientId
+            ] as (typeof allIngredients)[number] | undefined;
             if (!ingredientData) {
                ingredientData = allIngredients.find(
-                  (ing: IngredientResponse) => ing.id === ingredient.ingredientId
+                  (ing: IngredientResponse) =>
+                     ing.id === ingredient.ingredientId
                );
             }
 
@@ -238,48 +265,6 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                            </p>
                         )}
                      </div>
-                  </div>
-                  <div className="space-y-2">
-                     <Label
-                        htmlFor="description"
-                        className="text-sm font-medium">
-                        Description
-                     </Label>
-                     <Textarea
-                        rows={3}
-                        id="description"
-                        {...register("description")}
-                        placeholder="Brief description of the recipe"
-                        className="w-full"
-                     />
-                     {errors.description && (
-                        <p className="text-sm text-red-500">
-                           {errors.description.message}
-                        </p>
-                     )}
-                  </div>
-                  <div className="space-y-2">
-                     <Label
-                        htmlFor="instructions"
-                        className="text-sm font-medium">
-                        Instructions
-                     </Label>
-                     <Textarea
-                        rows={6}
-                        id="instructions"
-                        {...register("instructions")}
-                        placeholder="Step-by-step cooking instructions. Each step on a new line."
-                        className="w-full"
-                     />
-                     <p className="text-xs text-muted-foreground">
-                        Tip: Write each step on a separate line for better
-                        formatting
-                     </p>
-                     {errors.instructions && (
-                        <p className="text-sm text-red-500">
-                           {errors.instructions.message}
-                        </p>
-                     )}
                   </div>
                </div>
 
@@ -399,9 +384,15 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                                                    ?.ingredientId
                                              ]?.name ||
                                              ingredientsData?.pages
-                                                .flatMap((page: PaginatedIngredientsResponse) => page.data)
+                                                .flatMap(
+                                                   (
+                                                      page: PaginatedIngredientsResponse
+                                                   ) => page.data
+                                                )
                                                 .find(
-                                                   (ingredient: IngredientResponse) =>
+                                                   (
+                                                      ingredient: IngredientResponse
+                                                   ) =>
                                                       ingredient.id ===
                                                       watchedIngredients[index]
                                                          ?.ingredientId
@@ -431,20 +422,24 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                                           />
                                           {isFetching && (
                                              <span className="text-muted-foreground flex items-center gap-2 justify-center py-4">
-                                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                                 Searching...
                                              </span>
                                           )}
-                                          {!filteredIngredients || filteredIngredients?.length === 0 && (
-                                             <span className="text-muted-foreground flex items-center gap-2 justify-center py-4">
-                                                <Search className="h-4 w-4 mr-2" />
-                                                No ingredients found
-                                             </span>
-                                          )}
+                                          {!filteredIngredients ||
+                                             (filteredIngredients?.length ===
+                                                0 && (
+                                                <span className="text-muted-foreground flex items-center gap-2 justify-center py-4">
+                                                   <Search className="h-4 w-4 mr-2" />
+                                                   No ingredients found
+                                                </span>
+                                             ))}
                                        </div>
                                        <div className="max-h-70 overflow-y-auto">
                                           {filteredIngredients?.map(
-                                             (ingredient: IngredientResponse) => (
+                                             (
+                                                ingredient: IngredientResponse
+                                             ) => (
                                                 <div
                                                    key={ingredient.id}
                                                    className="p-2 hover:bg-muted cursor-pointer"
@@ -595,6 +590,66 @@ export function RecipeCreateForm({ children }: { children: React.ReactNode }) {
                         </div>
                      ))}
                   </div>
+               </div>
+               <div className="space-y-2 border-t pt-4">
+                  <div className="flex items-center justify-between">
+                     <Label
+                        htmlFor="description"
+                        className="text-sm font-medium">
+                        Description
+                     </Label>
+                     <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={() => onGenerate("description")}>
+                        {isPendingDesc ? "Generating..." : "Generate"}
+                     </Button>
+                  </div>
+                  <Textarea
+                     rows={3}
+                     id="description"
+                     {...register("description")}
+                     placeholder="Brief description of the recipe"
+                     className="w-full"
+                  />
+                  {errors.description && (
+                     <p className="text-sm text-red-500">
+                        {errors.description.message}
+                     </p>
+                  )}
+               </div>
+               <div className="space-y-3 relative">
+                  <div className="flex items-center justify-between">
+                     <Label
+                        htmlFor="instructions"
+                        className="text-sm font-medium">
+                        Instructions
+                     </Label>
+                     <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={() => onGenerate("instructions")}>
+                        {isPendingInstr ? "Generating..." : "Generate"}
+                     </Button>
+                  </div>
+                  <Textarea
+                     rows={6}
+                     id="instructions"
+                     {...register("instructions")}
+                     placeholder="Step-by-step cooking instructions. Each step on a new line."
+                     className="w-full"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                     Tip: Write each step on a separate line for better
+                     formatting
+                  </p>
+                  {errors.instructions && (
+                     <p className="text-sm text-red-500">
+                        {errors.instructions.message}
+                     </p>
+                  )}
                </div>
                {ingredientsData &&
                   watchedIngredients.length > 0 &&

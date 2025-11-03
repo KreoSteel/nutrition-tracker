@@ -32,6 +32,8 @@ import {
    RecipeIngredient,
 } from "../../../utils/calculations/nutrition";
 import { IngredientCreateForm } from "./IngredientCreateForm";
+import { useRecipeAIContent } from "@/app/hooks/useGenerateRecipeContent";
+import { IngredientResponse } from "../../../utils/schemas";
 
 interface RecipeUpdateFormProps {
    children: React.ReactNode;
@@ -93,6 +95,20 @@ export default function RecipeUpdateForm({
 
    const watchedIngredients = watch("ingredients");
    const watchedServings = watch("servings") as number;
+
+   const { onGenerate, isPendingDesc, isPendingInstr } = useRecipeAIContent({
+      watch,
+      setValue,
+      resolveIngredientName: (id: string) => {
+         return (
+            selectedIngredients[id]?.name ||
+            (ingredientsData?.pages.flatMap((page) => page.data).find(
+               (ingredient) => ingredient.id === id
+            ) as IngredientResponse)?.name ||
+            ""
+         );
+      }
+   })
 
    const { fields, append, remove } = useFieldArray({
       control,
@@ -264,48 +280,6 @@ export default function RecipeUpdateForm({
                            </p>
                         )}
                      </div>
-                  </div>
-                  <div className="space-y-2">
-                     <Label
-                        htmlFor="description"
-                        className="text-sm font-medium">
-                        Description
-                     </Label>
-                     <Textarea
-                        rows={3}
-                        id="description"
-                        {...register("description")}
-                        placeholder="Brief description of the recipe"
-                        className="w-full"
-                     />
-                     {errors.description && (
-                        <p className="text-sm text-red-500">
-                           {errors.description.message}
-                        </p>
-                     )}
-                  </div>
-                  <div className="space-y-2">
-                     <Label
-                        htmlFor="instructions"
-                        className="text-sm font-medium">
-                        Instructions
-                     </Label>
-                     <Textarea
-                        rows={6}
-                        id="instructions"
-                        {...register("instructions")}
-                        placeholder="Step-by-step cooking instructions. Each step on a new line."
-                        className="w-full resize-y"
-                     />
-                     <p className="text-xs text-muted-foreground">
-                        Tip: Write each step on a separate line for better
-                        formatting
-                     </p>
-                     {errors.instructions && (
-                        <p className="text-sm text-red-500">
-                           {errors.instructions.message}
-                        </p>
-                     )}
                   </div>
                </div>
 
@@ -601,6 +575,66 @@ export default function RecipeUpdateForm({
                            </div>
                         </div>
                      ))}
+                  </div>
+                  <div className="space-y-2">
+                     <div className="flex items-center justify-between">
+                     <Label
+                        htmlFor="description"
+                        className="text-sm font-medium">
+                        Description
+                     </Label>
+                     <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={() => onGenerate("description")}>
+                        {isPendingDesc ? "Generating..." : "Generate"}
+                     </Button>
+                     </div>
+                     <Textarea
+                        rows={3}
+                        id="description"
+                        {...register("description")}
+                        placeholder="Brief description of the recipe"
+                        className="w-full"
+                     />
+                     {errors.description && (
+                        <p className="text-sm text-red-500">
+                           {errors.description.message}
+                        </p>
+                     )}
+                  </div>
+                  <div className="space-y-2">
+                     <div className="flex items-center justify-between">
+                     <Label
+                        htmlFor="instructions"
+                        className="text-sm font-medium">
+                        Instructions
+                     </Label>
+                     <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={() => onGenerate("instructions")}>
+                        {isPendingInstr ? "Generating..." : "Generate"}
+                     </Button>
+                     </div>
+                     <Textarea
+                        rows={6}
+                        id="instructions"
+                        {...register("instructions")}
+                        placeholder="Step-by-step cooking instructions. Each step on a new line."
+                        className="w-full resize-y"
+                     />
+                     <p className="text-xs text-muted-foreground">
+                        Tip: Write each step on a separate line for better
+                        formatting
+                     </p>
+                     {errors.instructions && (
+                        <p className="text-sm text-red-500">
+                           {errors.instructions.message}
+                        </p>
+                     )}
                   </div>
                </div>
                {ingredientsData &&

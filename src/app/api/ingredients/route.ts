@@ -77,31 +77,27 @@ export async function GET(req: NextRequest) {
         : {}),
     };
 
-    // Execute queries sequentially to avoid connection pool exhaustion
-    // Since count doesn't depend on findMany results, we can parallelize these 2 queries
-    const [ingredients, totalIngredients] = await Promise.all([
-      prisma.ingredient.findMany({
-        where: whereClause,
-        take: (queryParams.limit ?? 20) + 1,
-        ...(queryParams.cursor && queryParams.cursor !== ""
+    const ingredients = await prisma.ingredient.findMany({
+      where: whereClause,
+      take: (queryParams.limit ?? 20) + 1,
+      ...(queryParams.cursor && queryParams.cursor !== ""
+        ? {
+            cursor: {
+              id: queryParams.cursor,
+            },
+            skip: 1,
+          }
+        : {}),
+      orderBy:
+        queryParams.sortBy && queryParams.sortOrder
           ? {
-              cursor: {
-                id: queryParams.cursor,
-              },
-              skip: 1,
+              [queryParams.sortBy]: queryParams.sortOrder,
             }
-          : {}),
-        orderBy:
-          queryParams.sortBy && queryParams.sortOrder
-            ? {
-                [queryParams.sortBy]: queryParams.sortOrder,
-              }
-            : {
-                [queryParams.sortBy ?? "name"]: queryParams.sortOrder ?? "asc",
-              },
-      }),
-      prisma.ingredient.count({ where: whereClause }),
-    ]);
+          : {
+              [queryParams.sortBy ?? "name"]: queryParams.sortOrder ?? "asc",
+            },
+    });
+    const totalIngredients = await prisma.ingredient.count({ where: whereClause });
     const hasMore = ingredients.length > (queryParams.limit ?? 20);
     const data = hasMore ? ingredients.slice(0, queryParams.limit) : ingredients;
     const nextCursor =
@@ -143,9 +139,6 @@ export async function POST(req: NextRequest) {
       },
     });
     
-    if (ingredient.name.toLowerCase() === validatedData.name.toLowerCase()) {
-      return NextResponse.json({ error: "Ingredient name already exists. Please choose a different name.", details: { name: "Ingredient name already exists. Please choose a different name." } }, { status: 400 });
-    }
     return NextResponse.json(ingredient);
   } catch (error) {
     if (error instanceof ZodError) {

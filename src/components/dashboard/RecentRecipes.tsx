@@ -12,7 +12,7 @@ export default function RecentRecipes() {
 
    if (isLoading) {
       return (
-         <section className="w-full border min-h-96 border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full h-full border min-h-96 border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-4 sm:px-8 pb-4 sm:pb-6 pt-6 sm:pt-8 flex-col items-center gap-2 sm:flex-row sm:justify-between">
                <h2 className="text-2xl sm:text-3xl font-semibold text-center sm:text-left">
                   Recent Recipes
@@ -37,7 +37,7 @@ export default function RecentRecipes() {
 
    if (isError) {
       return (
-         <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full h-full border border-gray-200/80 rounded-xl min-h-96 flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Recent Recipes</h2>
             </span>
@@ -55,7 +55,7 @@ export default function RecentRecipes() {
 
    if (!recentRecipes || recentRecipes.length === 0) {
       return (
-         <section className="w-full border border-gray-200/80 rounded-xl flex flex-col items-center justify-center shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full h-full border border-gray-200/80 rounded-xl min-h-96 flex flex-col items-center justify-center shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Recent Recipes</h2>
                <Link
@@ -77,7 +77,7 @@ export default function RecentRecipes() {
    }
 
    return (
-      <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+      <section className="w-full h-full border border-gray-200/80 rounded-xl min-h-96 flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
          <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
             <h2 className="text-3xl font-semibold">Recent Recipes</h2>
             <Link

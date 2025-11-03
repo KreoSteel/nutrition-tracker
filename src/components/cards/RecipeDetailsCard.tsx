@@ -91,7 +91,7 @@ export default function RecipeDetailsCard({ recipe, children }: RecipeDetailsCar
                      <span className="text-sm text-muted-foreground">
                         Cooking Time:
                      </span>
-                     <span className="font-semibold">{recipe.cookingTime}</span>
+                     <span className="font-semibold">{recipe.cookingTime ?? "N/A"}</span>
                   </div>
                </div>
                <div className="flex items-center gap-3">

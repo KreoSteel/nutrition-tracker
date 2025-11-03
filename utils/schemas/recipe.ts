@@ -4,6 +4,20 @@ export const GetRecipeSchema = z.object({
   id: z.string(),
 });
 
+export const GenerateRecipeSchema = z.object({
+  name: z.string(),
+  servings: z.coerce.number().int().min(1, "Servings must be at least 1"),
+  ingredients: z.array(z.object({
+    name: z.string(),
+    quantityGrams: z.coerce.number().int().min(1, "Quantity must be at least 1g"),
+  })).min(1, "At least one ingredient is required"),
+})
+
+export const GenerateRecipeResponseSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  instructions: z.string().min(1, "Instructions are required"),
+}).strict();
+
 export const RecipeSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -89,3 +103,5 @@ export type RecipeResponse = z.infer<typeof RecipeResponseSchema>;
 export type CreateRecipe = z.infer<typeof CreateRecipeSchema>;
 export type RecipeQuery = z.infer<typeof RecipeQuerySchema>;
 export type UpdateRecipe = z.infer<typeof UpdateRecipeSchema>;
+export type GenerateRecipe = z.infer<typeof GenerateRecipeSchema>;
+export type GenerateRecipeResponse = z.infer<typeof GenerateRecipeResponseSchema>;

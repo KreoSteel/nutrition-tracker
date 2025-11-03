@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
    RecipeQuery,
    UpdateRecipe,
+   GenerateRecipe,
 } from "../../../utils/schemas/recipe";
 import {
    createRecipe,
@@ -10,6 +11,7 @@ import {
    deleteRecipe,
    toggleFavorite,
 } from "@/app/services/recipes";
+import { generateRecipeContent } from "@/app/services/recipe-ai";
 import { toast } from "sonner";
 
 export const useRecipes = (filters: Partial<RecipeQuery> = {}) => {
@@ -85,3 +87,10 @@ export const useToggleFavorite = () => {
       },
    });
 };
+
+export const useGenerateRecipeContent = () => {
+   return useMutation({
+      mutationKey: ["generateRecipeContent"],
+      mutationFn: (payload: GenerateRecipe) => generateRecipeContent(payload),
+   })
+}

@@ -16,7 +16,7 @@ export default function WeekNutrition() {
 
    if (isLoading) {
       return (
-         <section className="w-full border min-h-96 border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full h-full border min-h-96 border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Week Nutrition</h2>
             </span>
@@ -32,7 +32,7 @@ export default function WeekNutrition() {
 
    if (isError) {
       return (
-         <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full h-full border border-gray-200/80 rounded-xl min-h-96 flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Week Nutrition</h2>
             </span>
@@ -54,7 +54,7 @@ export default function WeekNutrition() {
 
    if (!weeklyNutrition || weeklyNutrition.totalMeals === 0) {
       return (
-         <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+         <section className="w-full h-full border border-gray-200/80 rounded-xl min-h-96 flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
             <span className="flex w-full px-8 pb-6 pt-8 justify-between items-center">
                <h2 className="text-3xl font-semibold">Week Nutrition</h2>
             </span>
@@ -121,7 +121,7 @@ export default function WeekNutrition() {
    }
 
    return (
-      <section className="w-full border border-gray-200/80 rounded-xl flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
+      <section className="w-full h-full border border-gray-200/80 rounded-xl min-h-96 flex flex-col shadow-md dark:shadow-muted-foreground/10 bg-white dark:bg-gray-950">
          <span className="flex w-full px-4 sm:px-8 pb-4 sm:pb-6 pt-6 sm:pt-8 justify-center sm:justify-between items-center">
             <h2 className="text-2xl sm:text-3xl font-semibold text-center sm:text-left">Week Nutrition</h2>
          </span>
