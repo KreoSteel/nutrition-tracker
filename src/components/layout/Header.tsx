@@ -1,3 +1,4 @@
+'use client';
 import { ChefHat, Menu } from "lucide-react";
 import { ModeToggle } from "./ThemeSwitcher";
 import Link from "next/link";

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import {
    RecipeQuery,
    UpdateRecipe,
@@ -14,17 +14,20 @@ import {
 import { generateRecipeContent } from "@/app/services/recipe-ai";
 import { toast } from "sonner";
 
-export const useRecipes = (filters: Partial<RecipeQuery> = {}) => {
-   return useQuery({
+export const recipesQueryOptions = (filters: Partial<RecipeQuery> = {}) => {
+   return queryOptions({
       queryKey: ["recipes", filters],
       queryFn: () => getRecipes(filters),
       select: (data) => ({
          recipes: data.data,
          totalRecipes: data.totalRecipes
       }),
-      staleTime: 60 * 1000, // Cache for 60 seconds
    });
 };
+
+export const useRecipes = (filters: Partial<RecipeQuery> = {}) => {
+   return useQuery(recipesQueryOptions(filters));
+}
 
 export const useCreateRecipe = () => {
    const queryClient = useQueryClient();

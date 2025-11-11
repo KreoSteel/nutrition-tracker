@@ -1,10 +1,8 @@
-"use client";
-
 import {
    useInfiniteQuery,
    useMutation,
    useQueryClient,
-   useQuery,
+   infiniteQueryOptions,
 } from "@tanstack/react-query";
 import {
    getIngredients,
@@ -15,8 +13,10 @@ import {
 import { toast } from "sonner";
 import { UpdateIngredient, IngredientQuery } from "../../../utils/schemas";
 
-export const useIngredients = (filters: Partial<IngredientQuery> = {}) => {
-   return useInfiniteQuery({
+export const ingredientsQueryOptions = (
+   filters: Partial<IngredientQuery> = {}
+) => {
+   return infiniteQueryOptions({
       queryKey: ["ingredients", filters],
       queryFn: ({ pageParam }) =>
          getIngredients({
@@ -32,11 +32,8 @@ export const useIngredients = (filters: Partial<IngredientQuery> = {}) => {
    });
 };
 
-export const useAllIngredients = () => {
-   return useQuery({
-      queryKey: ["ingredients", "all"],
-      queryFn: () => getIngredients({ limit: 10000 }),
-   });
+export const useIngredients = (filters: Partial<IngredientQuery> = {}) => {
+   return useInfiniteQuery(ingredientsQueryOptions(filters));
 };
 
 export const useCreateIngredient = () => {

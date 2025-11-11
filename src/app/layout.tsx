@@ -1,8 +1,6 @@
-'use client'
-
 import { Inter, Poppins } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { QueryProvider } from '@/components/providers/query-provider';
 import Header from '@/components/layout/Header';
 import { Toaster } from '@/components/ui/sooner';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
@@ -26,24 +24,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 2 * 60 * 1000, // 2 minutes - longer cache to reduce requests during rapid refreshes
-        gcTime: 5 * 60 * 1000, // 5 minutes - keep cached data longer
-        refetchOnWindowFocus: false, // Prevent refetching on focus to reduce requests
-        retry: process.env.NODE_ENV === 'development' ? 0 : 1, // Disable retries in dev to prevent pool exhaustion
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff if retries enabled
-      },
-    },
-  })
-
-  // Add to global window for devtools
-  
-  if (typeof window !== 'undefined') {
-    window.__TANSTACK_QUERY_CLIENT__ = queryClient
-  }
-  
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
       <head>
@@ -62,9 +42,9 @@ export default function RootLayout({
           <ErrorBoundary>
             <Header />
             <div className="mx-auto w-full max-w-[2000px] px-6 pb-20 lg:px-10 flex flex-col items-center justify-center">
-              <QueryClientProvider client={queryClient}>
+              <QueryProvider>
                 {children}
-              </QueryClientProvider>
+              </QueryProvider>
             </div>
             <Toaster />
           </ErrorBoundary>
@@ -73,6 +53,7 @@ export default function RootLayout({
     </html>
   );
 }
+
 
 declare global {
   interface Window {

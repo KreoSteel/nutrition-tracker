@@ -58,7 +58,7 @@ export default function RecipeDetailsCard({ recipe, children }: RecipeDetailsCar
          <DialogTrigger asChild>
             {children}
          </DialogTrigger>
-         <DialogContent className="max-w-4xl min-w-xl max-h-[90vh] overflow-y-auto">
+         <DialogContent className="w-full max-w-[calc(100%-1rem)] max-h-[90vh] sm:max-h-[90vh] overflow-y-auto">
             <DialogHeader>
                <DialogTitle className="text-2xl">{recipe.name}</DialogTitle>
                {recipe.description && (
