@@ -34,7 +34,6 @@ Nutrition Tracker is a personal, single-user tool for managing recipes and track
 - [Available Scripts](#available-scripts)
 - [AI Recipe Generation](#ai-recipe-generation)
 - [CI/CD](#cicd)
-- [Known Issues](#known-issues)
 - [License](#license)
 
 ## Features
