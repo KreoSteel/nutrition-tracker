@@ -178,4 +178,4 @@ A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and PR
 
 ## License
 
-No license file is currently included in this repo.
+This project is licensed under the [MIT License](./LICENSE).
